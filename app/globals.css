@@ -1,0 +1,14 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 75, 46, 30; /* El marrón de Akaza en RGB */
+  --background-start-rgb: 249, 248, 246; /* El crema de Akaza */
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
