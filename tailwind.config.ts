@@ -10,11 +10,12 @@ const config: Config = {
     extend: {
       colors: {
         akaza: {
-          marron:"#3d1c02",   
-          amarillo: "#ffcc00", 
-          crema: "#fdfaf6",    
-        }
-      }
+          marron: "rgb(var(--akaza-marron) / <alpha-value>)",
+          amarillo: "rgb(var(--akaza-amarillo) / <alpha-value>)",
+          crema: "rgb(var(--akaza-crema) / <alpha-value>)",
+          blanco: "rgb(var(--akaza-blanco) / <alpha-value>)",
+        },
+      },
     },
   },
   plugins: [],

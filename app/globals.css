@@ -4,11 +4,13 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 75, 46, 30; /* El marrón de Akaza en RGB */
-  --background-start-rgb: 249, 248, 246; /* El crema de Akaza */
+  --akaza-marron: 61 28 2;
+  --akaza-amarillo: 255 204 0;
+  --akaza-crema: 253 250 246;
+  --akaza-blanco: 255 255 255;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-start-rgb));
+  color: rgb(var(--akaza-marron));
+  background: rgb(var(--akaza-crema));
 }

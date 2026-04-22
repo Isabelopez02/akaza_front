@@ -18,7 +18,6 @@ import {
 import { AuthForm, ProfileData } from "./components/home/types";
 
 export default function Home() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -82,9 +81,7 @@ export default function Home() {
     document.body.removeChild(link);
   };
   const orderViaChat = (plato: string) => {
-    setIsChatOpen(true);
-    // Esto simula que el usuario ya escribió el nombre del plato
-    // Podrías pasarlo a un estado de 'mensajes' si quieres que aparezca escrito
+    // Punto de integración futura: redirigir al chat con el plato preseleccionado
     console.log(`El usuario está interesado en: ${plato}`);
   };
 
@@ -145,11 +142,7 @@ export default function Home() {
         onReorder={orderViaChat}
       />
 
-      <ChatWidget
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        onToggle={() => setIsChatOpen((prev) => !prev)}
-      />
+      <ChatWidget />
 
       <Footer />
     </div>
