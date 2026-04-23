@@ -12,7 +12,10 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "../components/home/Navbar";
+import { AuthService } from "../service/auth.service";
+import { ChatbotService } from "../service/chatbot.service";
 
 type ChatRole = "user" | "bot";
 
@@ -20,6 +23,10 @@ type ChatMessage = {
   role: ChatRole;
   content: string;
 };
+
+type ParsedChunk =
+  | { type: "text"; value: string }
+  | { type: "dish"; name: string; price: string };
 
 type ChatSessionMode = "general" | "mesa";
 
@@ -35,7 +42,9 @@ type ChatSession = {
 export default function ChatAkazaFinal() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [profileName] = useState("Invitado");
+  const [profileName, setProfileName] = useState("Invitado");
+  const [idUsuario, setIdUsuario] = useState<number | null>(null);
+  const searchParams = useSearchParams();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -44,6 +53,7 @@ export default function ChatAkazaFinal() {
 
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>("general-main");
+  const [nroMesa, setNroMesa] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isVoicePending, setIsVoicePending] = useState(false);
 
@@ -56,46 +66,55 @@ export default function ChatAkazaFinal() {
   // ============================================================
   useEffect(() => {
     if (isMounted) {
-      const fetchHistory = async () => {
+      const mesaParam = searchParams.get("mesa");
+      const mesaNumero = mesaParam ? Number(mesaParam) : null;
+      setNroMesa(Number.isFinite(mesaNumero) ? mesaNumero : null);
+
+      const checkSession = async () => {
         try {
-          /* CONEXIÓN PYTHON:
-             const response = await fetch('http://tu-ip-python:8000/api/history');
-             const data = await response.json();
-             setChatHistory(data);
-          */
-          setChatHistory([
-            {
-              id: "general-main",
-              title: "Chat General",
-              date: "Hoy",
-              mode: "general",
-              mesaId: null,
-              messages: [
-                {
-                  role: "bot",
-                  content: "¡Bienvenido al centro de atención Akaza! Estoy listo para tomar tu pedido.",
-                },
-              ],
-            },
-            {
-              id: "mesa-7",
-              title: "Mesa 7 - Pedido",
-              date: "Ayer",
-              mode: "mesa",
-              mesaId: 7,
-              messages: [
-                { role: "user", content: "Quiero un ceviche clásico y una limonada." },
-                { role: "bot", content: "Perfecto, mesa 7. ¿Deseas agregar algo más?" },
-              ],
-            },
-          ]);
-        } catch (error) {
-          console.error("Error al conectar con Python (History):", error);
+          const data = await AuthService.checkSession();
+          setIsLoggedIn(Boolean(data?.autenticado));
+          setIdUsuario(data?.id_usuario ? Number(data.id_usuario) : null);
+          setProfileName(data?.correo || "Invitado");
+        } catch {
+          setIsLoggedIn(false);
+          setIdUsuario(null);
         }
       };
-      fetchHistory();
+
+      // El historial es local — carga la sesión inicial de forma síncrona
+      setChatHistory(ChatbotService.getInitialSession());
+      void checkSession();
     }
-  }, [isMounted]);
+  }, [isMounted, searchParams]);
+
+  const parseMessageContent = (content: string): ParsedChunk[] => {
+    const regex = /\|\|([^|]+)\|\|/g;
+    const chunks: ParsedChunk[] = [];
+    let lastIndex = 0;
+    let match = regex.exec(content);
+
+    while (match) {
+      if (match.index > lastIndex) {
+        chunks.push({ type: "text", value: content.slice(lastIndex, match.index) });
+      }
+
+      const rawDish = match[1].trim();
+      const splitDish = rawDish.split(" - ");
+      const name = splitDish[0]?.trim() || "Plato sugerido";
+      const price = splitDish.slice(1).join(" - ").trim() || "Precio por confirmar";
+      chunks.push({ type: "dish", name, price });
+
+      lastIndex = regex.lastIndex;
+      match = regex.exec(content);
+    }
+
+    if (lastIndex < content.length) {
+      chunks.push({ type: "text", value: content.slice(lastIndex) });
+    }
+
+    return chunks.length ? chunks : [{ type: "text", value: content }];
+  };
 
   const currentSession = chatHistory.find((session) => session.id === currentSessionId);
   const messages = currentSession?.messages ?? [];
@@ -127,36 +146,26 @@ export default function ChatAkazaFinal() {
     setIsLoading(true);
 
     try {
-      /* CONEXIÓN PYTHON:
-         const response = await fetch('http://tu-ip-python:8000/api/chat', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             message: input,
-             session_id: currentSession.id,
-             session_mode: currentSession.mode,
-             mesa_id: currentSession.mesaId
-           })
-         });
-         const data = await response.json();
-         updateCurrentSessionMessages([
-           ...messages,
-           userMessage,
-           { role: "bot", content: data.reply }
-         ]);
-      */
+      const data = await ChatbotService.sendMessage(
+        idUsuario,
+        nroMesa ?? currentSession.mesaId,
+        input
+      );
 
-      // Simulación temporal
-      setTimeout(() => {
-        updateCurrentSessionMessages([
-          ...messages,
-          userMessage,
-          { role: "bot", content: "Recibí tu pedido. El sistema de Akaza lo está procesando..." },
-        ]);
-        setIsLoading(false);
-      }, 1000);
+      const respuestaIA = data?.respuesta_ia || "Recibí tu mensaje, dame un momento.";
+      updateCurrentSessionMessages([
+        ...messages,
+        userMessage,
+        { role: "bot", content: respuestaIA },
+      ]);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error al conectar con Python (Chat):", error);
+      updateCurrentSessionMessages([
+        ...messages,
+        userMessage,
+        { role: "bot", content: "Hubo un problema al procesar tu mensaje. Intenta otra vez." },
+      ]);
       setIsLoading(false);
     }
   };
@@ -173,7 +182,7 @@ export default function ChatAkazaFinal() {
       title: "Nuevo Chat General",
       date: "Ahora",
       mode: "general",
-      mesaId: null,
+      mesaId: nroMesa,
       messages: [
         {
           role: "bot",
@@ -199,6 +208,7 @@ export default function ChatAkazaFinal() {
         onOpenProfile={() => {}}
         onOpenOrders={() => {}}
         onLogout={() => {
+          AuthService.logout();
           setIsLoggedIn(false);
           setIsUserMenuOpen(false);
         }}
@@ -289,7 +299,9 @@ export default function ChatAkazaFinal() {
             </button>
             <div className="flex flex-col items-start">
               <span className="font-black text-akaza-marron text-base md:text-lg uppercase">Asistente Akaza</span>
-              <span className="text-[10px] md:text-xs font-bold text-green-600 uppercase">En línea</span>
+              <span className="text-[10px] md:text-xs font-bold text-green-600 uppercase">
+                En línea {nroMesa ? `· Mesa ${nroMesa}` : ""}
+              </span>
             </div>
             <div className="w-10 h-10 md:w-11 md:h-11 bg-akaza-amarillo/85 rounded-full flex items-center justify-center text-akaza-marron border border-akaza-blanco shadow-sm">
               <Headphones size={18} />
@@ -306,7 +318,32 @@ export default function ChatAkazaFinal() {
                     {m.role === 'user' ? <User size={15} /> : <Bot size={15} />}
                   </div>
                   <div className={`p-4 md:p-5 rounded-[1.6rem] md:rounded-[2rem] shadow-sm text-sm md:text-base ${m.role === 'user' ? 'bg-akaza-marron text-akaza-blanco rounded-tr-none' : 'bg-akaza-blanco text-akaza-marron rounded-tl-none border border-akaza-marron/5'}`}>
-                    <p className="font-medium leading-relaxed">{m.content}</p>
+                    <div className="font-medium leading-relaxed space-y-3">
+                      {parseMessageContent(m.content).map((chunk, idx) =>
+                        chunk.type === "text" ? (
+                          <p key={`${idx}-${chunk.value.slice(0, 8)}`}>{chunk.value}</p>
+                        ) : (
+                          <div
+                            key={`${idx}-${chunk.name}`}
+                            className="bg-akaza-crema border border-akaza-marron/10 rounded-2xl p-3 md:p-4 shadow-sm"
+                          >
+                            <p className="text-sm md:text-base font-black text-akaza-marron">
+                              {chunk.name}
+                            </p>
+                            <p className="text-xs md:text-sm text-akaza-marron/70 font-semibold mt-1">
+                              {chunk.price}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setInput(`Quiero pedir ${chunk.name}`)}
+                              className="mt-3 bg-akaza-marron text-akaza-blanco text-xs md:text-sm font-bold px-4 py-2 rounded-xl hover:opacity-90 transition-opacity"
+                            >
+                              Pedir
+                            </button>
+                          </div>
+                        ),
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

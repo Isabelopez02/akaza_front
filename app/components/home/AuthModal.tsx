@@ -6,6 +6,7 @@ type AuthModalProps = {
   isOpen: boolean;
   isRegisterMode: boolean;
   authForm: AuthForm;
+  errorMessage?: string;
   onClose: () => void;
   onToggleMode: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -16,6 +17,7 @@ export function AuthModal({
   isOpen,
   isRegisterMode,
   authForm,
+  errorMessage,
   onClose,
   onToggleMode,
   onSubmit,
@@ -50,6 +52,11 @@ export function AuthModal({
         </div>
 
         <form className="p-10 space-y-5" onSubmit={onSubmit}>
+          {errorMessage && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold px-4 py-3 rounded-2xl">
+              {errorMessage}
+            </div>
+          )}
           {isRegisterMode && (
             <div className="space-y-1">
               <label className="text-xs font-bold text-akaza-marron/60 uppercase ml-2 tracking-wide">

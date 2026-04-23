@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AboutSection } from "./components/home/AboutSection";
 import { AuthModal } from "./components/home/AuthModal";
 import { ChatWidget } from "./components/home/ChatWidget";
@@ -16,6 +16,33 @@ import {
   mockOrders,
 } from "./components/home/constants";
 import { AuthForm, ProfileData } from "./components/home/types";
+import { AuthService } from "./service/auth.service";
+
+function buildAuthErrorMessage(detail: unknown): string {
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    const mensajes = detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "msg" in item) {
+          const msg = (item as { msg?: unknown }).msg;
+          return typeof msg === "string" ? msg : null;
+        }
+        return null;
+      })
+      .filter(Boolean) as string[];
+
+    if (mensajes.length) return mensajes.join(" | ");
+  }
+
+  if (detail && typeof detail === "object" && "msg" in detail) {
+    const msg = (detail as { msg?: unknown }).msg;
+    if (typeof msg === "string") return msg;
+  }
+
+  return "No se pudo autenticar. Verifica tus datos.";
+}
 
 export default function Home() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -31,23 +58,98 @@ export default function Home() {
     password: "",
   });
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
+  const [authError, setAuthError] = useState("");
 
-  const handleAuthSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isRegisterMode && authForm.fullName.trim()) {
-      setProfileData((prev) => ({
-        ...prev,
-        name: authForm.fullName.trim(),
-        email: authForm.email.trim() || prev.email,
-      }));
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const data = await AuthService.checkSession();
+        setIsLoggedIn(Boolean(data?.autenticado));
+        setProfileData((prev) => ({
+          ...prev,
+          name: prev.name || data?.correo || "Usuario",
+          email: data?.correo || prev.email,
+        }));
+      } catch {
+        setIsLoggedIn(false);
+      }
+    };
+    void checkSession();
+  }, []);
+
+  const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setAuthError("");
+
+  try {
+    // 🟢 1. REGISTER (opcional)
+    if (isRegisterMode) {
+      const resRegister = await AuthService.register(
+        authForm.fullName.trim(),
+        authForm.email.trim(),
+        authForm.password
+      );
+      console.log("🟢 REGISTER OK:", resRegister);
     }
+
+    // 🟢 2. LOGIN
+    const resLogin = await AuthService.login(
+      authForm.email.trim(),
+      authForm.password
+    );
+
+    console.log("🔥 LOGIN RESPONSE:", resLogin);
+
+    // 🔥 3. VALIDAR TOKEN (CLAVE)
+    if (!resLogin?.access_token) {
+      throw new Error("No se recibió token del backend");
+    }
+
+    // 🔥 4. LOGUEAR INMEDIATO (SIN /me)
     setIsLoggedIn(true);
+
+    // 🟢 5. (Opcional) obtener datos del usuario
+    let data = null;
+    try {
+      data = await AuthService.checkSession();
+      console.log("🟢 /me:", data);
+    } catch {
+      console.log("⚠️ /me falló pero login fue exitoso");
+    }
+
+    // 🟢 6. ACTUALIZAR PERFIL
+    setProfileData((prev) => ({
+      ...prev,
+      name:
+        authForm.fullName.trim() ||
+        data?.correo ||
+        prev.name ||
+        "Usuario",
+      email:
+        data?.correo ||
+        authForm.email.trim() ||
+        prev.email,
+    }));
+
+    // 🟢 7. LIMPIAR UI
     setIsLoginOpen(false);
     setIsRegisterMode(false);
     setAuthForm({ fullName: "", email: "", password: "" });
-  };
+
+  } catch (error: any) {
+    console.error("❌ ERROR LOGIN:", error?.response?.data || error);
+
+    const message =
+      error?.response?.data?.detail ||
+      error?.message ||
+      "Error en autenticación";
+
+    setAuthError(message);
+  }
+};
 
   const handleLogout = () => {
+    AuthService.logout();
     setIsLoggedIn(false);
     setIsUserMenuOpen(false);
     setIsProfileOpen(false);
@@ -124,6 +226,7 @@ export default function Home() {
         onToggleMode={() => setIsRegisterMode((prev) => !prev)}
         onSubmit={handleAuthSubmit}
         onChange={handleAuthFieldChange}
+        errorMessage={authError}
       />
 
       <QrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
