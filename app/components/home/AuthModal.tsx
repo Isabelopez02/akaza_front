@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Lock, Mail, User, X } from "lucide-react";
-import { AuthForm } from "./types";
+import { AuthForm } from "../shared/types";
 
 type AuthModalProps = {
   isOpen: boolean;

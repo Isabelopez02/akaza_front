@@ -3,19 +3,19 @@ import { useEffect, useState } from "react";
 import { AboutSection } from "./components/home/AboutSection";
 import { AuthModal } from "./components/home/AuthModal";
 import { ChatWidget } from "./components/home/ChatWidget";
-import { Footer } from "./components/home/Footer";
+import { Footer } from "./components/layout/Footer";
 import { HeroSection } from "./components/home/HeroSection";
-import { Navbar } from "./components/home/Navbar";
-import { OrdersModal } from "./components/home/OrdersModal";
-import { ProfileModal } from "./components/home/ProfileModal";
+import { Navbar } from "./components/layout/Navbar";
+import { OrdersModal } from "./components/shared/OrdersModal";
+import { ProfileModal } from "./components/shared/ProfileModal";
 import { QrModal } from "./components/home/QrModal";
-import { SpecialtiesSection } from "./components/home/SpecialtiesSection";
+import { SpecialtiesSection } from "./components/shared/SpecialtiesSection";
 import {
   featuredDishes,
   initialProfileData,
   mockOrders,
-} from "./components/home/constants";
-import { AuthForm, ProfileData } from "./components/home/types";
+} from "./components/shared/constants";
+import { AuthForm, ProfileData } from "./components/shared/types";
 import { AuthService } from "./service/auth.service";
 
 function buildAuthErrorMessage(detail: unknown): string {

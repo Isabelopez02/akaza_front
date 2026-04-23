@@ -10,9 +10,9 @@ export function AboutSection() {
         <UtensilsCrossed size={48} className="mx-auto mb-6 text-akaza-amarillo" />
         <h2 className="text-4xl font-black mb-6">Nuestra Historia</h2>
         <p className="text-white/70 text-lg leading-relaxed italic">
-          "Akaza nació con la idea de llevar la calidez de un girasol a la mesa
+          Akaza nació con la idea de llevar la calidez de un girasol a la mesa
           peruana. En el corazón de Santa Anita, buscamos que cada plato sea una
-          conexión con nuestras raíces."
+          conexión con nuestras raíces.
         </p>
       </div>
     </section>
