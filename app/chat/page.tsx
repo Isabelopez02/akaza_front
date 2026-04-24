@@ -120,7 +120,8 @@ function ChatAkazaFinal() {
         userMessage,
         { role: "bot", content: respuestaIA },
       ]);
-      setIsLoading(false);
+      // 🔊 TAREA 3: Hablar la respuesta en voz alta tras recibirla
+      hablarRespuestaIA(respuestaIA);
     } catch (error) {
       console.error("Error al conectar con Python (Chat):", error);
       updateCurrentSessionMessages([
@@ -128,14 +129,92 @@ function ChatAkazaFinal() {
         userMessage,
         { role: "bot", content: "Hubo un problema al procesar tu mensaje. Intenta otra vez." },
       ]);
+    } finally {
       setIsLoading(false);
     }
   };
 
+  // ============================================================
+  // 🔊 TAREA 3: TEXT-TO-SPEECH — La IA habla en voz alta
+  // ============================================================
+  const hablarRespuestaIA = (textoCrudo: string) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+    // Limpiar marcadores antes de hablar
+    const textoLimpio = textoCrudo
+      .replace(/\|\|.*?\|\|/g, "")          // eliminar bloques ||...|| de platos
+      .replace(/\[ORDEN_CONFIRMADA\].*$/s, "") // eliminar bloque de orden al final
+      .replace(/\*\*/g, "")                  // quitar negritas markdown
+      .replace(/\*/g, "")                    // quitar cursivas markdown
+      .trim();
+
+    if (!textoLimpio) return;
+
+    // Cancelar cualquier lectura previa
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(textoLimpio);
+    utterance.lang = "es-PE";
+    utterance.rate = 1.0;
+    utterance.pitch = 1.1;
+
+    // Buscar voz femenina preferida (Google Español o Spanish Female)
+    const elegirVoz = () => {
+      const voces = window.speechSynthesis.getVoices();
+      const vozFemenina =
+        voces.find((v) => /google.*español/i.test(v.name)) ||
+        voces.find((v) => /female/i.test(v.name) && v.lang.startsWith("es")) ||
+        voces.find((v) => v.lang.startsWith("es"));
+      if (vozFemenina) utterance.voice = vozFemenina;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Las voces pueden tardar en cargarse en algunos navegadores
+    if (window.speechSynthesis.getVoices().length > 0) {
+      elegirVoz();
+    } else {
+      window.speechSynthesis.onvoiceschanged = elegirVoz;
+    }
+  };
+
+  // ============================================================
+  // 🎤 TAREA 2: SPEECH-TO-TEXT — Reconocimiento de voz en vivo
+  // ============================================================
   const handleVoiceInput = () => {
-    // Aquí conectarás Web Speech API o grabación para enviar audio al backend.
+    if (typeof window === "undefined") return;
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      console.warn("[Voice] Este navegador no soporta SpeechRecognition.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "es-PE";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
     setIsVoicePending(true);
-    setTimeout(() => setIsVoicePending(false), 800);
+
+    recognition.onresult = (event: any) => {
+      const textoHablado = event.results[0][0].transcript;
+      console.log("[Voice] Texto reconocido:", textoHablado);
+      setInput(textoHablado);
+      setIsVoicePending(false);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("[Voice] Error de reconocimiento:", event.error);
+      setIsVoicePending(false);
+    };
+
+    recognition.onend = () => {
+      setIsVoicePending(false);
+    };
+
+    recognition.start();
   };
 
   const createNewGeneralSession = () => {

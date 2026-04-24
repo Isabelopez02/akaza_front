@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Bot, Headphones, Menu, Mic, Send, User } from "lucide-react";
 
 type ChatRole = "user" | "bot";
@@ -38,6 +38,13 @@ export function ChatArea({
 }: ChatAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll al último mensaje en desktop y móvil
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const parseMessageContent = (content: string): ParsedChunk[] => {
     const regex = /\|\|([^|]+)\|\|/g;
     const chunks: ParsedChunk[] = [];
@@ -68,7 +75,8 @@ export function ChatArea({
   };
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-akaza-crema relative h-full">
+    // MOBILE FIX: flex flex-col + h-full para que el footer se empuje con el teclado virtual
+    <div className="flex-1 flex flex-col min-w-0 bg-akaza-crema h-full overflow-hidden">
       <header className="bg-akaza-blanco/85 backdrop-blur-md border-b border-akaza-marron/5 z-40 px-4 md:px-8 py-3 md:py-4">
         <div className="max-w-4xl mx-auto w-full flex items-center justify-between">
           <button onClick={() => setIsSidebarOpen(true)} className="md:hidden w-10 h-10 text-akaza-marron bg-akaza-marron/5 rounded-xl flex items-center justify-center">
@@ -86,7 +94,8 @@ export function ChatArea({
         </div>
       </header>
 
-      <main ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 pt-4 md:pt-6 pb-40 md:pb-44">
+      {/* MOBILE FIX: flex-1 y overflow-y-auto para que crezca y sea scrolleable, sin padding-bottom duro */}
+      <main ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 pt-4 md:pt-6 pb-4">
         <div className="max-w-4xl mx-auto w-full space-y-6 md:space-y-8">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -135,19 +144,24 @@ export function ChatArea({
         </div>
       </main>
 
-      <footer className="absolute bottom-4 md:bottom-6 left-0 right-0 px-4 md:px-8 bg-akaza-crema z-50">
-        <form onSubmit={handleSend} className="max-w-4xl mx-auto relative pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+      {/* MOBILE FIX: footer como flex item normal, no absolute. Se mueve cuando aparece el teclado */}
+      <footer className="flex-shrink-0 px-4 md:px-8 py-3 md:py-4 bg-akaza-crema border-t border-akaza-marron/5">
+        <form
+          onSubmit={handleSend}
+          className="max-w-4xl mx-auto relative pb-[env(safe-area-inset-bottom,0px)]"
+        >
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Escribe tu pedido aquí..."
+            enterKeyHint="send"
             className="w-full bg-akaza-blanco shadow-xl rounded-[2.5rem] py-4 md:py-5 pl-5 md:pl-8 pr-32 md:pr-36 outline-none text-akaza-marron font-medium text-sm md:text-base border border-akaza-marron/10"
           />
           <button
             type="button"
             onClick={handleVoiceInput}
             aria-label="Grabar nota de voz"
-            className={`absolute right-[58px] md:right-[72px] top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-[1.1rem] md:rounded-[1.3rem] flex items-center justify-center shadow-lg transition-all ${
+            className={`absolute right-[58px] md:right-[72px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-[1.1rem] md:rounded-[1.3rem] flex items-center justify-center shadow-lg transition-all ${
               isVoicePending
                 ? "bg-akaza-amarillo text-akaza-marron scale-95"
                 : "bg-akaza-amarillo/90 text-akaza-marron hover:bg-akaza-amarillo"
@@ -155,7 +169,12 @@ export function ChatArea({
           >
             <Mic size={18} />
           </button>
-          <button type="submit" disabled={!input.trim() || isLoading} className="absolute right-2 top-1/2 -translate-y-1/2 bg-akaza-marron text-akaza-blanco w-10 h-10 md:w-12 md:h-12 rounded-[1.1rem] md:rounded-[1.3rem] flex items-center justify-center shadow-lg">
+          <button
+            type="submit"
+            onClick={(e) => handleSend(e)}
+            disabled={!input.trim() || isLoading}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-akaza-marron text-akaza-blanco w-10 h-10 md:w-12 md:h-12 rounded-[1.1rem] md:rounded-[1.3rem] flex items-center justify-center shadow-lg disabled:opacity-50"
+          >
             <Send size={18} />
           </button>
         </form>
