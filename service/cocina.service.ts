@@ -1,4 +1,4 @@
-import { api } from "../../lib/api";
+import { api } from "@/lib/api";
 
 export const CocinaService = {
   // ✅ Endpoint real del backend: GET /api/pedidos/mesa/{nro_mesa}

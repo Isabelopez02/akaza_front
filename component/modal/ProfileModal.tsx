@@ -1,5 +1,5 @@
 import { CircleUserRound, Save, X } from "lucide-react";
-import { ProfileData } from "./types";
+import { ProfileData } from "@/ts/types";
 
 type ProfileModalProps = {
   isOpen: boolean;

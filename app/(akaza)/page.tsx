@@ -1,22 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AboutSection } from "./components/home/AboutSection";
-import { AuthModal } from "./components/home/AuthModal";
-import { ChatWidget } from "./components/home/ChatWidget";
-import { Footer } from "./components/layout/Footer";
-import { HeroSection } from "./components/home/HeroSection";
-import { Navbar } from "./components/layout/Navbar";
-import { OrdersModal } from "./components/shared/OrdersModal";
-import { ProfileModal } from "./components/shared/ProfileModal";
-import { QrModal } from "./components/home/QrModal";
-import { SpecialtiesSection } from "./components/shared/SpecialtiesSection";
+import { AboutSection } from "@/component/home/AboutSection";
+import { AuthModal } from "@/component/modal/AuthModal";
+import { ChatWidget } from "@/layout/ChatWidget";
+import { Footer } from "@/layout/Footer";
+import { HeroSection } from "@/component/home/HeroSection";
+import { Navbar } from "@/layout/Navbar";
+import { OrdersModal } from "@/component/modal/OrdersModal";
+import { ProfileModal } from "@/component/modal/ProfileModal";
+import { QrModal } from "@/layout/QrModal";
+import { SpecialtiesSection } from "@/component/home/SpecialtiesSection";
 import {
   featuredDishes,
   initialProfileData,
   mockOrders,
-} from "./components/shared/constants";
-import { AuthForm, ProfileData } from "./components/shared/types";
-import { AuthService } from "./service/auth.service";
+} from "@/ts/constants";
+import { AuthForm, ProfileData } from "@/ts/types";
+import { AuthService } from "@/service/auth.service";
+import { useRouter } from "next/navigation";
 
 function buildAuthErrorMessage(detail: unknown): string {
   if (typeof detail === "string") return detail;
@@ -45,6 +46,7 @@ function buildAuthErrorMessage(detail: unknown): string {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -70,83 +72,58 @@ export default function Home() {
           name: prev.name || data?.correo || "Usuario",
           email: data?.correo || prev.email,
         }));
+        
+        if (data?.autenticado && data?.rol === "administrador") {
+          router.push("/admin");
+        }
       } catch {
         setIsLoggedIn(false);
       }
     };
     void checkSession();
-  }, []);
+  }, [router]);
 
   const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setAuthError("");
+    e.preventDefault();
+    setAuthError("");
 
-  try {
-    // 🟢 1. REGISTER (opcional)
-    if (isRegisterMode) {
-      const resRegister = await AuthService.register(
-        authForm.fullName.trim(),
+    try {
+      if (isRegisterMode) {
+        await AuthService.register(
+          authForm.fullName.trim(),
+          authForm.email.trim(),
+          authForm.password
+        );
+      }
+      
+      const resLogin = await AuthService.login(
         authForm.email.trim(),
         authForm.password
       );
-      console.log("🟢 REGISTER OK:", resRegister);
+
+      if (resLogin?.access_token) {
+        setIsLoggedIn(true);
+        const data = await AuthService.checkSession();
+        
+        if (data?.rol === "administrador") {
+          router.push("/admin");
+          return;
+        }
+
+        setProfileData((prev) => ({
+          ...prev,
+          name: authForm.fullName.trim() || data?.correo || prev.name || "Usuario",
+          email: data?.correo || authForm.email.trim() || prev.email,
+        }));
+
+        setIsLoginOpen(false);
+        setIsRegisterMode(false);
+        setAuthForm({ fullName: "", email: "", password: "" });
+      }
+    } catch (error: any) {
+      setAuthError(error?.response?.data?.detail || error?.message || "Error en autenticación");
     }
-
-    // 🟢 2. LOGIN
-    const resLogin = await AuthService.login(
-      authForm.email.trim(),
-      authForm.password
-    );
-
-    console.log("🔥 LOGIN RESPONSE:", resLogin);
-
-    // 🔥 3. VALIDAR TOKEN (CLAVE)
-    if (!resLogin?.access_token) {
-      throw new Error("No se recibió token del backend");
-    }
-
-    // 🔥 4. LOGUEAR INMEDIATO (SIN /me)
-    setIsLoggedIn(true);
-
-    // 🟢 5. (Opcional) obtener datos del usuario
-    let data = null;
-    try {
-      data = await AuthService.checkSession();
-      console.log("🟢 /me:", data);
-    } catch {
-      console.log("⚠️ /me falló pero login fue exitoso");
-    }
-
-    // 🟢 6. ACTUALIZAR PERFIL
-    setProfileData((prev) => ({
-      ...prev,
-      name:
-        authForm.fullName.trim() ||
-        data?.correo ||
-        prev.name ||
-        "Usuario",
-      email:
-        data?.correo ||
-        authForm.email.trim() ||
-        prev.email,
-    }));
-
-    // 🟢 7. LIMPIAR UI
-    setIsLoginOpen(false);
-    setIsRegisterMode(false);
-    setAuthForm({ fullName: "", email: "", password: "" });
-
-  } catch (error: any) {
-    console.error("❌ ERROR LOGIN:", error?.response?.data || error);
-
-    const message =
-      error?.response?.data?.detail ||
-      error?.message ||
-      "Error en autenticación";
-
-    setAuthError(message);
-  }
-};
+  };
 
   const handleLogout = () => {
     AuthService.logout();

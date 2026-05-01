@@ -1,16 +1,49 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --akaza-marron: 61 28 2;
-  --akaza-amarillo: 255 204 0;
-  --akaza-crema: 253 250 246;
-  --akaza-blanco: 255 255 255;
+@layer base {
+  :root {
+    --akaza-marron: 61 28 2;
+    --akaza-amarillo: 255 204 0;
+    --akaza-crema: 253 250 246;
+    --akaza-blanco: 255 255 255;
+    
+    /* Utility shadows for a premium feel */
+    --akaza-shadow: 0 10px 15px -3px rgba(61, 28, 2, 0.1), 0 4px 6px -2px rgba(61, 28, 2, 0.05);
+  }
+
+  body {
+    @apply bg-akaza-crema text-akaza-marron antialiased;
+    color: rgb(var(--akaza-marron));
+    background-color: rgb(var(--akaza-crema));
+  }
+
+  /* Custom Selection Color */
+  ::selection {
+    @apply bg-akaza-amarillo text-akaza-marron;
+  }
 }
 
-body {
-  color: rgb(var(--akaza-marron));
-  background: rgb(var(--akaza-crema));
+@layer components {
+  /* You can add common component styles here if needed */
+  .section-container {
+    @apply max-w-7xl mx-auto px-6 w-full;
+  }
+  
+  .akaza-card {
+    @apply bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-akaza-marron/5;
+  }
+
+  .btn-akaza {
+    @apply rounded-full font-bold transition-all active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  .btn-akaza-primary {
+    @apply btn-akaza bg-akaza-marron text-white hover:shadow-lg;
+  }
+
+  .btn-akaza-secondary {
+    @apply btn-akaza bg-white text-akaza-marron border border-akaza-marron/10 hover:shadow-sm;
+  }
 }

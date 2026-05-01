@@ -1,5 +1,5 @@
 import { BadgeCheck, ClipboardList, X } from "lucide-react";
-import { Order } from "./types";
+import { Order } from "@/ts/types";
 
 type OrdersModalProps = {
   isOpen: boolean;

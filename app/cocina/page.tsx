@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CocinaService } from "../service/cocina.service";
+import { CocinaService } from "@/service/cocina.service";
 
 type Pedido = {
   id: number;

@@ -1,4 +1,4 @@
-import { api } from "../../lib/api";
+import { api } from "@/lib/api";
 
 export const ChatbotService = {
   // El historial es local — el backend no tiene endpoint de historial
