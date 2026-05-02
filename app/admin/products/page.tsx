@@ -1,18 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  Plus,
-  Search,
-  RefreshCw,
-  X,
-  AlertTriangle,
-  Package,
-} from "lucide-react";
+import { Plus, Search, RefreshCw, AlertTriangle, Package } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
 import { ProductCard } from "@/component/admin/ProductCard";
+import {
+  ProductModal,
+  ProductFormData,
+  DEFAULT_PRODUCT_FORM,
+} from "@/component/admin/ProductModal";
 import { Producto } from "@/ts/types";
-
-const UNIDADES = ["kg", "litro", "unidad", "gramo", "ml", "paquete", "caja"];
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Producto[]>([]);
@@ -22,24 +18,22 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    nombre: "",
-    unidad_medida: "kg",
-    stock_actual: "",
-    stock_minimo_alerta: "",
-  });
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ProductFormData>(DEFAULT_PRODUCT_FORM);
 
+  // ── Carga de datos ──────────────────────────────────────────────────────────
   const fetchProducts = async () => {
     setIsFetching(true);
-    setError(null);
+    setGlobalError(null);
     try {
       const data = await AdminService.getProductos();
       setProducts(data);
       setFilteredProducts(data);
     } catch (err: any) {
-      const msg = err?.response?.data?.detail || err?.message || "Error al cargar productos.";
-      setError(msg);
+      const msg =
+        err?.response?.data?.detail || err?.message || "Error al cargar productos.";
+      setGlobalError(msg);
     } finally {
       setIsFetching(false);
     }
@@ -49,6 +43,7 @@ export default function ProductsPage() {
     void fetchProducts();
   }, []);
 
+  // ── Búsqueda local ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredProducts(products);
@@ -61,7 +56,9 @@ export default function ProductsPage() {
     }
   }, [searchTerm, products]);
 
+  // ── Modal helpers ───────────────────────────────────────────────────────────
   const handleOpenModal = (product: Producto | null = null) => {
+    setModalError(null);
     if (product) {
       setEditingProduct(product);
       setFormData({
@@ -69,70 +66,104 @@ export default function ProductsPage() {
         unidad_medida: product.unidad_medida,
         stock_actual: product.stock_actual.toString(),
         stock_minimo_alerta: product.stock_minimo_alerta.toString(),
+        precio_compra: product.precio_compra?.toString() ?? "",
+        merma_min_porcentaje: product.merma_min_porcentaje?.toString() ?? "",
+        merma_max_porcentaje: product.merma_max_porcentaje?.toString() ?? "",
       });
     } else {
       setEditingProduct(null);
-      setFormData({
-        nombre: "",
-        unidad_medida: "kg",
-        stock_actual: "",
-        stock_minimo_alerta: "",
-      });
+      setFormData(DEFAULT_PRODUCT_FORM);
     }
     setIsModalOpen(true);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalError(null);
+  };
+
+  const handleFormChange = (field: keyof ProductFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // ── Submit (crear / editar) ─────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
+    setModalError(null);
 
-    const payload = {
+    // Payload que acepta el backend (POST /api/inventario/ → ProductoCreate)
+    const backendPayload: Record<string, unknown> = {
       nombre: formData.nombre.trim(),
       unidad_medida: formData.unidad_medida,
       stock_actual: parseFloat(formData.stock_actual) || 0,
       stock_minimo_alerta: parseFloat(formData.stock_minimo_alerta) || 0,
     };
 
+    // Agregar mermas solo si se han ingresado valores válidos
+    const mermaMin = parseFloat(formData.merma_min_porcentaje);
+    const mermaMax = parseFloat(formData.merma_max_porcentaje);
+    if (!isNaN(mermaMin) && !isNaN(mermaMax)) {
+      backendPayload.merma_min_porcentaje = mermaMin;
+      backendPayload.merma_max_porcentaje = mermaMax;
+    }
+
     try {
       if (editingProduct) {
-        // El backend solo tiene mover-stock para updates, así que refrescamos
-        await AdminService.updateProducto(editingProduct.id, { cantidad: payload.stock_actual });
+        // Calcula el delta y lo envía como query param al endpoint mover-stock
+        const delta =
+          (parseFloat(formData.stock_actual) || 0) - Number(editingProduct.stock_actual);
+        await AdminService.updateProductoStock(editingProduct.id, delta);
       } else {
-        await AdminService.createProducto(payload);
+        await AdminService.createProducto(backendPayload);
       }
+
+      // Refresca la lista y cierra el modal
       await fetchProducts();
       setIsModalOpen(false);
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
       if (Array.isArray(detail)) {
-        setError(detail.map((d: any) => d.msg || JSON.stringify(d)).join(" | "));
+        setModalError(detail.map((d: any) => d.msg || JSON.stringify(d)).join(" | "));
       } else {
-        setError(typeof detail === "string" ? detail : err?.message || "Error al guardar.");
+        setModalError(
+          typeof detail === "string" ? detail : err?.message || "Error al guardar."
+        );
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ── Actualización inline de producto (tras una compra) ─────────────────────
+  const handleProductoActualizado = (productoActualizado: Producto) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productoActualizado.id ? productoActualizado : p))
+    );
+  };
+
+  // ── Eliminar ────────────────────────────────────────────────────────────────
   const handleDelete = async (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
     try {
       await AdminService.deleteProducto(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err: any) {
-      alert(err?.response?.data?.detail || "Error al eliminar.");
+      setGlobalError(err?.response?.data?.detail || "Error al eliminar el producto.");
     }
   };
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Gestión de Productos</h1>
+          <h1 className="text-3xl font-black text-akaza-marron tracking-tight">
+            Gestión de Productos
+          </h1>
           <p className="text-gray-500 mt-1 font-medium">
-            Administra tus insumos, stock y alertas de reposición.
+            Administra insumos, precios de compra, stock y merma estimada.
           </p>
         </div>
         <div className="flex gap-3">
@@ -155,14 +186,14 @@ export default function ProductsPage() {
       </div>
 
       {/* Error global */}
-      {error && !isModalOpen && (
+      {globalError && (
         <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4">
           <AlertTriangle size={18} className="flex-shrink-0" />
-          <p className="text-sm font-medium">{error}</p>
+          <p className="text-sm font-medium">{globalError}</p>
         </div>
       )}
 
-      {/* Search */}
+      {/* Búsqueda */}
       <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -176,18 +207,23 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Grid de tarjetas */}
       {isFetching ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-[2rem] border border-gray-100 h-52 animate-pulse" />
+            <div
+              key={i}
+              className="bg-white rounded-[2rem] border border-gray-100 h-60 animate-pulse"
+            />
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <Package size={48} className="mx-auto mb-4 opacity-40" />
           <p className="font-bold text-lg">No hay productos registrados</p>
-          <p className="text-sm mt-1">Haz clic en "Nuevo Producto" para agregar uno.</p>
+          <p className="text-sm mt-1">
+            Haz clic en &quot;Nuevo Producto&quot; para agregar uno.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -197,125 +233,23 @@ export default function ProductsPage() {
               product={product}
               onEdit={handleOpenModal}
               onDelete={handleDelete}
+              onProductoActualizado={handleProductoActualizado}
             />
           ))}
         </div>
       )}
 
-      {/* Modal Form */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="p-8 border-b border-gray-50 flex items-center justify-between">
-              <h2 className="text-2xl font-black text-akaza-marron">
-                {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-              </h2>
-              <button
-                onClick={() => { setIsModalOpen(false); setError(null); }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X size={24} className="text-gray-400" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              {error && (
-                <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-sm font-medium">
-                  <AlertTriangle size={16} />
-                  {error}
-                </div>
-              )}
-
-              {/* Nombre */}
-              <div className="space-y-2">
-                <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">
-                  Nombre del Insumo
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                  placeholder="Ej. Carne de Res"
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* Unidad y Stock actual */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">
-                    Unidad de Medida
-                  </label>
-                  <select
-                    value={formData.unidad_medida}
-                    onChange={(e) => setFormData({ ...formData, unidad_medida: e.target.value })}
-                    className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron appearance-none"
-                    disabled={isLoading}
-                  >
-                    {UNIDADES.map((u) => (
-                      <option key={u} value={u}>{u}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">
-                    Stock Inicial
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    value={formData.stock_actual}
-                    onChange={(e) => setFormData({ ...formData, stock_actual: e.target.value })}
-                    className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                    placeholder="0.00"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              {/* Stock mínimo */}
-              <div className="space-y-2">
-                <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">
-                  Stock Mínimo de Alerta
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  value={formData.stock_minimo_alerta}
-                  onChange={(e) => setFormData({ ...formData, stock_minimo_alerta: e.target.value })}
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                  placeholder="Ej. 5.00"
-                  disabled={isLoading}
-                />
-                <p className="text-[10px] text-gray-400 ml-1">
-                  Se mostrará alerta cuando el stock baje de este valor.
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-akaza-marron text-white py-5 rounded-[1.5rem] font-black text-lg hover:shadow-2xl transition-all active:scale-[0.98] mt-4 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw size={18} className="animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  editingProduct ? "Actualizar Producto" : "Guardar Producto"
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Modal extraído en ProductModal.tsx */}
+      <ProductModal
+        isOpen={isModalOpen}
+        editingProduct={editingProduct}
+        formData={formData}
+        isLoading={isLoading}
+        error={modalError}
+        onChange={handleFormChange}
+        onSubmit={handleSubmit}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

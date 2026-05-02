@@ -1,21 +1,31 @@
 import { api } from "@/lib/api";
+import { CompraPayload, CompraResponse } from "@/ts/types";
 
 export const AdminService = {
-  // Productos (Insumos/Ingredientes) → backend route: /api/inventario/
+  // ── Productos (Insumos) ─────────────────────────────────────────────────────
   getProductos: async () => {
     const { data } = await api.get("/api/inventario/");
     return data;
   },
-  createProducto: async (producto: any) => {
+  createProducto: async (producto: Record<string, unknown>) => {
     const { data } = await api.post("/api/inventario/", producto);
     return data;
   },
-  updateProducto: async (id: number, producto: any) => {
-    const { data } = await api.put(`/api/inventario/${id}/mover-stock`, producto);
+  updateProductoStock: async (id: number, cantidad: number) => {
+    const { data } = await api.put(`/api/inventario/${id}/mover-stock`, null, {
+      params: { cantidad },
+    });
     return data;
   },
   deleteProducto: async (id: number) => {
     const { data } = await api.delete(`/api/inventario/${id}`);
+    return data;
+  },
+
+  // ── Módulo de Compras ───────────────────────────────────────────────────────
+  // POST /api/compras → registra la compra, actualiza stock y precio del producto
+  registrarCompra: async (payload: CompraPayload): Promise<CompraResponse> => {
+    const { data } = await api.post("/api/compras/", payload);
     return data;
   },
 
