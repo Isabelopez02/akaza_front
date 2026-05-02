@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⛩️ Akaza - Experiencia Gastronómica Inteligente
 
-## Getting Started
+Akaza es una plataforma web moderna diseñada para revolucionar la interacción entre los comensales y el restaurante. Combina una interfaz de usuario premium para los clientes con un potente panel de administración para la gestión del negocio.
 
-First, run the development server:
+## 🚀 Propósito del Proyecto
+El objetivo principal de Akaza es digitalizar la experiencia de usuario en restaurantes mediante el uso de tecnologías de vanguardia, facilitando la realización de pedidos, la visualización de la carta y la gestión interna de inventarios y menús.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠️ Características Principales
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 👨‍💻 Interfaz del Cliente
+- **Chatbot Inteligente:** Un asistente virtual que ayuda a los usuarios a navegar por el menú, responder dudas y gestionar pedidos.
+- **Carta Digital Dinámica:** Visualización de platos con descripciones detalladas e imágenes de alta calidad.
+- **Gestión de Perfil:** Los usuarios pueden guardar sus preferencias alimenticias y alergias.
+- **Seguimiento de Pedidos:** Sistema en tiempo real para conocer el estado de la orden (Espera, Cocinando, Listo, Pagado).
+- **Acceso mediante QR:** Integración para que los comensales accedan directamente desde sus mesas.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🛡️ Panel de Administración (Admin Portal)
+- **Dashboard de Estadísticas:** Visualización rápida de ventas, pedidos del día y platos populares.
+- **Gestión de Insumos (Productos):** Control total sobre el stock, precios de compra y precios de venta.
+- **Administración de Menú (Platos):** CRUD completo para actualizar la carta digital en tiempo real.
+- **Módulo de Combos:** Creación de ofertas especiales y paquetes promocionales.
+- **Interfaz Adaptable:** Un panel de control 100% responsive que funciona perfectamente en móviles, tablets y escritorio.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💻 Stack Tecnológico
+- **Frontend:** Next.js (App Router), React, TypeScript.
+- **Estilos:** Tailwind CSS (Arquitectura de colores corporativos: Marrón, Crema y Amarillo).
+- **Iconografía:** Lucide React.
+- **Comunicación:** Axios con interceptores para manejo de tokens JWT.
+- **Backend (Referencia):** FastAPI (Python) para una lógica de negocio rápida y escalable.
 
-## Learn More
+## 🎨 Identidad Visual
+Akaza utiliza una paleta de colores sofisticada que evoca tradición y modernidad:
+- **Marrón Akaza:** Elegancia y robustez.
+- **Amarillo Akaza:** Energía y llamadas a la acción.
+- **Crema Akaza:** Calidez y legibilidad.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Desarrollado con pasión para brindar la mejor experiencia culinaria digital.*

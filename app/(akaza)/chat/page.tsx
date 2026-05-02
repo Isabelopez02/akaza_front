@@ -77,7 +77,7 @@ function ChatAkazaFinal() {
         try {
           const data = await AuthService.checkSession();
           setIsLoggedIn(Boolean(data?.autenticado));
-          setIdUsuario(data?.id_usuario ? Number(data.id_usuario) : null);
+          setIdUsuario(data?.id ? Number(data.id) : null);
           setProfileData((prev) => ({
             ...prev,
             name: data?.correo || "Invitado",

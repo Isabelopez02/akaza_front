@@ -30,14 +30,13 @@ export default function AdminLayout({
     const checkAdmin = async () => {
       try {
         const data = await AuthService.checkSession();
-        // Asumimos que el backend devuelve el rol. 
-        // Si no es admin, redirigir a inicio.
         if (!data?.autenticado || data?.rol !== "administrador") {
-          // Descomentar esto cuando el backend esté listo con roles
-          // router.push("/"); 
+          router.push("/");
+          return;
         }
       } catch (error) {
-        // router.push("/");
+        router.push("/");
+        return;
       } finally {
         setIsLoading(false);
       }

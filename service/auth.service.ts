@@ -1,12 +1,40 @@
 import { api } from "@/lib/api";
+import { UserData } from "@/ts/types";
+
+const getCookieValue = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split("=")[1]) : null;
+};
+
+const isSecureCookie = () => {
+  if (typeof window === "undefined") return false;
+  return window.location.protocol === "https:";
+};
+
+const setCookie = (name: string, value: string, days = 7) => {
+  if (typeof document === "undefined") return;
+  const maxAge = days * 24 * 60 * 60;
+  const secure = isSecureCookie() ? "; secure" : "";
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; sameSite=lax${secure}`;
+};
+
+const deleteCookie = (name: string) => {
+  if (typeof document === "undefined") return;
+  const secure = isSecureCookie() ? "; secure" : "";
+  document.cookie = `${name}=; path=/; max-age=0; sameSite=lax${secure}`;
+};
 
 export const AuthService = {
-  checkSession: async () => {
-    // 1. NO se ejecuta si no hay token (Evita el 401 inncesario)
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  checkSession: async (): Promise<Partial<UserData>> => {
+    const tokenFromStorage = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const tokenFromCookie = getCookieValue("token");
+    const token = tokenFromStorage || tokenFromCookie;
+
     if (!token) {
       console.log("[AuthService] No hay token guardado. Saltando validación de sesión.");
-      // Devolvemos estructura que tu app espere, simulando que no está autenticado
       return { autenticado: false };
     }
 
@@ -17,12 +45,11 @@ export const AuthService = {
       return { autenticado: true, ...data };
     } catch (error: any) {
       console.error("[AuthService] Error chequeando sesión:", error?.response?.status || error);
-      // El 401 lo maneja el interceptor en api.ts borrando el token de localStorage
       return { autenticado: false };
     }
   },
 
-  login: async (correo: string, password: string) => {
+  login: async (correo: string, password: string): Promise<UserData> => {
     const payload = {
       correo,
       contrasenia: password,
@@ -34,8 +61,15 @@ export const AuthService = {
       const { data } = await api.post("/api/auth/login", payload);
       console.log("[AuthService] Respuesta login:", data);
 
-      if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
+      if (typeof window !== "undefined") {
+        if (data.access_token) {
+          localStorage.setItem("token", data.access_token);
+          setCookie("token", data.access_token);
+        }
+        if (data.rol) {
+          localStorage.setItem("role", data.rol);
+          setCookie("role", data.rol);
+        }
       }
 
       return data;
@@ -68,6 +102,9 @@ export const AuthService = {
     console.log("[AuthService] Cerrando sesión y borrando token");
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      deleteCookie("token");
+      deleteCookie("role");
     }
-  }
+  },
 };

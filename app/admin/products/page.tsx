@@ -4,19 +4,17 @@ import {
   Plus, 
   Search, 
   Filter, 
-  MoreHorizontal, 
-  Pencil, 
-  Trash2,
-  Package,
   ArrowUpDown,
   X
 } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
+import { ProductCard } from "@/component/admin/ProductCard";
+import { Producto } from "@/ts/types";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Producto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Producto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -27,7 +25,7 @@ export default function ProductsPage() {
   });
 
   useEffect(() => {
-    // Simular carga o conectar a backend real
+    // Simulación de datos
     setProducts([
       { id: 1, nombre: "Carne de Res", precio_compra: 15.50, precio_venta: 25.00, stock: 50, categoria: "Carnes" },
       { id: 2, nombre: "Papas Amarillas", precio_compra: 2.50, precio_venta: 5.00, stock: 120, categoria: "Verduras" },
@@ -35,7 +33,7 @@ export default function ProductsPage() {
     ]);
   }, []);
 
-  const handleOpenModal = (product: any = null) => {
+  const handleOpenModal = (product: Producto | null = null) => {
     if (product) {
       setEditingProduct(product);
       setFormData({
@@ -61,12 +59,20 @@ export default function ProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simular API
     setTimeout(() => {
+      const newProduct: Producto = {
+        id: editingProduct ? editingProduct.id : Date.now(),
+        nombre: formData.nombre,
+        precio_compra: parseFloat(formData.precio_compra),
+        precio_venta: parseFloat(formData.precio_venta),
+        stock: parseInt(formData.stock),
+        categoria: formData.categoria
+      };
+
       if (editingProduct) {
-        setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...formData, id: p.id } : p));
+        setProducts(products.map(p => p.id === editingProduct.id ? newProduct : p));
       } else {
-        setProducts([...products, { ...formData, id: Date.now() }]);
+        setProducts([...products, newProduct]);
       }
       setIsLoading(false);
       setIsModalOpen(false);
@@ -84,11 +90,11 @@ export default function ProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Gestión de Productos</h1>
-          <p className="text-gray-500 mt-1">Administra tus insumos, precios y existencias.</p>
+          <p className="text-gray-500 mt-1 font-medium">Administra tus insumos, precios y existencias.</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="bg-akaza-marron text-white px-6 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:scale-105 transition-all active:scale-95"
+          className="bg-akaza-marron text-white px-8 py-4 rounded-[1.5rem] font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:scale-105 transition-all active:scale-95"
         >
           <Plus size={20} />
           Nuevo Producto
@@ -96,81 +102,35 @@ export default function ProductsPage() {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input 
             type="text" 
             placeholder="Buscar producto por nombre..." 
-            className="w-full bg-gray-50 border-none rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-akaza-amarillo/50 outline-none"
+            className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-akaza-amarillo/50 outline-none font-medium"
           />
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-3 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm flex items-center gap-2 hover:bg-gray-100 transition-colors">
+          <button className="px-6 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm flex items-center gap-2 hover:bg-gray-100 transition-colors">
             <Filter size={18} /> Filtros
           </button>
-          <button className="px-4 py-3 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm flex items-center gap-2 hover:bg-gray-100 transition-colors">
+          <button className="px-6 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm flex items-center gap-2 hover:bg-gray-100 transition-colors">
             <ArrowUpDown size={18} /> Ordenar
           </button>
         </div>
       </div>
 
-      {/* Products Table */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-gray-400 text-[10px] uppercase tracking-[0.2em] border-b border-gray-50">
-                <th className="px-8 py-5 font-black">Producto</th>
-                <th className="px-8 py-5 font-black">Categoría</th>
-                <th className="px-8 py-5 font-black text-right">Precio Compra</th>
-                <th className="px-8 py-5 font-black text-right">Precio Venta</th>
-                <th className="px-8 py-5 font-black text-center">Stock</th>
-                <th className="px-8 py-5 font-black text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {products.map((product) => (
-                <tr key={product.id} className="group hover:bg-akaza-crema/30 transition-colors">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-akaza-crema flex items-center justify-center text-akaza-marron group-hover:bg-white transition-colors">
-                        <Package size={20} />
-                      </div>
-                      <span className="font-bold text-akaza-marron text-sm">{product.nombre}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5 text-sm font-medium text-gray-500">{product.categoria}</td>
-                  <td className="px-8 py-5 text-sm font-bold text-akaza-marron text-right">S/ {parseFloat(product.precio_compra).toFixed(2)}</td>
-                  <td className="px-8 py-5 text-sm font-bold text-green-600 text-right">S/ {parseFloat(product.precio_venta).toFixed(2)}</td>
-                  <td className="px-8 py-5 text-center">
-                    <span className={`px-3 py-1 rounded-full text-xs font-black ${
-                      product.stock < 20 ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
-                    }`}>
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => handleOpenModal(product)}
-                        className="p-2 text-gray-400 hover:text-akaza-marron hover:bg-white rounded-lg transition-all"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(product.id)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Grid of ProductCards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onEdit={handleOpenModal} 
+            onDelete={handleDelete} 
+          />
+        ))}
       </div>
 
       {/* Modal Form */}
@@ -251,7 +211,7 @@ export default function ProductsPage() {
               <button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full bg-akaza-marron text-white py-5 rounded-2xl font-black text-lg hover:shadow-2xl transition-all active:scale-[0.98] mt-4 disabled:opacity-50"
+                className="w-full bg-akaza-marron text-white py-5 rounded-[1.5rem] font-black text-lg hover:shadow-2xl transition-all active:scale-[0.98] mt-4 disabled:opacity-50"
               >
                 {isLoading ? "Guardando..." : (editingProduct ? "Actualizar Producto" : "Guardar Producto")}
               </button>
