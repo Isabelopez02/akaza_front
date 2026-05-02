@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AuthService } from "@/service/auth.service";
 
 export default function AkazaLayout({
@@ -9,21 +9,25 @@ export default function AkazaLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const checkRole = async () => {
-      try {
-        const data = await AuthService.checkSession();
-        if (data?.autenticado && data?.rol === "administrador") {
-          console.log("Admin detectado, redirigiendo...");
-          router.push("/admin");
+    // Solo redirigir si estamos en la página principal
+    if (pathname === "/") {
+      const validarRol = async () => {
+        try {
+          const usuario = await AuthService.checkSession();
+          // Si es administrador autenticado, redirigir al panel de control
+          if (usuario?.autenticado && usuario?.rol === "administrador") {
+            router.push("/admin");
+          }
+        } catch (error) {
+          // Continuar sin acción en caso de error
         }
-      } catch (error) {
-        console.error("Error validando rol:", error);
-      }
-    };
-    void checkRole();
-  }, [router]);
+      };
+      void validarRol();
+    }
+  }, [router, pathname]);
 
   return <>{children}</>;
 }

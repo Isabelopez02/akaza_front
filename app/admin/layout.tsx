@@ -27,21 +27,22 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const validarAcceso = async () => {
       try {
-        const data = await AuthService.checkSession();
-        if (!data?.autenticado || data?.rol !== "administrador") {
+        const usuario = await AuthService.checkSession();
+        // Si no está autenticado o no es administrador, rechazar acceso
+        if (!usuario?.autenticado || usuario?.rol !== "administrador") {
           router.push("/");
           return;
         }
-      } catch (error) {
+      } catch {
         router.push("/");
         return;
       } finally {
         setIsLoading(false);
       }
     };
-    void checkAdmin();
+    void validarAcceso();
   }, [router]);
 
   const menuItems = [

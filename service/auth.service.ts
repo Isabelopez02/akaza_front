@@ -1,110 +1,103 @@
 import { api } from "@/lib/api";
 import { UserData } from "@/ts/types";
 
-const getCookieValue = (name: string) => {
+/** Obtiene el valor de una cookie por su nombre */
+function leerCookie(nombre: string): string | null {
   if (typeof document === "undefined") return null;
-  const match = document.cookie
+  const cookie = document.cookie
     .split("; ")
-    .find((cookie) => cookie.startsWith(`${name}=`));
-  return match ? decodeURIComponent(match.split("=")[1]) : null;
-};
+    .find((c) => c.startsWith(`${nombre}=`));
+  return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
+}
 
-const isSecureCookie = () => {
+/** Verifica si la aplicación se ejecuta en HTTPS */
+function esConexionSegura(): boolean {
   if (typeof window === "undefined") return false;
   return window.location.protocol === "https:";
-};
+}
 
-const setCookie = (name: string, value: string, days = 7) => {
+/** Guarda una cookie con atributos de seguridad */
+function guardarCookie(nombre: string, valor: string, dias = 7) {
   if (typeof document === "undefined") return;
-  const maxAge = days * 24 * 60 * 60;
-  const secure = isSecureCookie() ? "; secure" : "";
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; sameSite=lax${secure}`;
-};
+  const segundos = dias * 24 * 60 * 60;
+  const atributoSeguro = esConexionSegura() ? "; secure" : "";
+  document.cookie = `${nombre}=${encodeURIComponent(valor)}; path=/; max-age=${segundos}; sameSite=lax${atributoSeguro}`;
+}
 
-const deleteCookie = (name: string) => {
+/** Elimina una cookie de forma segura */
+function eliminarCookie(nombre: string) {
   if (typeof document === "undefined") return;
-  const secure = isSecureCookie() ? "; secure" : "";
-  document.cookie = `${name}=; path=/; max-age=0; sameSite=lax${secure}`;
-};
+  const atributoSeguro = esConexionSegura() ? "; secure" : "";
+  document.cookie = `${nombre}=; path=/; max-age=0; sameSite=lax${atributoSeguro}`;
+}
 
 export const AuthService = {
+  /** Valida si el usuario tiene una sesión activa */
   checkSession: async (): Promise<Partial<UserData>> => {
-    const tokenFromStorage = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const tokenFromCookie = getCookieValue("token");
-    const token = tokenFromStorage || tokenFromCookie;
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const tokenCookie = leerCookie("token");
 
-    if (!token) {
-      console.log("[AuthService] No hay token guardado. Saltando validación de sesión.");
+    if (!token && !tokenCookie) {
       return { autenticado: false };
     }
 
-    console.log("[AuthService] GET /api/auth/me - Enviando solicitud de validación de sesión");
     try {
       const { data } = await api.get("/api/auth/me");
-      console.log("[AuthService] Respuesta recibida:", data);
       return { autenticado: true, ...data };
-    } catch (error: any) {
-      console.error("[AuthService] Error chequeando sesión:", error?.response?.status || error);
+    } catch (error) {
+      // Si hay error en la API, limpiar credenciales
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+      }
+      eliminarCookie("token");
+      eliminarCookie("role");
       return { autenticado: false };
     }
   },
 
+  /** Realiza el login del usuario */
   login: async (correo: string, password: string): Promise<UserData> => {
-    const payload = {
+    const credentials = {
       correo,
       contrasenia: password,
     };
 
-    console.log("[AuthService] POST /api/auth/login - Enviando:", payload);
+    const { data } = await api.post("/api/auth/login", credentials);
 
-    try {
-      const { data } = await api.post("/api/auth/login", payload);
-      console.log("[AuthService] Respuesta login:", data);
-
-      if (typeof window !== "undefined") {
-        if (data.access_token) {
-          localStorage.setItem("token", data.access_token);
-          setCookie("token", data.access_token);
-        }
-        if (data.rol) {
-          localStorage.setItem("role", data.rol);
-          setCookie("role", data.rol);
-        }
+    if (typeof window !== "undefined") {
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+        guardarCookie("token", data.access_token);
       }
-
-      return data;
-    } catch (error) {
-      console.error("[AuthService] Error en login:", error);
-      throw error;
+      if (data.rol) {
+        localStorage.setItem("role", data.rol);
+        guardarCookie("role", data.rol);
+      }
     }
+
+    return data;
   },
 
+  /** Registra un nuevo usuario */
   register: async (nombre: string, correo: string, password: string) => {
-    const payload = {
+    const userData = {
       nombre,
       correo,
       contrasenia: password,
     };
 
-    console.log("[AuthService] POST /api/auth/register - Enviando:", payload);
-
-    try {
-      const { data } = await api.post("/api/auth/register", payload);
-      console.log("[AuthService] Respuesta register:", data);
-      return data;
-    } catch (error) {
-      console.error("[AuthService] Error en registro:", error);
-      throw error;
-    }
+    const { data } = await api.post("/api/auth/register", userData);
+    return data;
   },
 
+  /** Cierra la sesión y limpia las credenciales */
   logout: () => {
-    console.log("[AuthService] Cerrando sesión y borrando token");
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      deleteCookie("token");
-      deleteCookie("role");
+      eliminarCookie("token");
+      eliminarCookie("role");
     }
   },
 };

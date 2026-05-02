@@ -16,32 +16,30 @@ export default function CocinaPage() {
   const [loading, setLoading] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
-  const loadPedidos = async (mesa: number) => {
+  const cargarPedidos = async (mesa: number) => {
     setLoading(true);
     setErrorStatus(null);
     try {
       const data = await CocinaService.getPedidosPorMesa(mesa);
-      // El backend devuelve una lista de pedidos o un objeto con lista
       const lista = Array.isArray(data) ? data : data?.pedidos ?? [];
       setPedidos(lista);
-    } catch (error) {
-      setErrorStatus("Error sincronizando pedidos. ¿Está la mesa correcta?");
+    } catch {
+      setErrorStatus("Error sincronizando pedidos. Verifica el número de mesa.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadPedidos(nroMesa);
+    cargarPedidos(nroMesa);
   }, [nroMesa]);
 
-  const handleConfirmarPedido = async (id: number) => {
+  const confirmarPedido = async (id: number) => {
     try {
       await CocinaService.confirmarPedido(id);
-      // Refrescar lista tras confirmar
-      await loadPedidos(nroMesa);
-    } catch (error) {
-      alert("Hubo un error confirmando este pedido.");
+      await cargarPedidos(nroMesa);
+    } catch {
+      alert("Error al confirmar el pedido.");
     }
   };
 
@@ -60,7 +58,7 @@ export default function CocinaPage() {
           className="border border-akaza-marron/20 rounded-xl px-4 py-2 w-24 font-bold text-akaza-marron outline-none"
         />
         <button
-          onClick={() => loadPedidos(nroMesa)}
+          onClick={() => cargarPedidos(nroMesa)}
           className="bg-akaza-marron text-white px-5 py-2 rounded-xl font-bold hover:bg-opacity-90 transition-all"
         >
           Buscar
@@ -90,7 +88,7 @@ export default function CocinaPage() {
                 <p className="text-sm text-gray-500 mb-4">{pedido.descripcion}</p>
               )}
               <button
-                onClick={() => handleConfirmarPedido(pedido.id)}
+                onClick={() => confirmarPedido(pedido.id)}
                 className="w-full bg-akaza-marron text-white py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all"
               >
                 Confirmar Pedido

@@ -1,54 +1,48 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-type RoleRule = {
-  pathPrefix: string;
-  allowedRoles: string[];
-};
-
-const roleRules: RoleRule[] = [
-  { pathPrefix: "/admin", allowedRoles: ["administrador"] },
-  { pathPrefix: "/cocina", allowedRoles: ["cocinero", "administrador"] },
+// Configuración de rutas protegidas y roles permitidos
+const PROTECTED_ROUTES = [
+  { path: "/admin", roles: ["administrador"] },
+  { path: "/cocina", roles: ["cocinero", "administrador"] },
 ];
 
-const getRedirectPath = (role: string | undefined) => {
-  switch (role) {
-    case "administrador":
-      return "/admin";
-    case "cocinero":
-      return "/cocina";
-    default:
-      return "/";
-  }
-};
+function obtenerRutaSegunRol(rol: string | undefined): string {
+  if (rol === "administrador") return "/admin";
+  if (rol === "cocinero") return "/cocina";
+  return "/";
+}
 
-const findRoleRule = (pathname: string) => {
-  return roleRules.find(
-    (rule) => pathname === rule.pathPrefix || pathname.startsWith(`${rule.pathPrefix}/`)
+function buscarConfiguracionRuta(pathname: string) {
+  return PROTECTED_ROUTES.find(
+    (ruta) => pathname === ruta.path || pathname.startsWith(`${ruta.path}/`)
   );
-};
+}
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const roleRule = findRoleRule(pathname);
+  const configuracion = buscarConfiguracionRuta(pathname);
 
-  if (!roleRule) {
+  // Si la ruta no está protegida, permitir el acceso
+  if (!configuracion) {
     return NextResponse.next();
   }
 
   const token = request.cookies.get("token")?.value;
-  const role = request.cookies.get("role")?.value;
+  const rol = request.cookies.get("role")?.value;
 
+  // Sin token, redirigir a la página principal
   if (!token) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (!role || !roleRule.allowedRoles.includes(role)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = getRedirectPath(role);
-    return NextResponse.redirect(redirectUrl);
+  // Si no hay rol o el rol no está permitido, redirigir según el rol
+  if (!rol || !configuracion.roles.includes(rol)) {
+    const rutaDestino = obtenerRutaSegunRol(rol);
+    // Evitar redirección infinita a la misma ruta
+    if (rutaDestino !== pathname) {
+      return NextResponse.redirect(new URL(rutaDestino, request.url));
+    }
   }
 
   return NextResponse.next();
