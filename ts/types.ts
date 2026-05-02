@@ -35,10 +35,9 @@ export type Order = {
 export type Producto = {
   id: number;
   nombre: string;
-  precio_compra: number;
-  precio_venta: number;
-  stock: number;
-  categoria: string;
+  unidad_medida: string;
+  stock_actual: number;
+  stock_minimo_alerta: number;
 };
 
 export type Plato = {

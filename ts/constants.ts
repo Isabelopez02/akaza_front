@@ -22,10 +22,10 @@ export const featuredDishes: Dish[] = [
 ];
 
 export const initialProfileData: ProfileData = {
-  name: "Andrea Flores",
-  email: "andrea@akaza.pe",
-  allergies: "Sin mariscos crudos",
-  preferences: "Prefiero platos poco picantes y sin cebolla.",
+  name: "",
+  email: "",
+  allergies: "",
+  preferences: "",
 };
 
 export const mockOrders: Order[] = [

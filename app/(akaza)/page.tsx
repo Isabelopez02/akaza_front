@@ -66,15 +66,19 @@ export default function Home() {
     const checkSession = async () => {
       try {
         const data = await AuthService.checkSession();
-        setIsLoggedIn(Boolean(data?.autenticado));
-        setProfileData((prev) => ({
-          ...prev,
-          name: prev.name || data?.correo || "Usuario",
-          email: data?.correo || prev.email,
-        }));
-        
-        if (data?.autenticado && data?.rol === "administrador") {
-          router.push("/admin");
+        if (data?.autenticado) {
+          setIsLoggedIn(true);
+          setProfileData((prev) => ({
+            ...prev,
+            name: data?.nombre || data?.correo || "Usuario",
+            email: data?.correo || prev.email,
+          }));
+
+          if (data?.rol === "administrador") {
+            router.push("/admin");
+          }
+        } else {
+          setIsLoggedIn(false);
         }
       } catch {
         setIsLoggedIn(false);

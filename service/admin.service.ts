@@ -1,21 +1,21 @@
 import { api } from "@/lib/api";
 
 export const AdminService = {
-  // Productos (Insumos/Ingredientes)
+  // Productos (Insumos/Ingredientes) → backend route: /api/inventario/
   getProductos: async () => {
-    const { data } = await api.get("/api/admin/productos");
+    const { data } = await api.get("/api/inventario/");
     return data;
   },
   createProducto: async (producto: any) => {
-    const { data } = await api.post("/api/admin/productos", producto);
+    const { data } = await api.post("/api/inventario/", producto);
     return data;
   },
   updateProducto: async (id: number, producto: any) => {
-    const { data } = await api.put(`/api/admin/productos/${id}`, producto);
+    const { data } = await api.put(`/api/inventario/${id}/mover-stock`, producto);
     return data;
   },
   deleteProducto: async (id: number) => {
-    const { data } = await api.delete(`/api/admin/productos/${id}`);
+    const { data } = await api.delete(`/api/inventario/${id}`);
     return data;
   },
 
