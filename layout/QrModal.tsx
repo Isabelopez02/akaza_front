@@ -1,3 +1,12 @@
+"use client";
+
+// Hooks y librerías necesarias para el escaneo QR
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+// Librería externa para acceso a cámara y escaneo QR
+import { Html5Qrcode } from "html5-qrcode";
+
 import { Camera, X } from "lucide-react";
 
 type QrModalProps = {
@@ -6,6 +15,48 @@ type QrModalProps = {
 };
 
 export function QrModal({ isOpen, onClose }: QrModalProps) {
+  const router = useRouter();
+
+  // Inicializa la cámara y el lector QR cuando el modal se abre
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const scanner = new Html5Qrcode("reader");
+
+    scanner
+      .start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: 250,
+        },
+
+        // Captura el contenido del QR escaneado
+
+        (decodedText) => {
+          console.log("QR detectado:", decodedText);
+
+          let mesa = decodedText;
+
+          // Extrae el número de mesa desde el QR
+          if (decodedText.includes("mesa=")) {
+            mesa = decodedText.split("mesa=")[1];
+          }
+
+          onClose();
+
+          // Redirección automática al chat con la mesa detectada
+          window.location.href = `/chat?mesa=${mesa}`;
+        },
+        () => { }
+      )
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return () => { };
+  }, [isOpen, router, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -29,9 +80,8 @@ export function QrModal({ isOpen, onClose }: QrModalProps) {
         </div>
 
         <div className="bg-akaza-crema rounded-3xl p-6 border border-akaza-marron/5">
-          <div className="relative w-full aspect-square rounded-3xl border-2 border-dashed border-akaza-marron/30 bg-white flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-8 border-2 border-akaza-amarillo/60 rounded-2xl"></div>
-            <Camera size={56} className="text-akaza-marron/30" />
+          <div className="relative w-full aspect-square rounded-3xl border-2 border-dashed border-akaza-marron/30 bg-white overflow-hidden">
+            <div id="reader" className="w-full h-full rounded-3xl"></div>
           </div>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-akaza-marron/50 mt-4">
             Apunta tu cámara al código de la mesa
