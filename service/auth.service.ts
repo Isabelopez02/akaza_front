@@ -34,8 +34,8 @@ function eliminarCookie(nombre: string) {
 export const AuthService = {
   /** Valida si el usuario tiene una sesión activa */
   checkSession: async (): Promise<Partial<UserData>> => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const tokenCookie = leerCookie("token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("akaza_token") : null;
+    const tokenCookie = leerCookie("akaza_token");
 
     if (!token && !tokenCookie) {
       return { autenticado: false };
@@ -45,12 +45,11 @@ export const AuthService = {
       const { data } = await api.get("/api/auth/me");
       return { autenticado: true, ...data };
     } catch (error) {
-      // Si hay error en la API, limpiar credenciales
       if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
+        localStorage.removeItem("akaza_token");
         localStorage.removeItem("role");
       }
-      eliminarCookie("token");
+      eliminarCookie("akaza_token");
       eliminarCookie("role");
       return { autenticado: false };
     }
@@ -58,45 +57,36 @@ export const AuthService = {
 
   /** Realiza el login del usuario */
   login: async (correo: string, password: string): Promise<UserData> => {
-    const credentials = {
-      correo,
-      contrasenia: password,
-    };
-
+    const credentials = { correo, contrasenia: password };
     const { data } = await api.post("/api/auth/login", credentials);
 
     if (typeof window !== "undefined") {
       if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
-        guardarCookie("token", data.access_token);
+        // Guardamos como akaza_token
+        localStorage.setItem("akaza_token", data.access_token);
+        guardarCookie("akaza_token", data.access_token);
       }
       if (data.rol) {
         localStorage.setItem("role", data.rol);
         guardarCookie("role", data.rol);
       }
     }
-
     return data;
   },
 
   /** Registra un nuevo usuario */
   register: async (nombre: string, correo: string, password: string) => {
-    const userData = {
-      nombre,
-      correo,
-      contrasenia: password,
-    };
-
+    const userData = { nombre, correo, contrasenia: password };
     const { data } = await api.post("/api/auth/register", userData);
     return data;
   },
 
-  /** Cierra la sesión y limpia las credenciales */
+  /** Cierra la sesión */
   logout: () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
+      localStorage.removeItem("akaza_token");
       localStorage.removeItem("role");
-      eliminarCookie("token");
+      eliminarCookie("akaza_token");
       eliminarCookie("role");
     }
   },

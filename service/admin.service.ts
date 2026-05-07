@@ -29,27 +29,27 @@ export const AdminService = {
     return data;
   },
 
-  // Platos
+  // ── Platos (Admin) ───────────────────────────────────────────────────────
   getPlatos: async () => {
-    const { data } = await api.get("/api/admin/platos");
+    const { data } = await api.get("/api/admin/platos/");
     return data;
   },
   createPlato: async (plato: any) => {
-    const { data } = await api.post("/api/admin/platos", plato);
+    const { data } = await api.post("/api/admin/platos/", plato);
     return data;
   },
   updatePlato: async (id: number, plato: any) => {
-    const { data } = await api.put(`/api/admin/platos/${id}`, plato);
+    const { data } = await api.put(`/api/admin/platos/${id}/`, plato);
     return data;
   },
   deletePlato: async (id: number) => {
-    const { data } = await api.delete(`/api/admin/platos/${id}`);
+    const { data } = await api.delete(`/api/admin/platos/${id}/`);
     return data;
   },
 
   // Combos
   getCombos: async () => {
-    const { data } = await api.get("/api/admin/combos");
+    const { data } = await api.get("/api/admin/combos/");
     return data;
   },
   createCombo: async (combo: any) => {

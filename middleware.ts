@@ -28,7 +28,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("token")?.value;
+  // 🔒 ACTUALIZADO: Se busca "akaza_token" para coincidir con auth.service.ts y el backend
+  const token = request.cookies.get("akaza_token")?.value;
   const rol = request.cookies.get("role")?.value;
 
   // Sin token, redirigir a la página principal

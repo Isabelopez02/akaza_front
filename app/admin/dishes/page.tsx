@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { 
   Plus, 
@@ -11,12 +12,15 @@ import {
 } from "lucide-react";
 import { DishCard } from "@/component/admin/DishCard";
 import { Plato } from "@/ts/types";
+import { AdminService } from "../../../service/admin.service"; // ← Ruta ajustada
 
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Plato[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<Plato | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Estado del formulario
   const [formData, setFormData] = useState({
     nombre: "",
     precio: "",
@@ -25,13 +29,30 @@ export default function DishesPage() {
     categoria: "Principal"
   });
 
+  // ── 1. Cargar Platos Reales ───────────────────────────────────────────
   useEffect(() => {
-    setDishes([
-      { id: 1, nombre: "Tacos Al Pastor", precio: 18.00, descripcion: "Tacos tradicionales con piña y salsa.", img_url: "https://images.unsplash.com/photo-1593504049359-74330189a345?w=400&h=400&fit=crop", categoria: "Mexicana" },
-      { id: 2, nombre: "Ceviche Clásico", precio: 32.00, descripcion: "Pescado fresco marinado en limón.", img_url: "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&h=400&fit=crop", categoria: "Marina" },
-    ]);
+    const cargarPlatos = async () => {
+      setIsLoading(true);
+      try {
+        const data = await AdminService.getPlatos();
+        // Mapeo: Backend usa "precio_venta" e "imagen_url", Frontend usa "precio" e "img_url"
+        const platosMapeados = data.map((p: any) => ({
+          ...p,
+          precio: p.precio_venta, 
+          img_url: p.imagen_url || "",
+          categoria: p.categoria || "General",
+        }));
+        setDishes(platosMapeados);
+      } catch (error) {
+        console.error("Error cargando platos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    cargarPlatos();
   }, []);
 
+  // ── Abrir Modal (Crear/Editar) ─────────────────────────────────────────
   const handleOpenModal = (dish: Plato | null = null) => {
     if (dish) {
       setEditingDish(dish);
@@ -55,37 +76,65 @@ export default function DishesPage() {
     setIsModalOpen(true);
   };
 
+  // ─ 2. Guardar Plato (Create/Update) ───────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      const newDish: Plato = {
-        id: editingDish ? editingDish.id : Date.now(),
+
+    try {
+      // Mapeo Inverso: Frontend -> Backend
+      const payload = {
         nombre: formData.nombre,
-        precio: parseFloat(formData.precio),
+        precio_venta: parseFloat(formData.precio),
         descripcion: formData.descripcion,
-        img_url: formData.img_url,
-        categoria: formData.categoria
+        imagen_url: formData.img_url,
+        categoria: formData.categoria,
+        disponible: true
       };
 
       if (editingDish) {
-        setDishes(dishes.map(d => d.id === editingDish.id ? newDish : d));
+        await AdminService.updatePlato(editingDish.id, payload);
       } else {
-        setDishes([...dishes, newDish]);
+        await AdminService.createPlato(payload);
       }
-      setIsLoading(false);
+
+      // Recargar lista tras guardar
+      const data = await AdminService.getPlatos();
+      const platosMapeados = data.map((p: any) => ({
+        ...p,
+        precio: p.precio_venta, 
+        img_url: p.imagen_url || "",
+        categoria: p.categoria || "General",
+      }));
+      setDishes(platosMapeados);
+      
       setIsModalOpen(false);
-    }, 500);
+      setEditingDish(null);
+    } catch (error) {
+      console.error("Error guardando plato:", error);
+      alert("Error al guardar. Revisa la consola.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (id: number) => {
+  // ── 3. Eliminar Plato (Delete) ─────────────────────────────────────────
+  const handleDelete = async (id: number) => {
     if (confirm("¿Estás seguro de eliminar este plato?")) {
-      setDishes(dishes.filter(d => d.id !== id));
+      try {
+        await AdminService.deletePlato(id);
+        // Actualizar lista localmente tras borrar
+        setDishes(dishes.filter(d => d.id !== id));
+      } catch (error) {
+        console.error("Error eliminando plato:", error);
+        alert("No se pudo eliminar el plato.");
+      }
     }
   };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Gestión de Platos</h1>
@@ -100,7 +149,7 @@ export default function DishesPage() {
         </button>
       </div>
 
-      {/* Filters & Search */}
+      {/* Filters */}
       <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -120,19 +169,25 @@ export default function DishesPage() {
         </div>
       </div>
 
-      {/* Grid of DishCards */}
+      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {dishes.map((dish) => (
-          <DishCard 
-            key={dish.id} 
-            dish={dish} 
-            onEdit={handleOpenModal} 
-            onDelete={handleDelete} 
-          />
-        ))}
+        {isLoading ? (
+          <div className="col-span-full text-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-akaza-marron mx-auto"></div>
+          </div>
+        ) : (
+          dishes.map((dish) => (
+            <DishCard 
+              key={dish.id} 
+              dish={dish} 
+              onEdit={handleOpenModal} 
+              onDelete={handleDelete} 
+            />
+          ))
+        )}
       </div>
 
-      {/* Modal Form */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90dvh] flex flex-col">
@@ -148,6 +203,7 @@ export default function DishesPage() {
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar">
               <div className="p-6 md:p-10 flex flex-col md:flex-row gap-10">
+                {/* Columna Izq: Imagen */}
                 <div className="w-full md:w-1/2 space-y-6">
                   <div className="space-y-3">
                     <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Imagen del Plato</label>
@@ -180,6 +236,7 @@ export default function DishesPage() {
                   </div>
                 </div>
 
+                {/* Columna Der: Datos */}
                 <div className="w-full md:w-1/2 space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Nombre del Plato</label>
