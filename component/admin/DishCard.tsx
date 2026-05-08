@@ -10,7 +10,7 @@ type DishCardProps = {
 
 export function DishCard({ dish, onEdit, onDelete }: DishCardProps) {
   return (
-    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-2xl transition-all group">
+    <div className="bg-white rounded-[1.2rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-2xl transition-all group">
       <div className="h-48 relative overflow-hidden bg-gray-100">
         {dish.img_url ? (
           <img
@@ -28,7 +28,7 @@ export function DishCard({ dish, onEdit, onDelete }: DishCardProps) {
             <span className="text-gray-400 text-xs font-bold">Sin imagen</span>
           </div>
         )}
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-akaza-marron shadow-sm">
+        <div className="absolute text-sm top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-akaza-marron shadow-sm">
           S/ {(Number(dish.precio) || 0).toFixed(2)}
         </div>
         <div className="absolute top-4 left-4">
@@ -39,7 +39,7 @@ export function DishCard({ dish, onEdit, onDelete }: DishCardProps) {
       </div>
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xl font-black text-akaza-marron leading-tight">
+          <h3 className="text-md font-black text-akaza-marron leading-tight">
             {dish.nombre}
           </h3>
           <div className="flex gap-1">

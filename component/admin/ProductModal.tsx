@@ -62,9 +62,9 @@ export function ProductModal({
   if (!isOpen) return null;
 
   const inputClass =
-    "w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron disabled:opacity-60";
+    "w-full bg-white border border-gray-200 focus:border-akaza-marron focus:ring-4 focus:ring-akaza-marron/5 rounded-xl py-3 px-4 outline-none transition-all text-sm text-gray-700 shadow-sm disabled:opacity-50 disabled:bg-gray-50";
   const labelClass =
-    "text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1 block mb-2";
+    "text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-2";
 
   return (
     <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">

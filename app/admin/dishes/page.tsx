@@ -7,6 +7,8 @@ import { DishModal } from "@/component/admin/DishModal";
 import { DishFormData, DEFAULT_DISH_FORM } from "@/component/admin/DishForm";
 import type { Plato, Producto } from "@/ts/types";
 import { AdminService } from "../../../service/admin.service";
+import { Button } from "@/component/admin/Button";
+import { PageHeader } from "@/component/admin/PageHeader";
 
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Plato[]>([]);
@@ -131,30 +133,99 @@ export default function DishesPage() {
 
   const getFilteredAndSortedDishes = () => {
     let result = [...dishes];
+
+    // 🔍 Filtrar por búsqueda (nombre o descripción)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(d => d.nombre.toLowerCase().includes(term));
+      result = result.filter(
+        (dish) =>
+          dish.nombre.toLowerCase().includes(term) ||
+          dish.descripcion?.toLowerCase().includes(term),
+      );
     }
+
+    // 🏷️ Filtrar por categoría
     if (filterCategory !== "all") {
-      result = result.filter(d => d.categoria === filterCategory);
+      result = result.filter((dish) => dish.categoria === filterCategory);
     }
+
+    result.sort((a, b) => {
+      if (sortBy === "nombre") {
+        return a.nombre.localeCompare(b.nombre);
+      }
+      if (sortBy === "precio") {
+        return Number(b.precio) - Number(a.precio); // Mayor a menor
+      }
+      if (sortBy === "recientes") {
+        return b.id - a.id; // Asumiendo que IDs mayores son más recientes
+      }
+      return 0;
+    });
+
     return result;
   };
 
   return (
-    <div className="p-4 md:p-8">
+    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-akaza-marron">Gestión de Platos</h1>
-          <p className="text-gray-500">Crea y edita los platos de tu carta digital.</p>
-        </div>
-        <button
+      <PageHeader
+        title="Gestión de Platos"
+        subtitle="Crea y edita los platos de tu carta digital."
+      >
+        <Button
+          size="md"
+          icon={<Plus size={14} />}
           onClick={() => handleOpenModal()}
-          className="bg-akaza-marron text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all"
         >
-          <Plus size={20} /> Nuevo Plato
-        </button>
+          Nuevo Plato
+        </Button>
+      </PageHeader>
+
+      <div className="grid gap-4 mb-8 md:grid-cols-[1fr_280px]">
+        <div className="space-y-4">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-amarillo transition-colors pointer-events-none" size={18} />
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 bg-gray-50 text-akaza-marron rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors"
+              placeholder="Buscar plato por nombre o descripción"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative group">
+              <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-amarillo transition-colors pointer-events-none" size={18} />
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full pl-14 pr-8 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors cursor-pointer appearance-none"
+              >
+                <option value="all">Todas las categorías</option>
+                <option value="Criollo">Criollo</option>
+                <option value="Marino">Marino</option>
+                <option value="Internacional">Internacional</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Postre">Postre</option>
+                <option value="Bebida">Bebida</option>
+              </select>
+            </div>
+
+            <div className="relative group">
+              <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-akaza-marron transition-colors pointer-events-none" size={18} />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full pl-12 pr-8 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors cursor-pointer appearance-none"
+              >
+                <option value="">Ordenar por...</option>
+                <option value="nombre">Nombre (A-Z)</option>
+                <option value="precio">Precio (Mayor a menor)</option>
+                <option value="recientes">Más recientes</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Grid de Platos */}

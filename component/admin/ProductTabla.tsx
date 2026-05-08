@@ -64,18 +64,6 @@ export function ProductTabla({
           </div>
         </td>
 
-        {/* 2. Stock Actual */}
-        <td className="px-6 py-4">
-          <div className="flex flex-col">
-            <span className={`text-sm font-bold ${stockBajo ? "text-red-500" : "text-gray-700"}`}>
-              {Number(product.stock_actual).toFixed(2)}
-            </span>
-            {stockBajo && (
-              <span className="text-[9px] font-bold text-red-400 uppercase tracking-tighter">Bajo Stock</span>
-            )}
-          </div>
-        </td>
-
         {/* 3. Precio Anterior */}
         <td className="px-6 py-4 whitespace-nowrap">
           {precioAnterior !== null ? (
@@ -129,9 +117,6 @@ export function ProductTabla({
         {/* 7. Acciones */}
         <td className="px-6 py-4 text-right">
           <div className="flex gap-1 justify-end">
-            <button onClick={() => setShowCompraModal(true)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all">
-              <Plus size={16} />
-            </button>
             <button onClick={() => onEdit(product)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
               <Pencil size={16} />
             </button>

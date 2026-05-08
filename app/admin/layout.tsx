@@ -10,7 +10,9 @@ import {
   LogOut,
   Bell,
   Search,
-  User
+  User,
+  ShoppingCartIcon,
+  User2Icon
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -45,11 +47,28 @@ export default function AdminLayout({
     void validarAcceso();
   }, [router]);
 
-  const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
-    { name: "Productos", icon: Package, href: "/admin/products" },
-    { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
-    { name: "Combos", icon: Layers, href: "/admin/combos" },
+  const menuGroups = [
+    {
+      title: "Principal",
+      items: [
+        { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+      ]
+    },
+    {
+      title: "Inventario y Ventas",
+      items: [
+        { name: "Insumos", icon: Package, href: "/admin/products" },
+        { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" }, // Ajusté la ruta para que no choque
+        { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
+        { name: "Combos", icon: Layers, href: "/admin/combos" },
+      ]
+    },
+    {
+      title: "Sistema",
+      items: [
+        { name: "Usuarios", icon: User2Icon, href: "/admin/user" },
+      ]
+    }
   ];
 
   const handleLogout = () => {
@@ -93,33 +112,71 @@ export default function AdminLayout({
           )}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => {
-                  if (window.innerWidth < 768) setIsSidebarExpanded(false);
-                }}
-                className={`flex items-center p-3 rounded-xl transition-all group ${
-                  isActive 
-                    ? "bg-akaza-amarillo text-akaza-marron shadow-lg" 
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <item.icon size={22} className={`${isActive ? "" : "group-hover:scale-110 transition-transform"}`} />
-                {isSidebarExpanded && (
-                  <span className="ml-4 font-medium animate-in slide-in-from-left-2 duration-300">{item.name}</span>
-                )}
-                {isActive && isSidebarExpanded && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-akaza-marron" />
-                )}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 py-4 px-4 space-y-8 overflow-y-auto custom-scrollbar">
+          {menuGroups.map((group, idx) => (
+            <div key={idx} className="space-y-2">
+              {/* Etiqueta de Grupo - Solo si el sidebar está expandido */}
+              {isSidebarExpanded && (
+                <h3 className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[2px] mb-4">
+                  {group.title}
+                </h3>
+              )}
+
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => {
+                        if (window.innerWidth < 768) setIsSidebarExpanded(false);
+                      }}
+                      className={`
+                        relative flex items-center p-3 rounded-2xl transition-all duration-300 group
+                        ${isActive 
+                          ? "bg-akaza-amarillo text-akaza-marron shadow-[0_10px_20px_-10px_rgba(255,193,7,0.5)]" 
+                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                        }
+                      `}
+                    >
+                      {/* Indicador lateral activo (Pill) */}
+                      {isActive && (
+                        <div className="absolute -left-1 w-1 h-6 bg-akaza-marron rounded-full" />
+                      )}
+
+                      {/* Icono con efecto de escala */}
+                      <item.icon 
+                        size={20} 
+                        strokeWidth={isActive ? 2.5 : 2}
+                        className={`
+                          shrink-0 transition-transform duration-300
+                          ${isActive ? "scale-110" : "group-hover:scale-110 group-hover:text-akaza-amarillo"}
+                        `} 
+                      />
+
+                      {/* Texto con Fade-in */}
+                      {isSidebarExpanded && (
+                        <span className={`
+                          ml-4 text-sm font-bold tracking-wide whitespace-nowrap transition-all duration-300
+                          ${isActive ? "opacity-100" : "opacity-80 group-hover:opacity-100"}
+                        `}>
+                          {item.name}
+                        </span>
+                      )}
+
+                      {/* Tooltip personalizado cuando está colapsado (Opcional pero recomendado) */}
+                      {!isSidebarExpanded && (
+                        <div className="absolute left-14 bg-akaza-marron text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                          {item.name}
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User / Bottom Section */}
@@ -186,7 +243,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8 custom-scrollbar">
           {children}
         </main>
       </div>

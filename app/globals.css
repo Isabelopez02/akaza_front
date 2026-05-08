@@ -43,6 +43,18 @@
     @apply btn-akaza bg-akaza-marron text-white hover:shadow-lg;
   }
 
+  .admin-page-container {
+    @apply max-w-[1400px] mx-auto w-full;
+  }
+
+  .admin-page-section {
+    @apply bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6;
+  }
+
+  .admin-page-section-sm {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm p-5;
+  }
+
   .btn-akaza-secondary {
     @apply btn-akaza bg-white text-akaza-marron border border-akaza-marron/10 hover:shadow-sm;
   }

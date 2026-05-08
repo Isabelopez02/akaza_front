@@ -27,6 +27,10 @@ export const AdminService = {
   },
 
   // ── Módulo de Compras ───────────────────────────────────────────────────────
+  getComprasDelDia: async () => {
+    const { data } = await api.get("/api/compras/");
+    return data;
+  },
   // POST /api/compras → registra la compra, actualiza stock y precio del producto
   registrarCompra: async (payload: CompraPayload): Promise<CompraResponse> => {
     const { data } = await api.post("/api/compras/", payload);

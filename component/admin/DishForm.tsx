@@ -95,7 +95,7 @@ export function DishForm({
         <div className="max-w-4xl mx-auto space-y-10">
           
           {/* SECCIÓN 1: IDENTIDAD */}
-          <section className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <section className="grid grid-cols-1 md:grid-cols-12 gap-2">
             <div className="md:col-span-12">
               <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-4">
                 <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px]">01</span>
@@ -145,7 +145,7 @@ export function DishForm({
             </div>
           </section>
 
-          <hr className="border-gray-100" />
+          <hr className="border-gray-100 d-flex" />
 
           {/* SECCIÓN 2: RECETA / INGREDIENTES */}
           <section className="space-y-6">
@@ -230,7 +230,7 @@ export function DishForm({
             </div>
           </section>
 
-          <section className="space-y-4 pb-10">
+          <section className="space-y-4">
             <label className={labelClass}>Instrucciones de preparación / Descripción</label>
             <textarea
               required

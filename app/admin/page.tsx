@@ -17,7 +17,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
         <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Panel de Control</h1>
         <p className="text-gray-500 mt-1">Bienvenido de nuevo, aquí tienes el resumen de hoy.</p>
