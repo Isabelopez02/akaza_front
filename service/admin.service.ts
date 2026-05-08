@@ -53,15 +53,15 @@ export const AdminService = {
     return data;
   },
   createCombo: async (combo: any) => {
-    const { data } = await api.post("/api/admin/combos", combo);
+    const { data } = await api.post("/api/admin/combos/", combo);
     return data;
   },
   updateCombo: async (id: number, combo: any) => {
-    const { data } = await api.put(`/api/admin/combos/${id}`, combo);
+    const { data } = await api.put(`/api/admin/combos/${id}/`, combo);
     return data;
   },
   deleteCombo: async (id: number) => {
-    const { data } = await api.delete(`/api/admin/combos/${id}`);
+    const { data } = await api.delete(`/api/admin/combos/${id}/`);
     return data;
   }
 };
