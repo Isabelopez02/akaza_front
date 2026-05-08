@@ -17,6 +17,10 @@ export const AdminService = {
     });
     return data;
   },
+  updateProducto: async (id: number, producto: Record<string, unknown>) => {
+    const { data } = await api.put(`/api/inventario/${id}/`, producto);
+    return data;
+  },
   deleteProducto: async (id: number) => {
     const { data } = await api.delete(`/api/inventario/${id}`);
     return data;

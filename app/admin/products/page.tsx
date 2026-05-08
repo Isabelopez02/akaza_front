@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, RefreshCw, AlertTriangle, Package } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
-import { ProductCard } from "@/component/admin/ProductCard";
+import { ProductTabla } from "@/component/admin/ProductTabla";
 import {
   ProductModal,
   ProductFormData,
@@ -100,20 +100,28 @@ export default function ProductsPage() {
       stock_minimo_alerta: parseFloat(formData.stock_minimo_alerta) || 0,
     };
 
-    // Agregar mermas solo si se han ingresado valores válidos
+    const precioCompra = parseFloat(formData.precio_compra);
+    if (!isNaN(precioCompra) && precioCompra > 0) {
+      backendPayload.precio_compra = precioCompra;
+    }
+
     const mermaMin = parseFloat(formData.merma_min_porcentaje);
     const mermaMax = parseFloat(formData.merma_max_porcentaje);
-    if (!isNaN(mermaMin) && !isNaN(mermaMax)) {
+    if (!isNaN(mermaMin)) {
       backendPayload.merma_min_porcentaje = mermaMin;
+    }
+    if (!isNaN(mermaMax)) {
       backendPayload.merma_max_porcentaje = mermaMax;
     }
 
     try {
       if (editingProduct) {
-        // Calcula el delta y lo envía como query param al endpoint mover-stock
-        const delta =
-          (parseFloat(formData.stock_actual) || 0) - Number(editingProduct.stock_actual);
-        await AdminService.updateProductoStock(editingProduct.id, delta);
+        const newStock = parseFloat(formData.stock_actual) || 0;
+        const delta = newStock - Number(editingProduct.stock_actual);
+        await AdminService.updateProducto(editingProduct.id, backendPayload);
+        if (delta !== 0) {
+          await AdminService.updateProductoStock(editingProduct.id, delta);
+        }
       } else {
         await AdminService.createProducto(backendPayload);
       }
@@ -207,37 +215,55 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Grid de tarjetas */}
-      {isFetching ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="bg-white rounded-[2rem] border border-gray-100 h-60 animate-pulse"
-            />
-          ))}
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <Package size={48} className="mx-auto mb-4 opacity-40" />
-          <p className="font-bold text-lg">No hay productos registrados</p>
-          <p className="text-sm mt-1">
-            Haz clic en &quot;Nuevo Producto&quot; para agregar uno.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
+     {/* TABLA en lugar del grid de tarjetas */}
+      {/* Tabla completa */}
+<div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+  <div className="overflow-x-auto">
+    <table className="w-full border-collapse">
+      <thead className="bg-gray-50/50 border-b border-gray-100">
+        <tr>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">Producto</th>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">Stock</th>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">P. Anterior</th>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">P. Actual</th>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">Variación</th>
+          <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">Merma</th>
+          <th className="px-6 py-4 text-right text-[11px] font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {isFetching ? (
+          // Skeletons
+          Array(5).fill(0).map((_, i) => (
+            <tr key={i} className="border-b border-gray-50">
+              <td colSpan={6} className="px-4 py-4">
+                <div className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+              </td>
+            </tr>
+          ))
+        ) : filteredProducts.length === 0 ? (
+          <tr>
+            <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+              <Package size={40} className="mx-auto mb-3 opacity-40" />
+              <p className="font-semibold">No hay productos registrados</p>
+              <p className="text-sm mt-1">Haz clic en "Nuevo Producto" para agregar uno.</p>
+            </td>
+          </tr>
+        ) : (
+          filteredProducts.map((product) => (
+            <ProductTabla
               key={product.id}
               product={product}
               onEdit={handleOpenModal}
               onDelete={handleDelete}
               onProductoActualizado={handleProductoActualizado}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
 
       {/* Modal extraído en ProductModal.tsx */}
       <ProductModal
