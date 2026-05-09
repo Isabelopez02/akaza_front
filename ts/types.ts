@@ -125,3 +125,12 @@ export type Dish = {
   d: string;
   img: string;
 };
+
+export type Usuario = {
+  id: number;
+  nombre: string;
+  correo: string;
+  rol: 'cliente' | 'personal';
+  fecha_union: string; // Fecha de registro
+  pedidos_count?: number; // Solo para clientes
+};

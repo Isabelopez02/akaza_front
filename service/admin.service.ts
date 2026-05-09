@@ -73,5 +73,11 @@ export const AdminService = {
   deleteCombo: async (id: number) => {
     const { data } = await api.delete(`/api/admin/combos/${id}/`);
     return data;
+  },
+
+  // ── Usuarios ──────────────────────────────────────────────────────────────
+  getUsuarios: async () => {
+    const { data } = await api.get("/api/admin/usuarios/");
+    return data;
   }
 };

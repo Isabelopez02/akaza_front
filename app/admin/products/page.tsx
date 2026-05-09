@@ -294,7 +294,7 @@ export default function ProductsPage() {
           {/* Tabla completa */}
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2"> 
                 <Package size={16} className="text-akaza-marron opacity-80" />
                 <h3 className="text-base font-black text-akaza-marron tracking-tight">Inventario de Insumos</h3>
               </div>
