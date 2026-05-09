@@ -1,106 +1,214 @@
 "use client";
 import { useState, useEffect } from "react";
-import { 
-  Plus, 
-  Search, 
+import {
+  Plus,
+  Search,
   X,
   Image as ImageIcon,
-  Upload
+  Upload,
 } from "lucide-react";
 import { ComboCard } from "@/component/admin/ComboCard";
-import { Combo } from "@/ts/types";
+import { ComboModal } from "@/component/admin/ComboModal";
+import { ComboFormData, DEFAULT_COMBO_FORM } from "@/component/admin/ComboForm";
+import { Combo, Plato } from "@/ts/types";
+import { AdminService } from "@/service/admin.service";
+import { Button } from "@/component/admin/Button";
+import { PageHeader } from "@/component/admin/PageHeader";
 
 export default function CombosPage() {
   const [combos, setCombos] = useState<Combo[]>([]);
+  const [platoOptions, setPlatoOptions] = useState<Plato[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCombo, setEditingCombo] = useState<Combo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    nombre: "",
-    precio: "",
-    incluye: "",
-    ahorro_estimado: "",
-    img_url: ""
-  });
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ComboFormData>(DEFAULT_COMBO_FORM);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<string>("");
 
   useEffect(() => {
-    setCombos([
-      { id: 1, nombre: "Combo Familiar", precio: 85.00, incluye: "1 Pollo a la brasa + Papas + Ensalada + Gaseosa 1.5L", ahorro_estimado: 15.00, img_url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop" },
-      { id: 2, nombre: "Dúo Akaza", precio: 45.00, incluye: "2 Hamburguesas + 2 Papas + 2 Bebidas", ahorro_estimado: 8.50, img_url: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop" },
-    ]);
+    loadCombos();
+    loadPlatos();
   }, []);
+
+  const loadCombos = async () => {
+    try {
+      const data = await AdminService.getCombos();
+      setCombos(data);
+    } catch (error) {
+      console.error("Error cargando combos:", error);
+    }
+  };
+
+  const loadPlatos = async () => {
+    try {
+      const platos = await AdminService.getPlatos();
+      setPlatoOptions(platos);
+    } catch (error) {
+      console.error("Error cargando platos:", error);
+    }
+  };
+
+  const getFilteredAndSortedCombos = () => {
+    let result = [...combos];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (combo) =>
+          combo.nombre.toLowerCase().includes(term) ||
+          combo.incluye?.toLowerCase().includes(term),
+      );
+    }
+
+    result.sort((a, b) => {
+      if (sortBy === "nombre") {
+        return a.nombre.localeCompare(b.nombre);
+      }
+      if (sortBy === "precio") {
+        const pa = Number(a.precio || a.precio_venta || 0);
+        const pb = Number(b.precio || b.precio_venta || 0);
+        return pb - pa;
+      }
+      if (sortBy === "ahorro") {
+        return (b.ahorro_estimado || 0) - (a.ahorro_estimado || 0);
+      }
+      if (sortBy === "mas_vendidos") {
+        // Mocked por id hasta que haya data de ventas reales
+        return b.id - a.id; 
+      }
+      if (sortBy === "menos_vendidos") {
+        return a.id - b.id;
+      }
+      return 0;
+    });
+
+    return result;
+  };
 
   const handleOpenModal = (combo: Combo | null = null) => {
     if (combo) {
       setEditingCombo(combo);
       setFormData({
         nombre: combo.nombre,
-        precio: combo.precio.toString(),
+        precio: (combo.precio || combo.precio_venta || 0).toString(),
         incluye: combo.incluye,
         ahorro_estimado: combo.ahorro_estimado.toString(),
-        img_url: combo.img_url || ""
+        img_url: combo.img_url || combo.imagen_url || "",
+        platos_seleccionados: combo.platos ? combo.platos.map((p) => p.id) : [],
       });
     } else {
       setEditingCombo(null);
-      setFormData({
-        nombre: "",
-        precio: "",
-        incluye: "",
-        ahorro_estimado: "",
-        img_url: ""
-      });
+      setFormData(DEFAULT_COMBO_FORM);
     }
+    setModalError(null);
     setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      const newCombo: Combo = {
-        id: editingCombo ? editingCombo.id : Date.now(),
+    setModalError(null);
+
+    const selectedPlatos = platoOptions.filter((plato) =>
+      formData.platos_seleccionados.includes(plato.id),
+    );
+    const incluye =
+      selectedPlatos.length > 0
+        ? selectedPlatos.map((plato) => plato.nombre).join(" + ")
+        : formData.incluye;
+
+    try {
+      const payload = {
         nombre: formData.nombre,
-        precio: parseFloat(formData.precio),
-        incluye: formData.incluye,
-        ahorro_estimado: parseFloat(formData.ahorro_estimado),
-        img_url: formData.img_url
+        precio_venta: parseFloat(formData.precio),
+        incluye: incluye,
+        ahorro_estimado: parseFloat(formData.ahorro_estimado) || 0,
+        imagen_url: formData.img_url || "",
+        activo: true,
+        platos_ref: formData.platos_seleccionados,
       };
 
       if (editingCombo) {
-        setCombos(combos.map(c => c.id === editingCombo.id ? newCombo : c));
+        await AdminService.updateCombo(editingCombo.id, payload);
       } else {
-        setCombos([...combos, newCombo]);
+        await AdminService.createCombo(payload);
       }
-      setIsLoading(false);
+
+      await loadCombos();
       setIsModalOpen(false);
-    }, 500);
+    } catch (error: any) {
+      console.error("Error al guardar combo:", error);
+      setModalError(error?.response?.data?.detail || "Error al guardar el combo.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("¿Estás seguro de eliminar este combo?")) {
-      setCombos(combos.filter(c => c.id !== id));
+      try {
+        await AdminService.deleteCombo(id);
+        setCombos(combos.filter((c) => c.id !== id));
+      } catch (error) {
+        console.error("Error eliminando combo:", error);
+      }
     }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Gestión de Combos</h1>
-          <p className="text-gray-500 mt-1 font-medium">Crea paquetes especiales y promociones exclusivas.</p>
-        </div>
-        <button 
+    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <PageHeader
+        title="Gestión de Combos"
+        subtitle="Crea paquetes especiales y promociones exclusivas."
+      >
+        <Button
+          size="md"
+          icon={<Plus size={14} />}
           onClick={() => handleOpenModal()}
-          className="bg-akaza-marron text-white px-8 py-4 rounded-[1.5rem] font-bold flex items-center justify-center gap-2 hover:shadow-xl hover:scale-105 transition-all active:scale-95"
         >
-          <Plus size={20} />
           Nuevo Combo
-        </button>
+        </Button>
+      </PageHeader>
+
+      {/* Controles de Filtrado Minimalistas */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={16} />
+          <input
+            type="text"
+            placeholder="Buscar combo o productos incluidos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm text-gray-700"
+          />
+        </div>
+
+        <div className="relative group min-w-[140px]">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
+          >
+            <option value="">Todos</option>
+            <option value="mas_vendidos">Más vendidos</option>
+            <option value="menos_vendidos">Menos vendidos</option>
+            <option value="nombre">Nombre (A-Z)</option>
+            <option value="precio">Mayor precio</option>
+            <option value="ahorro">Mayor ahorro</option>
+          </select>
+        </div>
       </div>
 
       {/* Grid of ComboCards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {combos.map((combo) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {getFilteredAndSortedCombos().map((combo) => (
           <ComboCard 
             key={combo.id} 
             combo={combo} 
@@ -111,100 +219,19 @@ export default function CombosPage() {
       </div>
 
       {/* Modal Form */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90dvh] flex flex-col">
-            <div className="p-8 border-b border-gray-50 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-2xl font-black text-akaza-marron">{editingCombo ? "Editar Combo" : "Nuevo Combo"}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <X size={24} className="text-gray-400" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar">
-              <div className="p-6 md:p-10 flex flex-col md:flex-row gap-10">
-                <div className="w-full md:w-1/2 space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Imagen del Combo</label>
-                    <div className="aspect-square w-full rounded-[2.5rem] bg-gray-50 border-4 border-dashed border-gray-100 overflow-hidden relative group">
-                      {formData.img_url ? (
-                        <img src={formData.img_url} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = "/placeholder-dish.jpg")} />
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 gap-3">
-                          <ImageIcon size={64} strokeWidth={1} />
-                          <p className="text-sm font-bold tracking-wider">VISTA PREVIA</p>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-akaza-marron/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Upload className="text-white" size={32} />
-                      </div>
-                    </div>
-                  </div>
-                  <input 
-                    type="text" 
-                    value={formData.img_url}
-                    onChange={(e) => setFormData({...formData, img_url: e.target.value})}
-                    className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                    placeholder="URL de la Imagen"
-                  />
-                </div>
-
-                <div className="w-full md:w-1/2 space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Nombre del Combo</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={formData.nombre}
-                      onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                      className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                      placeholder="Ej. Combo Parrillero"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Contenido (separar con '+')</label>
-                    <textarea 
-                      required
-                      rows={3}
-                      value={formData.incluye}
-                      onChange={(e) => setFormData({...formData, incluye: e.target.value})}
-                      className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron resize-none"
-                      placeholder="Ej. 1 Pollo + Papas + Ensalada"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Precio Combo</label>
-                      <input 
-                        type="number" 
-                        step="0.01"
-                        required
-                        value={formData.precio}
-                        onChange={(e) => setFormData({...formData, precio: e.target.value})}
-                        className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-akaza-marron/50 uppercase tracking-widest ml-1">Ahorro S/</label>
-                      <input 
-                        type="number" 
-                        step="0.01"
-                        required
-                        value={formData.ahorro_estimado}
-                        onChange={(e) => setFormData({...formData, ahorro_estimado: e.target.value})}
-                        className="w-full bg-gray-50 border-2 border-transparent focus:border-akaza-amarillo rounded-2xl py-4 px-6 outline-none transition-all font-bold text-akaza-marron"
-                      />
-                    </div>
-                  </div>
-                  <button type="submit" disabled={isLoading} className="w-full bg-akaza-marron text-white py-5 rounded-[1.5rem] font-black text-lg hover:shadow-2xl transition-all">
-                    {isLoading ? "Guardando..." : (editingCombo ? "Actualizar Combo" : "Guardar Combo")}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ComboModal
+        isOpen={isModalOpen}
+        editingCombo={editingCombo}
+        formData={formData}
+        platoOptions={platoOptions}
+        isLoading={isLoading}
+        error={modalError}
+        onChange={(field, value) =>
+          setFormData((prev) => ({ ...prev, [field]: value } as ComboFormData))
+        }
+        onSubmit={handleSubmit}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

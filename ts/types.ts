@@ -64,23 +64,59 @@ export type CompraResponse = {
   producto: Producto; // Producto actualizado embebido
 };
 
+// --- Tipos para la Receta (Ingredientes del Plato) ---
+export type Receta = {
+  id?: number;
+  id_plato: number;
+  id_producto: number;
+  cantidad_estimada: number;
+  unidad_medida: string;
+  es_opcional: boolean;
+  producto?: Producto; // Para cuando el backend te devuelve el objeto producto completo
+};
+
+// --- Actualización del Tipo Plato ---
 export type Plato = {
   id: number;
   nombre: string;
-  precio: number;
+  precio: number; // Mapeado de precio_venta en algunos lugares
+  precio_venta?: number; // Valor directo del backend
   descripcion: string;
-  img_url: string;
+  img_url: string; // Mapeado de imagen_url
   categoria: string;
   disponible?: boolean;
+  // Agregamos esto para que coincida con tu MenuRepository:
+  recetas?: Receta[]; 
+  productos?: Producto[]; // A veces el backend mapea los productos directamente
+};
+
+// --- Tipo para enviar al Backend (Payload) ---
+export type RecetaCreate = {
+  producto_ref: number | string; // ID o Nombre como espera tu Python
+  cantidad_estimada: number;
+  unidad_medida: string;
+  es_opcional: boolean;
+};
+
+export type PlatoCreatePayload = {
+  nombre: string;
+  descripcion: string;
+  precio_venta: number;
+  imagen_url: string;
+  categoria: string;
+  recetas: RecetaCreate[]; // La lista de ingredientes
 };
 
 export type Combo = {
   id: number;
   nombre: string;
-  precio: number;
+  precio?: number;
+  precio_venta?: number;
   incluye: string;
   ahorro_estimado: number;
-  img_url: string;
+  img_url?: string;
+  imagen_url?: string;
+  platos?: { id: number; nombre: string }[];
 };
 
 export type Dish = {
@@ -88,4 +124,13 @@ export type Dish = {
   p: string;
   d: string;
   img: string;
+};
+
+export type Usuario = {
+  id: number;
+  nombre: string;
+  correo: string;
+  rol: 'cliente' | 'personal';
+  fecha_union: string; // Fecha de registro
+  pedidos_count?: number; // Solo para clientes
 };
