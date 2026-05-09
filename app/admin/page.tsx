@@ -19,25 +19,27 @@ export default function AdminDashboard() {
   return (
     <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
-        <h1 className="text-3xl font-black text-akaza-marron tracking-tight">Panel de Control</h1>
-        <p className="text-gray-500 mt-1">Bienvenido de nuevo, aquí tienes el resumen de hoy.</p>
+        <h1 className="text-xl font-black text-akaza-marron tracking-tight">Panel de Control</h1>
+        <p className="text-gray-500 text-sm mt-1 font-medium">Bienvenido de nuevo, aquí tienes el resumen de hoy.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <div key={stat.name} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-akaza-crema rounded-2xl text-akaza-marron">
-                <stat.icon size={24} />
+          <div key={stat.name} className="bg-gradient-to-br from-white to-gray-50/50 p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all flex flex-col justify-between group">
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-12 h-12 bg-akaza-marron/[0.03] group-hover:bg-akaza-marron/5 rounded-2xl flex items-center justify-center text-akaza-marron border border-gray-100 transition-colors">
+                <stat.icon size={22} strokeWidth={2.5} />
               </div>
-              <div className={`flex items-center gap-1 text-sm font-bold ${stat.positive ? "text-green-500" : "text-red-500"}`}>
+              <div className={`flex items-center gap-1 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${stat.positive ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
                 {stat.trend}
-                {stat.positive ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                {stat.positive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
               </div>
             </div>
-            <p className="text-gray-500 text-sm font-medium">{stat.name}</p>
-            <p className="text-2xl font-black text-akaza-marron mt-1">{stat.value}</p>
+            <div>
+              <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-1">{stat.name}</p>
+              <p className="text-2xl font-black text-akaza-marron tracking-tight">{stat.value}</p>
+            </div>
           </div>
         ))}
       </div>

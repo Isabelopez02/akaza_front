@@ -24,50 +24,79 @@ export default function CombosPage() {
   const [modalError, setModalError] = useState<string | null>(null);
   const [formData, setFormData] = useState<ComboFormData>(DEFAULT_COMBO_FORM);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<string>("");
+
   useEffect(() => {
-    setCombos([
-      {
-        id: 1,
-        nombre: "Combo Familiar",
-        precio: 85.0,
-        incluye: "1 Pollo a la brasa + Papas + Ensalada + Gaseosa 1.5L",
-        ahorro_estimado: 15.0,
-        img_url:
-          "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop",
-      },
-      {
-        id: 2,
-        nombre: "Dúo Akaza",
-        precio: 45.0,
-        incluye: "2 Hamburguesas + 2 Papas + 2 Bebidas",
-        ahorro_estimado: 8.5,
-        img_url:
-          "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop",
-      },
-    ]);
-
-    const loadPlatos = async () => {
-      try {
-        const platos = await AdminService.getPlatos();
-        setPlatoOptions(platos);
-      } catch (error) {
-        console.error("Error cargando platos:", error);
-      }
-    };
-
-    void loadPlatos();
+    loadCombos();
+    loadPlatos();
   }, []);
+
+  const loadCombos = async () => {
+    try {
+      const data = await AdminService.getCombos();
+      setCombos(data);
+    } catch (error) {
+      console.error("Error cargando combos:", error);
+    }
+  };
+
+  const loadPlatos = async () => {
+    try {
+      const platos = await AdminService.getPlatos();
+      setPlatoOptions(platos);
+    } catch (error) {
+      console.error("Error cargando platos:", error);
+    }
+  };
+
+  const getFilteredAndSortedCombos = () => {
+    let result = [...combos];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (combo) =>
+          combo.nombre.toLowerCase().includes(term) ||
+          combo.incluye?.toLowerCase().includes(term),
+      );
+    }
+
+    result.sort((a, b) => {
+      if (sortBy === "nombre") {
+        return a.nombre.localeCompare(b.nombre);
+      }
+      if (sortBy === "precio") {
+        const pa = Number(a.precio || a.precio_venta || 0);
+        const pb = Number(b.precio || b.precio_venta || 0);
+        return pb - pa;
+      }
+      if (sortBy === "ahorro") {
+        return (b.ahorro_estimado || 0) - (a.ahorro_estimado || 0);
+      }
+      if (sortBy === "mas_vendidos") {
+        // Mocked por id hasta que haya data de ventas reales
+        return b.id - a.id; 
+      }
+      if (sortBy === "menos_vendidos") {
+        return a.id - b.id;
+      }
+      return 0;
+    });
+
+    return result;
+  };
 
   const handleOpenModal = (combo: Combo | null = null) => {
     if (combo) {
       setEditingCombo(combo);
       setFormData({
         nombre: combo.nombre,
-        precio: combo.precio.toString(),
+        precio: (combo.precio || combo.precio_venta || 0).toString(),
         incluye: combo.incluye,
         ahorro_estimado: combo.ahorro_estimado.toString(),
-        img_url: combo.img_url || "",
-        platos_seleccionados: [],
+        img_url: combo.img_url || combo.imagen_url || "",
+        platos_seleccionados: combo.platos ? combo.platos.map((p) => p.id) : [],
       });
     } else {
       setEditingCombo(null);
@@ -95,29 +124,41 @@ export default function CombosPage() {
         ? selectedPlatos.map((plato) => plato.nombre).join(" + ")
         : formData.incluye;
 
-    setTimeout(() => {
-      const newCombo: Combo = {
-        id: editingCombo ? editingCombo.id : Date.now(),
+    try {
+      const payload = {
         nombre: formData.nombre,
-        precio: parseFloat(formData.precio),
-        incluye,
-        ahorro_estimado: parseFloat(formData.ahorro_estimado),
-        img_url: formData.img_url,
+        precio_venta: parseFloat(formData.precio),
+        incluye: incluye,
+        ahorro_estimado: parseFloat(formData.ahorro_estimado) || 0,
+        imagen_url: formData.img_url || "",
+        activo: true,
+        platos_ref: formData.platos_seleccionados,
       };
 
       if (editingCombo) {
-        setCombos(combos.map((c) => (c.id === editingCombo.id ? newCombo : c)));
+        await AdminService.updateCombo(editingCombo.id, payload);
       } else {
-        setCombos([...combos, newCombo]);
+        await AdminService.createCombo(payload);
       }
-      setIsLoading(false);
+
+      await loadCombos();
       setIsModalOpen(false);
-    }, 500);
+    } catch (error: any) {
+      console.error("Error al guardar combo:", error);
+      setModalError(error?.response?.data?.detail || "Error al guardar el combo.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("¿Estás seguro de eliminar este combo?")) {
-      setCombos(combos.filter(c => c.id !== id));
+      try {
+        await AdminService.deleteCombo(id);
+        setCombos(combos.filter((c) => c.id !== id));
+      } catch (error) {
+        console.error("Error eliminando combo:", error);
+      }
     }
   };
 
@@ -128,17 +169,46 @@ export default function CombosPage() {
         subtitle="Crea paquetes especiales y promociones exclusivas."
       >
         <Button
-          size="lg"
-          icon={<Plus size={20} />}
+          size="md"
+          icon={<Plus size={14} />}
           onClick={() => handleOpenModal()}
         >
           Nuevo Combo
         </Button>
       </PageHeader>
 
+      {/* Controles de Filtrado Minimalistas */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={16} />
+          <input
+            type="text"
+            placeholder="Buscar combo o productos incluidos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm text-gray-700"
+          />
+        </div>
+
+        <div className="relative group min-w-[140px]">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
+          >
+            <option value="">Todos</option>
+            <option value="mas_vendidos">Más vendidos</option>
+            <option value="menos_vendidos">Menos vendidos</option>
+            <option value="nombre">Nombre (A-Z)</option>
+            <option value="precio">Mayor precio</option>
+            <option value="ahorro">Mayor ahorro</option>
+          </select>
+        </div>
+      </div>
+
       {/* Grid of ComboCards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {combos.map((combo) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {getFilteredAndSortedCombos().map((combo) => (
           <ComboCard 
             key={combo.id} 
             combo={combo} 

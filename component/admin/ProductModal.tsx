@@ -62,184 +62,177 @@ export function ProductModal({
   if (!isOpen) return null;
 
   const inputClass =
-    "w-full bg-white border border-gray-200 focus:border-akaza-marron focus:ring-4 focus:ring-akaza-marron/5 rounded-xl py-3 px-4 outline-none transition-all text-sm text-gray-700 shadow-sm disabled:opacity-50 disabled:bg-gray-50";
+    "w-full bg-white border border-gray-200 focus:border-akaza-marron focus:ring-2 focus:ring-akaza-marron/10 rounded-xl py-2 px-3 outline-none transition-all text-xs text-gray-700 shadow-sm disabled:opacity-50 disabled:bg-gray-50";
   const labelClass =
-    "text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-2";
+    "text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block";
 
   return (
-    <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-center justify-center p-0">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-w-xl sm:rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
         {/* Header */}
-        <div className="p-8 border-b border-gray-50 flex items-center justify-between flex-shrink-0">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-akaza-crema rounded-2xl flex items-center justify-center">
-              <Package size={20} className="text-akaza-marron" />
+            <div className="w-8 h-8 bg-akaza-marron/10 rounded-lg flex items-center justify-center">
+              <Package size={16} className="text-akaza-marron" />
             </div>
-            <h2 className="text-2xl font-black text-akaza-marron">
+            <h2 className="text-base font-black text-gray-800 leading-none">
               {editingProduct ? "Editar Producto" : "Nuevo Producto"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X size={24} className="text-gray-400" />
+            <X size={20} className="text-gray-400" />
           </button>
         </div>
 
         {/* Form — scrollable */}
-        <form onSubmit={onSubmit} className="p-8 space-y-5 overflow-y-auto">
+        <form onSubmit={onSubmit} className="p-6 overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-5">
           {/* Error banner */}
           {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-sm font-medium">
-              <AlertTriangle size={16} className="flex-shrink-0" />
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-[10px] font-bold">
+              <AlertTriangle size={14} className="flex-shrink-0" />
               {error}
             </div>
           )}
 
-          {/* ── SECCIÓN: IDENTIFICACIÓN ───────────────────────────────── */}
-          <p className="text-[10px] font-black uppercase tracking-widest text-akaza-marron/30">
-            Identificación
-          </p>
-
-          <div className="space-y-1">
-            <label className={labelClass}>Nombre del Insumo</label>
-            <input
-              type="text"
-              required
-              value={formData.nombre}
-              onChange={(e) => onChange("nombre", e.target.value)}
-              className={inputClass}
-              placeholder="Ej. Carne de Res"
-              disabled={isLoading}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className={labelClass}>Unidad de Medida</label>
-              <select
-                value={formData.unidad_medida}
-                onChange={(e) => onChange("unidad_medida", e.target.value)}
-                className={inputClass + " appearance-none"}
-                disabled={isLoading}
-              >
-                {UNIDADES.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
+          <div className="space-y-4">
+            {/* Fila 1: Identificación */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <div className="sm:col-span-6 space-y-1">
+                <label className={labelClass}>Nombre del Insumo</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.nombre}
+                  onChange={(e) => onChange("nombre", e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej. Carne de Res"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="sm:col-span-3 space-y-1">
+                <label className={labelClass}>Unidad</label>
+                <select
+                  value={formData.unidad_medida}
+                  onChange={(e) => onChange("unidad_medida", e.target.value)}
+                  className={inputClass + " appearance-none cursor-pointer"}
+                  disabled={isLoading}
+                >
+                  {UNIDADES.map((u) => (
+                    <option key={u} value={u}>{u}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-3 space-y-1">
+                <label className={labelClass}>Costo (S/)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.precio_compra}
+                  onChange={(e) => onChange("precio_compra", e.target.value)}
+                  className={inputClass}
+                  placeholder="0.00"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className={labelClass}>Precio de Compra (S/)</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.precio_compra}
-                onChange={(e) => onChange("precio_compra", e.target.value)}
-                className={inputClass}
-                placeholder="0.00"
-                disabled={isLoading}
-              />
+            {/* Fila 2: Stock */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className={labelClass}>Stock Actual</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  value={formData.stock_actual}
+                  onChange={(e) => onChange("stock_actual", e.target.value)}
+                  className={inputClass}
+                  placeholder="0.00"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className={labelClass}>Alerta Mínima</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  value={formData.stock_minimo_alerta}
+                  onChange={(e) => onChange("stock_minimo_alerta", e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej. 5.00"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* ── SECCIÓN: STOCK ────────────────────────────────────────── */}
-          <p className="text-[10px] font-black uppercase tracking-widest text-akaza-marron/30 pt-2">
-            Stock e inventario
-          </p>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className={labelClass}>Stock Actual</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                value={formData.stock_actual}
-                onChange={(e) => onChange("stock_actual", e.target.value)}
-                className={inputClass}
-                placeholder="0.00"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={labelClass}>Alerta de Stock Mín.</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                value={formData.stock_minimo_alerta}
-                onChange={(e) => onChange("stock_minimo_alerta", e.target.value)}
-                className={inputClass}
-                placeholder="Ej. 5.00"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          {/* ── SECCIÓN: MERMA ESTIMADA ───────────────────────────────── */}
-          <p className="text-[10px] font-black uppercase tracking-widest text-akaza-marron/30 pt-2">
-            Merma Estimada (%)
-          </p>
-          <p className="text-[10px] text-gray-400 -mt-3">
-            Pérdida estimada del insumo durante la preparación de platos.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className={labelClass}>Merma Mínima %</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={formData.merma_min_porcentaje}
-                onChange={(e) => onChange("merma_min_porcentaje", e.target.value)}
-                className={inputClass}
-                placeholder="Ej. 5"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className={labelClass}>Merma Máxima %</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={formData.merma_max_porcentaje}
-                onChange={(e) => onChange("merma_max_porcentaje", e.target.value)}
-                className={inputClass}
-                placeholder="Ej. 15"
-                disabled={isLoading}
-              />
+            {/* Fila 3: Merma */}
+            <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+              <div className="col-span-2 text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">
+                Merma Estimada (%)
+              </div>
+              <div className="space-y-1">
+                <label className={labelClass}>Mínima (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={formData.merma_min_porcentaje}
+                  onChange={(e) => onChange("merma_min_porcentaje", e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej. 5"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className={labelClass}>Máxima (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={formData.merma_max_porcentaje}
+                  onChange={(e) => onChange("merma_max_porcentaje", e.target.value)}
+                  className={inputClass}
+                  placeholder="Ej. 15"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
           </div>
+        </form>
 
-          {/* Submit */}
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-center justify-between gap-3 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl border border-gray-200 font-bold text-gray-500 hover:bg-gray-50 transition-all text-[10px] uppercase tracking-widest"
+          >
+            Cancelar
+          </button>
           <button
             type="submit"
+            onClick={(e) => { e.preventDefault(); onSubmit(e); }}
             disabled={isLoading}
-            className="w-full bg-akaza-marron text-white py-5 rounded-[1.5rem] font-black text-lg hover:shadow-2xl transition-all active:scale-[0.98] mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 max-w-[200px] py-2.5 rounded-xl bg-akaza-marron text-white font-black hover:bg-black transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest shadow-lg shadow-akaza-marron/20 disabled:opacity-50 disabled:shadow-none"
           >
             {isLoading ? (
-              <>
-                <RefreshCw size={18} className="animate-spin" />
-                Guardando...
-              </>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : editingProduct ? (
-              "Actualizar Producto"
+              "Actualizar"
             ) : (
-              "Guardar Producto"
+              "Guardar"
             )}
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

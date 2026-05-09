@@ -79,7 +79,8 @@ export type Receta = {
 export type Plato = {
   id: number;
   nombre: string;
-  precio: number; // Mapeado de precio_venta
+  precio: number; // Mapeado de precio_venta en algunos lugares
+  precio_venta?: number; // Valor directo del backend
   descripcion: string;
   img_url: string; // Mapeado de imagen_url
   categoria: string;
@@ -109,10 +110,13 @@ export type PlatoCreatePayload = {
 export type Combo = {
   id: number;
   nombre: string;
-  precio: number;
+  precio?: number;
+  precio_venta?: number;
   incluye: string;
   ahorro_estimado: number;
-  img_url: string;
+  img_url?: string;
+  imagen_url?: string;
+  platos?: { id: number; nombre: string }[];
 };
 
 export type Dish = {

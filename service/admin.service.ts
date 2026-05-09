@@ -27,8 +27,10 @@ export const AdminService = {
   },
 
   // ── Módulo de Compras ───────────────────────────────────────────────────────
-  getComprasDelDia: async () => {
-    const { data } = await api.get("/api/compras/");
+  getComprasDelDia: async (fecha?: string) => {
+    const { data } = await api.get("/api/compras/", {
+      params: fecha ? { fecha } : {}
+    });
     return data;
   },
   // POST /api/compras → registra la compra, actualiza stock y precio del producto

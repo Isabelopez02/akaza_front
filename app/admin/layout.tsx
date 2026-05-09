@@ -201,42 +201,42 @@ export default function AdminLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-8 z-40 flex-shrink-0">
+        {/* Header Minimalista */}
+        <header className="h-16 bg-white/90 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0 sticky top-0">
           <div className="flex items-center gap-4 flex-1">
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setIsSidebarExpanded(true)}
-              className="p-2 bg-gray-50 text-akaza-marron rounded-xl md:hidden hover:bg-gray-100 transition-colors"
+              className="p-1.5 bg-gray-50 text-akaza-marron rounded-lg md:hidden hover:bg-gray-100 transition-colors"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </button>
 
-            <div className="relative w-full max-w-md hidden sm:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <div className="relative w-full max-w-sm hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
               <input 
                 type="text" 
-                placeholder="Buscar en el panel..." 
-                className="w-full bg-gray-50 border-none rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-akaza-amarillo/50 transition-all outline-none"
+                placeholder="Buscar..." 
+                className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-1.5 pl-9 pr-4 text-xs focus:bg-white focus:ring-2 focus:ring-akaza-marron/10 transition-all outline-none"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
-            <button className="relative p-2 text-gray-400 hover:text-akaza-marron transition-colors">
-              <Bell size={22} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          <div className="flex items-center gap-4">
+            <button className="relative p-1.5 text-gray-400 hover:text-akaza-marron hover:bg-gray-50 rounded-lg transition-colors">
+              <Bell size={18} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             </button>
             
-            <div className="h-8 w-px bg-gray-100 hidden xs:block" />
+            <div className="h-6 w-px bg-gray-100 hidden xs:block" />
 
             <div className="flex items-center gap-3">
-              <div className="text-right hidden lg:block">
-                <p className="text-sm font-bold text-akaza-marron leading-none">Admin Akaza</p>
-                <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mt-1">Super Admin</p>
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-black text-akaza-marron leading-none">Admin Akaza</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Super Admin</p>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-akaza-crema border border-akaza-marron/5 flex items-center justify-center text-akaza-marron shadow-sm">
-                <User size={20} />
+              <div className="w-8 h-8 rounded-xl bg-akaza-crema/50 border border-akaza-marron/10 flex items-center justify-center text-akaza-marron shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                <User size={14} />
               </div>
             </div>
           </div>

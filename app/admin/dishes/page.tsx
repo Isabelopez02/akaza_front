@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, ArrowUpDown } from "lucide-react";
 import { DishCard } from "@/component/admin/DishCard";
 import { DishModal } from "@/component/admin/DishModal";
+import { DishDetailsModal } from "@/component/admin/DishDetailsModal";
 import { DishFormData, DEFAULT_DISH_FORM } from "@/component/admin/DishForm";
 import type { Plato, Producto } from "@/ts/types";
 import { AdminService } from "../../../service/admin.service";
@@ -13,11 +14,12 @@ import { PageHeader } from "@/component/admin/PageHeader";
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Plato[]>([]);
   const [productosOptions, setProductosOptions] = useState<Producto[]>([]);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedDish, setSelectedDish] = useState<Plato | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<Plato | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<DishFormData>(DEFAULT_DISH_FORM);
-
   // Filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
@@ -51,6 +53,11 @@ export default function DishesPage() {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+  const handleViewDetails = (dish: Plato) => {
+    setSelectedDish(dish);
+    setIsDetailsModalOpen(true);
+  };
 
   const handleOpenModal = (dish: Plato | null = null) => {
     if (dish) {
@@ -181,49 +188,49 @@ export default function DishesPage() {
         </Button>
       </PageHeader>
 
-      <div className="grid gap-4 mb-8 md:grid-cols-[1fr_280px]">
-        <div className="space-y-4">
-          <div className="relative group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-amarillo transition-colors pointer-events-none" size={18} />
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-6 py-4 bg-gray-50 text-akaza-marron rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors"
-              placeholder="Buscar plato por nombre o descripción"
-            />
+      {/* Controles de Filtrado Minimalistas */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={16} />
+          <input
+            type="text"
+            placeholder="Buscar plato por nombre o descripción..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm text-gray-700"
+          />
+        </div>
+        
+        <div className="flex gap-2">
+          <div className="relative group min-w-[140px]">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full pl-9 pr-8 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
+            >
+              <option value="all">Todas</option>
+              <option value="Criollo">Criollo</option>
+              <option value="Marino">Marino</option>
+              <option value="Internacional">Internacional</option>
+              <option value="Entrada">Entrada</option>
+              <option value="Postre">Postre</option>
+              <option value="Bebida">Bebida</option>
+            </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative group">
-              <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-amarillo transition-colors pointer-events-none" size={18} />
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full pl-14 pr-8 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors cursor-pointer appearance-none"
-              >
-                <option value="all">Todas las categorías</option>
-                <option value="Criollo">Criollo</option>
-                <option value="Marino">Marino</option>
-                <option value="Internacional">Internacional</option>
-                <option value="Entrada">Entrada</option>
-                <option value="Postre">Postre</option>
-                <option value="Bebida">Bebida</option>
-              </select>
-            </div>
-
-            <div className="relative group">
-              <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-akaza-marron transition-colors pointer-events-none" size={18} />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full pl-12 pr-8 py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold text-sm border-none outline-none hover:bg-gray-100 transition-colors cursor-pointer appearance-none"
-              >
-                <option value="">Ordenar por...</option>
-                <option value="nombre">Nombre (A-Z)</option>
-                <option value="precio">Precio (Mayor a menor)</option>
-                <option value="recientes">Más recientes</option>
-              </select>
-            </div>
+          <div className="relative group min-w-[140px]">
+            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full pl-9 pr-8 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
+            >
+              <option value="">Ordenar...</option>
+              <option value="nombre">Nombre (A-Z)</option>
+              <option value="precio">Mayor precio</option>
+              <option value="recientes">Recientes</option>
+            </select>
           </div>
         </div>
       </div>
@@ -235,7 +242,8 @@ export default function DishesPage() {
             key={dish.id} 
             dish={dish} 
             onEdit={handleOpenModal} 
-            onDelete={handleDelete} 
+            onDelete={handleDelete}
+            onView={handleViewDetails}
           />
         ))}
       </div>
@@ -251,6 +259,14 @@ export default function DishesPage() {
         onChange={(field, value) => setFormData(prev => ({ ...prev, [field]: value }))}
         onSubmit={handleSubmit}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      {/* MODAL DE DETALLES */}
+      <DishDetailsModal
+        isOpen={isDetailsModalOpen}
+        dish={selectedDish}
+        productOptions={productosOptions}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

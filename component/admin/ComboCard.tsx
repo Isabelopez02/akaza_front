@@ -1,5 +1,5 @@
 "use client";
-import { Layers, Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { Pencil, Trash2, Package, CheckCircle2 } from "lucide-react";
 import { Combo } from "@/ts/types";
 
 type ComboCardProps = {
@@ -9,54 +9,78 @@ type ComboCardProps = {
 };
 
 export function ComboCard({ combo, onEdit, onDelete }: ComboCardProps) {
+  const precio = Number(combo.precio || combo.precio_venta || 0);
+  const imageUrl = combo.img_url || combo.imagen_url;
+  const incluyeItems = combo.incluye ? combo.incluye.split(" + ") : (combo.platos ? combo.platos.map(p => p.nombre) : []);
+
   return (
-    <div className="bg-white rounded-[3rem] border-2 border-dashed border-akaza-amarillo p-8 relative hover:border-solid hover:shadow-2xl transition-all group overflow-hidden flex flex-col h-full">
-      {/* Discount Badge */}
-      <div className="absolute -right-12 top-8 bg-akaza-amarillo text-akaza-marron px-14 py-2 rotate-45 font-black text-[10px] uppercase tracking-widest shadow-sm z-10">
-        Oferta
-      </div>
-
-      <div className="flex justify-between items-start mb-6">
-        <div className="p-4 bg-akaza-crema rounded-[2rem] text-akaza-marron group-hover:bg-akaza-amarillo transition-colors">
-          <Layers size={32} />
+    <div className="bg-white rounded-[1.2rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-2xl transition-all group flex flex-col h-full">
+      <div className="h-48 relative overflow-hidden bg-gray-100">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={combo.nombre}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <Package size={32} className="text-gray-400 opacity-50" />
+          </div>
+        )}
+        <div className="absolute text-sm top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-akaza-marron shadow-sm">
+          S/ {precio.toFixed(2)}
         </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => onEdit(combo)} 
-            className="p-3 bg-gray-50 text-gray-400 hover:text-akaza-marron hover:bg-white rounded-2xl transition-all shadow-sm"
-          >
-            <Pencil size={20} />
-          </button>
-          <button 
-            onClick={() => onDelete(combo.id)}
-            className="p-3 bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-white rounded-2xl transition-all shadow-sm"
-          >
-            <Trash2 size={20} />
-          </button>
+        <div className="absolute top-4 left-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-akaza-amarillo bg-akaza-marron/80 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            Combo Promo
+          </span>
         </div>
       </div>
-
-      <div className="flex-1">
-        <h3 className="text-2xl font-black text-akaza-marron mb-4 leading-tight">{combo.nombre}</h3>
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-start justify-between mb-3 gap-2">
+          <h3 className="text-base font-black text-akaza-marron leading-tight flex-1">
+            {combo.nombre}
+          </h3>
+          <div className="flex gap-1">
+            <button
+              onClick={() => onEdit(combo)}
+              className="p-1.5 text-gray-400 hover:text-akaza-marron hover:bg-akaza-crema rounded-lg transition-all"
+            >
+              <Pencil size={16} />
+            </button>
+            <button
+              onClick={() => onDelete(combo.id)}
+              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
         
-        <div className="space-y-3 mb-8">
-          {combo.incluye.split(" + ").map((item, i) => (
-            <div key={i} className="flex items-start gap-3 text-gray-600 font-medium text-sm">
-              <CheckCircle2 size={16} className="text-akaza-amarillo mt-0.5 flex-shrink-0" />
-              <span>{item}</span>
+        <div className="flex-1 space-y-1.5 mb-4">
+          {incluyeItems.map((item, i) => (
+            <div key={i} className="flex items-start gap-1.5 text-gray-500 text-xs">
+              <CheckCircle2 size={14} className="text-akaza-amarillo mt-0.5 flex-shrink-0" />
+              <span className="font-medium leading-tight line-clamp-1">{item}</span>
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="flex items-end justify-between pt-6 border-t border-gray-50 mt-auto">
-        <div>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Ahorras</p>
-          <p className="text-lg font-black text-green-600">S/ {combo.ahorro_estimado.toFixed(2)}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Precio Combo</p>
-          <p className="text-4xl font-black text-akaza-marron leading-none">S/ {combo.precio.toFixed(2)}</p>
+        <div className="flex items-end justify-between mt-auto">
+          <div>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Precio</p>
+            <p className="text-lg font-black text-akaza-marron leading-none tracking-tight">
+              S/ {Number(combo.precio_venta || combo.precio || 0).toFixed(2)}
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="inline-block bg-green-50 text-green-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">
+              Ahorras S/ {Number(combo.ahorro_estimado || 0).toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
     </div>
