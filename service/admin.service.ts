@@ -75,6 +75,24 @@ export const AdminService = {
     return data;
   },
 
+  // ── Pedidos (Ventas) ───────────────────────────────────────────────────────
+  getPedidos: async () => {
+    const { data } = await api.get("/api/pedidos/");
+    return data;
+  },
+  crearPedido: async (pedido: any) => {
+    const { data } = await api.post("/api/pedidos/", pedido);
+    return data;
+  },
+  pagarPedido: async (id: number, payload: { metodo_pago: string, monto_efectivo?: number, monto_yape?: number, monto_tarjeta?: number }) => {
+    const { data } = await api.put(`/api/pedidos/${id}/pagar`, null, { params: payload });
+    return data;
+  },
+  anularPedido: async (id: number) => {
+    const { data } = await api.put(`/api/pedidos/${id}/anular`);
+    return data;
+  },
+
   // ── Usuarios ──────────────────────────────────────────────────────────────
   getUsuarios: async () => {
     const { data } = await api.get("/api/admin/usuarios/");

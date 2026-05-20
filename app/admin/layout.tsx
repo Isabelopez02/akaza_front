@@ -61,6 +61,7 @@ export default function AdminLayout({
         { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" }, // Ajusté la ruta para que no choque
         { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
         { name: "Combos", icon: Layers, href: "/admin/combos" },
+        { name: "Ventas", icon: Layers, href: "/admin/venta" },
       ]
     },
     {
