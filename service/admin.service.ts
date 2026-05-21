@@ -97,5 +97,11 @@ export const AdminService = {
   getUsuarios: async () => {
     const { data } = await api.get("/api/admin/usuarios/");
     return data;
-  }
+  },
+
+  // ── Dashboard KPIs ────────────────────────────────────────────────────────
+  getDashboardStats: async () => {
+    const { data } = await api.get("/api/admin/dashboard/stats");
+    return data;
+  },
 };

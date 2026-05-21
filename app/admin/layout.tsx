@@ -12,7 +12,8 @@ import {
   Search,
   User,
   ShoppingCartIcon,
-  User2Icon
+  User2Icon,
+  BarChart3
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -52,6 +53,7 @@ export default function AdminLayout({
       title: "Principal",
       items: [
         { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+        { name: "Reporte", icon: BarChart3, href: "/admin/reporte" },
       ]
     },
     {
