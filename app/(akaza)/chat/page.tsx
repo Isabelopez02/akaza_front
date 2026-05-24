@@ -11,8 +11,9 @@ import { AuthModal } from "@/component/modal/AuthModal";
 import { ProfileModal } from "@/component/modal/ProfileModal";
 import { OrdersModal } from "@/component/modal/OrdersModal";
 import { QrModal } from "@/layout/QrModal";
-import { initialProfileData, mockOrders } from "@/ts/constants";
-import { AuthForm, ProfileData } from "@/ts/types";
+import { initialProfileData } from "@/types/constants";
+import { AuthForm, ProfileData, Order } from "@/types";
+import { AdminService } from "@/service/admin.service";
 
 type ChatRole = "user" | "bot";
 
@@ -62,6 +63,7 @@ function ChatAkazaFinal() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVoicePending, setIsVoicePending] = useState(false);
   const [idUsuario, setIdUsuario] = useState<number | null>(null);
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -122,6 +124,7 @@ function ChatAkazaFinal() {
       if (resLogin?.access_token) {
         setIsLoggedIn(true);
         const data = await AuthService.checkSession();
+        setIdUsuario(data?.id ? Number(data.id) : null);
         setProfileData((prev) => ({
           ...prev,
           name: data?.nombre || authForm.fullName || data?.correo || "Usuario",
@@ -145,8 +148,69 @@ function ChatAkazaFinal() {
   const handleLogout = () => {
     AuthService.logout();
     setIsLoggedIn(false);
+    setIdUsuario(null);
+    setUserOrders([]);
     setIsUserMenuOpen(false);
     router.push("/");
+  };
+
+  const openOrdersModal = async () => {
+    setIsOrdersOpen(true);
+    setIsUserMenuOpen(false);
+
+    try {
+      // Obtener el ID de usuario más reciente directamente de la sesión activa
+      const sessionData = await AuthService.checkSession();
+      const currentUserId = sessionData?.id ? Number(sessionData.id) : idUsuario;
+      console.log("[openOrdersModal] currentUserId:", currentUserId);
+
+      const ps = await AdminService.getPlatos();
+      const cs = await AdminService.getCombos();
+      const allPedidos = await AdminService.getPedidos();
+      
+      const filtered = allPedidos.filter((p: any) => 
+        currentUserId !== null && String(p.id_usuario) === String(currentUserId)
+      );
+      
+      const mappedOrders: Order[] = filtered.map((p: any) => {
+        const dishesList = (p.detalles || []).map((det: any) => {
+          let name = "Plato";
+          if (det.id_plato) {
+            const matched = ps.find((x: any) => x.id === det.id_plato);
+            if (matched) name = matched.nombre;
+          } else if (det.id_combo) {
+            const matched = cs.find((x: any) => x.id === det.id_combo);
+            if (matched) name = matched.nombre;
+          }
+          return `${det.cantidad}x ${name}`;
+        });
+        
+        let statusText: "ESPERA" | "COCINANDO" | "LISTO" | "PAGADO" = "ESPERA";
+        if (p.estado_pago === "PAGADO") {
+          statusText = "PAGADO";
+        } else if (p.estado_cocina === "PREPARANDO" || p.estado_cocina === "En proceso") {
+          statusText = "COCINANDO";
+        } else if (p.estado_cocina === "LISTO" || p.estado_cocina === "Listo") {
+          statusText = "LISTO";
+        }
+        
+        return {
+          id: p.ticket || `ORD-${p.id}`,
+          date: new Date(p.fecha_venta).toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }),
+          total: `S/ ${Number(p.total).toFixed(2)}`,
+          status: statusText,
+          dishes: dishesList,
+        };
+      });
+      
+      setUserOrders(mappedOrders);
+    } catch (err) {
+      console.error("Error loading user orders:", err);
+    }
   };
 
   // Chat Handlers
@@ -272,7 +336,7 @@ function ChatAkazaFinal() {
 
       <QrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
       <ProfileModal isOpen={isProfileOpen} profileData={profileData} onClose={() => setIsProfileOpen(false)} onChange={(f, v) => setProfileData(p => ({ ...p, [f]: v }))} />
-      <OrdersModal isOpen={isOrdersOpen} orders={mockOrders} onClose={() => setIsOrdersOpen(false)} onReorder={() => {}} />
+      <OrdersModal isOpen={isOrdersOpen} orders={userOrders} onClose={() => setIsOrdersOpen(false)} onReorder={() => {}} />
     </div>
   );
 }

@@ -39,7 +39,7 @@ export function PreferenciasPanel({
                 ))}
               </Pie>
               <Tooltip
-                formatter={(v: number, n: string) => [`${v} und.`, n]}
+                formatter={(v: any, n: any) => [`${v} und.`, n]}
                 contentStyle={{ borderRadius: 14, border: "1px solid #f0f0f0", fontSize: 12, fontWeight: 700 }}
               />
               <Legend iconType="circle" iconSize={8}

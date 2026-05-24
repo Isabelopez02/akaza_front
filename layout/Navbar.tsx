@@ -82,7 +82,7 @@ export function Navbar({
             onClick={onOpenLogin}
             className="bg-akaza-marron text-white px-6 py-2.5 rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
           >
-            <User size={16} /> Login
+            <User size={16} /> Iniciar sesión
           </button>
         ) : (
           <>

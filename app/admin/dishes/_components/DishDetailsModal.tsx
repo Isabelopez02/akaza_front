@@ -1,6 +1,6 @@
 "use client";
 import { X, UtensilsCrossed, DollarSign, Tag, FileText } from "lucide-react";
-import { Plato, Producto } from "@/ts/types";
+import { Plato, Producto } from "@/types";
 
 type DishDetailsModalProps = {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 "use client";
 import { Pencil, Trash2, UtensilsCrossed } from "lucide-react";
-import { Plato } from "@/ts/types";
+import { Plato } from "@/types";
 
 type DishCardProps = {
   dish: Plato;

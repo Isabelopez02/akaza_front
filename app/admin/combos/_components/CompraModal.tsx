@@ -4,7 +4,7 @@ import {
   X, Search, RefreshCw, AlertTriangle, Plus, 
   ShoppingBag, Calculator, Check, ArrowRight, Info 
 } from "lucide-react";
-import { Producto } from "@/ts/types";
+import { Producto } from "@/types";
 
 type CompraModalProps = {
   isOpen: boolean;

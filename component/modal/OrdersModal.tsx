@@ -1,5 +1,5 @@
 import { BadgeCheck, ClipboardList, X } from "lucide-react";
-import { Order } from "@/ts/types";
+import { Order } from "@/types";
 
 type OrdersModalProps = {
   isOpen: boolean;
@@ -43,48 +43,60 @@ export function OrdersModal({
           </button>
         </div>
 
-        <div className="p-6 md:p-8 overflow-y-auto space-y-4">
-          {orders.map((order) => (
-            <article
-              key={order.id}
-              className="bg-white rounded-3xl border border-akaza-marron/5 p-5 shadow-sm hover:shadow-lg transition-all"
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-akaza-marron/40 font-bold">
-                    Pedido {order.id}
-                  </p>
-                  <p className="text-sm text-akaza-marron/60 font-medium">
-                    Fecha: {order.date}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-black tracking-wide ${statusStyles[order.status]}`}
-                  >
-                    {order.status}
-                  </span>
-                  <span className="text-akaza-marron font-black text-lg">{order.total}</span>
-                </div>
+        <div className="p-6 md:p-8 overflow-y-auto space-y-4 flex-1">
+          {orders.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-300">
+              <div className="w-20 h-20 bg-akaza-marron/5 rounded-full flex items-center justify-center text-akaza-marron/40 mb-4 shadow-inner">
+                <ClipboardList size={36} />
               </div>
-
-              <ul className="text-sm text-akaza-marron/70 space-y-1 mb-4">
-                {order.dishes.map((dish) => (
-                  <li key={dish} className="flex items-center gap-2">
-                    <BadgeCheck size={15} className="text-akaza-amarillo" />
-                    {dish}
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => onReorder(order.dishes[0])}
-                className="px-5 py-3 rounded-2xl bg-akaza-marron text-white text-sm font-bold hover:shadow-lg transition-all active:scale-95"
+              <h4 className="text-akaza-marron font-black text-xl">¿Aún no has ordenado?</h4>
+              <p className="text-sm text-akaza-marron/60 max-w-sm mt-2">
+                Escanea el código QR de tu mesa, chatea con Akaza para armar tu pedido, y una vez que lo confirmes aparecerá aquí en tiempo real.
+              </p>
+            </div>
+          ) : (
+            orders.map((order) => (
+              <article
+                key={order.id}
+                className="bg-white rounded-3xl border border-akaza-marron/5 p-5 shadow-sm hover:shadow-lg transition-all"
               >
-                Volver a pedir
-              </button>
-            </article>
-          ))}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-akaza-marron/40 font-bold">
+                      Pedido {order.id}
+                    </p>
+                    <p className="text-sm text-akaza-marron/60 font-medium">
+                      Fecha: {order.date}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-black tracking-wide ${statusStyles[order.status]}`}
+                    >
+                      {order.status}
+                    </span>
+                    <span className="text-akaza-marron font-black text-lg">{order.total}</span>
+                  </div>
+                </div>
+
+                <ul className="text-sm text-akaza-marron/70 space-y-1 mb-4">
+                  {order.dishes.map((dish) => (
+                    <li key={dish} className="flex items-center gap-2">
+                      <BadgeCheck size={15} className="text-akaza-amarillo" />
+                      {dish}
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => onReorder(order.dishes[0])}
+                  className="px-5 py-3 rounded-2xl bg-akaza-marron text-white text-sm font-bold hover:shadow-lg transition-all active:scale-95"
+                >
+                  Volver a pedir
+                </button>
+              </article>
+            ))
+          )}
         </div>
       </div>
     </div>

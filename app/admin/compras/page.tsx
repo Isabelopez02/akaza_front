@@ -7,8 +7,8 @@ import {
   ShoppingBag
 } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
-import { Producto, CompraResponse } from "@/ts/types";
-import { CompraModal } from "@/component/admin/CompraModal";
+import { Producto, CompraResponse } from "@/types";
+import { CompraModal } from "@/app/admin/combos/_components/CompraModal";
 import { Button } from "@/component/admin/Button";
 import { PageHeader } from "@/component/admin/PageHeader";
 

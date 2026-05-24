@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Dish } from "@/ts/types";
+import { Dish } from "@/types";
 
 type SpecialtiesSectionProps = {
   dishes: Dish[];

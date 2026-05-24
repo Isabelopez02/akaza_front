@@ -1,6 +1,6 @@
 "use client";
 import { Pencil, Trash2, Package, CheckCircle2 } from "lucide-react";
-import { Combo } from "@/ts/types";
+import { Combo } from "@/types";
 
 type ComboCardProps = {
   combo: Combo;

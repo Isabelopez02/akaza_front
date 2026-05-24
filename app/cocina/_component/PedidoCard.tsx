@@ -1,7 +1,7 @@
 "use client";
 
 import EstadoBadge from "./EstadoBadge";
-import { Pedido } from "@/ts/pedido";
+import { Pedido } from "@/types";
 
 interface Props {
   pedido: Pedido;

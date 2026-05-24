@@ -14,7 +14,7 @@
  */
 "use client";
 import { X, RefreshCw, AlertTriangle, Package } from "lucide-react";
-import { Producto } from "@/ts/types";
+import { Producto } from "@/types";
 
 export type ProductFormData = {
   nombre: string;

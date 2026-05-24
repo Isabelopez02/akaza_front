@@ -9,7 +9,7 @@ import {
   ProductFormData,
   DEFAULT_PRODUCT_FORM,
 } from "@/component/admin/ProductModal";
-import { Producto } from "@/ts/types";
+import { Producto } from "@/types";
 import { Button } from "@/component/admin/Button";
 import { PageHeader } from "@/component/admin/PageHeader";
 

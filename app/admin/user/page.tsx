@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Search, Users, UserCheck, Calendar, Plus } from "lucide-react";
 import { AdminService } from "../../../service/admin.service";
 import { PageHeader } from "@/component/admin/PageHeader";
 import { Button } from "@/component/admin/Button";
-import type { Usuario } from "@/ts/types";
+import type { Usuario } from "@/types";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<Usuario[]>([]);

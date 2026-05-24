@@ -7,10 +7,10 @@ import {
   Image as ImageIcon,
   Upload,
 } from "lucide-react";
-import { ComboCard } from "@/component/admin/ComboCard";
-import { ComboModal } from "@/component/admin/ComboModal";
-import { ComboFormData, DEFAULT_COMBO_FORM } from "@/component/admin/ComboForm";
-import { Combo, Plato } from "@/ts/types";
+import { ComboCard } from "@/app/admin/combos/_components/ComboCard";
+import { ComboModal } from "@/app/admin/combos/_components/ComboModal";
+import { ComboFormData, DEFAULT_COMBO_FORM } from "@/app/admin/combos/_components/ComboForm";
+import { Combo, Plato } from "@/types";
 import { AdminService } from "@/service/admin.service";
 import { Button } from "@/component/admin/Button";
 import { PageHeader } from "@/component/admin/PageHeader";

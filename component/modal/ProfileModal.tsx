@@ -1,11 +1,12 @@
 import { CircleUserRound, Save, X } from "lucide-react";
-import { ProfileData } from "@/ts/types";
+import { ProfileData } from "@/types";
 
 type ProfileModalProps = {
   isOpen: boolean;
   profileData: ProfileData;
   onClose: () => void;
   onChange: (field: keyof ProfileData, value: string) => void;
+  onSave?: () => void;
 };
 
 export function ProfileModal({
@@ -13,6 +14,7 @@ export function ProfileModal({
   profileData,
   onClose,
   onChange,
+  onSave,
 }: ProfileModalProps) {
   if (!isOpen) return null;
 
@@ -36,7 +38,7 @@ export function ProfileModal({
           </button>
         </div>
 
-        <form className="p-8 md:p-10 grid gap-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="p-8 md:p-10 grid gap-5" onSubmit={(e) => { e.preventDefault(); onSave?.(); }}>
           <div className="space-y-1">
             <label className="text-xs font-bold text-akaza-marron/60 uppercase ml-2 tracking-wide">
               Nombre

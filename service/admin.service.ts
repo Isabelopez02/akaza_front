@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { CompraPayload, CompraResponse } from "@/ts/types";
+import { CompraPayload, CompraResponse } from "@/types";
 
 export const AdminService = {
   // ── Productos (Insumos) ─────────────────────────────────────────────────────

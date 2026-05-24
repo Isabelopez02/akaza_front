@@ -1,4 +1,4 @@
-import { Pedido } from "@/ts/pedido";
+import { Pedido } from "@/types";
 
 const API_URL = "http://localhost:8000";
 

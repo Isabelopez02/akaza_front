@@ -1,6 +1,6 @@
 "use client";
 
-import CocinaSidebar from "@/component/cocina/CocinaSidebar";
+import CocinaSidebar from "@/app/cocina/_component/CocinaSidebar";
 
 export default function CocinaChatPage() {
   return (

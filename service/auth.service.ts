@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { UserData } from "@/ts/types";
+import { UserData } from "@/types";
 
 /** Obtiene el valor de una cookie por su nombre */
 function leerCookie(nombre: string): string | null {
@@ -78,6 +78,15 @@ export const AuthService = {
   register: async (nombre: string, correo: string, password: string) => {
     const userData = { nombre, correo, contrasenia: password };
     const { data } = await api.post("/api/auth/register", userData);
+    return data;
+  },
+
+  /** Actualiza el perfil del usuario (alergias y preferencias) */
+  updateProfile: async (allergies: string, preferences: string) => {
+    const { data } = await api.put("/api/auth/profile", {
+      alergias: allergies,
+      preferencias: preferences,
+    });
     return data;
   },
 

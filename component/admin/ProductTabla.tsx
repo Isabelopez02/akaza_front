@@ -9,8 +9,7 @@ import {
   TrendingUp,
   Plus,
 } from "lucide-react";
-import { Producto } from "@/ts/types";
-import { CompraModal } from "./CompraModal";
+import { Producto } from "@/types";
 
 type ProductCardProps = {
   product: Producto;
@@ -25,8 +24,6 @@ export function ProductTabla({
   onDelete,
   onProductoActualizado,
 }: ProductCardProps) {
-  const [showCompraModal, setShowCompraModal] = useState(false);
-
   const stockBajo = Number(product.stock_actual) < Number(product.stock_minimo_alerta);
   const hasMerma =
     product.merma_min_porcentaje != null && product.merma_max_porcentaje != null;
@@ -127,16 +124,6 @@ export function ProductTabla({
         </td>
       </tr>
 
-      {showCompraModal && (
-        <CompraModal
-          producto={product}
-          onClose={() => setShowCompraModal(false)}
-          onSuccess={(productoActualizado) => {
-            onProductoActualizado(productoActualizado);
-            setShowCompraModal(false);
-          }}
-        />
-      )}
     </>
   );
 }

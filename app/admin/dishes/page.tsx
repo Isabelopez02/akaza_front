@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, ArrowUpDown } from "lucide-react";
-import { DishCard } from "@/component/admin/DishCard";
-import { DishModal } from "@/component/admin/DishModal";
-import { DishDetailsModal } from "@/component/admin/DishDetailsModal";
-import { DishFormData, DEFAULT_DISH_FORM } from "@/component/admin/DishForm";
-import type { Plato, Producto } from "@/ts/types";
+import { DishCard } from "@/app/admin/dishes/_components/DishCard";
+import { DishModal } from "@/app/admin/dishes/_components/DishModal";
+import { DishDetailsModal } from "@/app/admin/dishes/_components/DishDetailsModal";
+import { DishFormData, DEFAULT_DISH_FORM } from "@/app/admin/dishes/_components/DishForm";
+import type { Plato, Producto } from "@/types";
 import { AdminService } from "../../../service/admin.service";
 import { Button } from "@/component/admin/Button";
 import { PageHeader } from "@/component/admin/PageHeader";

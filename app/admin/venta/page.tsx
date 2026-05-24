@@ -356,7 +356,7 @@ export default function VentasPage() {
               <div className="p-4 border-t border-dashed border-gray-200 bg-gray-50/50">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-xs font-black uppercase tracking-wider text-gray-500">Total</span>
-                  <span className="text-xl font-black text-akaza-marron">S/{(parseFloat(pedido.total) || 0).toFixed(2)}</span>
+                  <span className="text-xl font-black text-akaza-marron">S/{Number(pedido.total || 0).toFixed(2)}</span>
                 </div>
 
                 <div className="flex gap-2 mt-4">
