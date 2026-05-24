@@ -51,7 +51,7 @@ export default function VentasPage() {
   const [pedidos, setPedidos] = useState<PedidoVenta[]>([]);
   const [platos, setPlatos] = useState<any[]>([]);
   const [combos, setCombos] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [fechaFiltro, setFechaFiltro] = useState(new Date().toISOString().split("T")[0]);
   const [estadoFiltro, setEstadoFiltro] = useState<"todos" | EstadoPedido>("todos");
@@ -69,12 +69,15 @@ export default function VentasPage() {
   const cargarDatos = async () => {
     setIsLoading(true);
     try {
-      const ps = await AdminService.getPlatos();
-      const cs = await AdminService.getCombos();
+      const [ps, cs, data] = await Promise.all([
+        AdminService.getPlatos(),
+        AdminService.getCombos(),
+        AdminService.getPedidos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms skeleton visible!
+      ]);
+      
       setPlatos(ps);
       setCombos(cs);
-
-      const data = await AdminService.getPedidos();
       
       const formated = data.map((d: any) => {
         const productosMapeados = (d.detalles || []).map((det: any) => {
@@ -113,9 +116,9 @@ export default function VentasPage() {
           hora: horaFormat,
           estado: d.estado_pago === "PAGADO" ? "pagado" : (d.estado_pago === "ANULADO" ? "anulado" : "pendiente"),
           productos: productosMapeados,
-          subtotal: d.total / 1.18,
-          igv: d.total - (d.total / 1.18),
-          total: d.total,
+          subtotal: Number(d.total || 0) / 1.18,
+          igv: Number(d.total || 0) - (Number(d.total || 0) / 1.18),
+          total: Number(d.total || 0),
         };
       });
       
@@ -157,7 +160,10 @@ export default function VentasPage() {
 
     setIsSubmittingPago(true);
     try {
-      await AdminService.pagarPedido(pedidoAPagar.id_bd, payload);
+      await Promise.all([
+        AdminService.pagarPedido(pedidoAPagar.id_bd, payload),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms processing delay!
+      ]);
       await cargarDatos();
       
       const pedidoActualizado = { ...pedidoAPagar, estado: "pagado" as EstadoPedido };
@@ -243,7 +249,11 @@ export default function VentasPage() {
         <div className="bg-gradient-to-br from-akaza-marron to-black p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
           <div>
             <p className="text-white/60 text-[11px] font-black uppercase tracking-widest mb-1">Total Recaudado Hoy</p>
-            <p className="text-3xl font-black text-white tracking-tight">S/ {Number(totalVentasDia || 0).toFixed(2)}</p>
+            {isLoading ? (
+              <div className="h-8 w-28 bg-white/20 rounded-xl animate-pulse mt-1.5" />
+            ) : (
+              <p className="text-3xl font-black text-white tracking-tight">S/ {Number(totalVentasDia || 0).toFixed(2)}</p>
+            )}
           </div>
           <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white border border-white/10">
             <DollarSign size={24} strokeWidth={2.5} />
@@ -253,7 +263,11 @@ export default function VentasPage() {
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
           <div>
             <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-1">Pedidos Pagados</p>
-            <p className="text-3xl font-black text-akaza-marron tracking-tight">{cantidadPedidosPagados}</p>
+            {isLoading ? (
+              <div className="h-8 w-16 bg-gray-200 rounded-xl animate-pulse mt-1.5" />
+            ) : (
+              <p className="text-3xl font-black text-akaza-marron tracking-tight">{cantidadPedidosPagados}</p>
+            )}
           </div>
           <div className="w-12 h-12 bg-akaza-marron/5 rounded-2xl flex items-center justify-center text-akaza-marron border border-akaza-marron/10">
             <CheckCircle2 size={24} strokeWidth={2.5} />
@@ -263,9 +277,13 @@ export default function VentasPage() {
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
           <div>
             <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-1">Tickets Pendientes</p>
-            <p className="text-3xl font-black text-yellow-600 tracking-tight">
-              {pedidosFiltrados.filter(p => p.estado === "pendiente").length}
-            </p>
+            {isLoading ? (
+              <div className="h-8 w-16 bg-gray-200 rounded-xl animate-pulse mt-1.5" />
+            ) : (
+              <p className="text-3xl font-black text-yellow-600 tracking-tight">
+                {pedidosFiltrados.filter(p => p.estado === "pendiente").length}
+              </p>
+            )}
           </div>
           <div className="w-12 h-12 bg-yellow-50 rounded-2xl flex items-center justify-center text-yellow-600 border border-yellow-100">
             <Clock size={24} strokeWidth={2.5} />
@@ -302,8 +320,36 @@ export default function VentasPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-akaza-marron"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden animate-pulse relative">
+              <div className="p-4 border-b border-gray-100 bg-gray-50/50 space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="h-5 bg-gray-200 rounded-lg w-1/3"></div>
+                  <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                </div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="space-y-1 pt-2">
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                </div>
+              </div>
+              <div className="p-4 space-y-3 min-h-[120px]">
+                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+              <div className="p-4 border-t border-dashed border-gray-200 bg-gray-50/50 space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-6 bg-gray-200 rounded-lg w-1/3"></div>
+                </div>
+                <div className="h-9 bg-gray-200 rounded-xl w-full mt-2"></div>
+              </div>
+              <div className="absolute -left-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-r border-gray-200"></div>
+              <div className="absolute -right-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-l border-gray-200"></div>
+            </div>
+          ))}
         </div>
       ) : pedidosFiltrados.length === 0 ? (
         <div className="text-center py-20 bg-white border border-gray-100 rounded-3xl">

@@ -21,6 +21,7 @@ export default function CombosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCombo, setEditingCombo] = useState<Combo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [modalError, setModalError] = useState<string | null>(null);
   const [formData, setFormData] = useState<ComboFormData>(DEFAULT_COMBO_FORM);
 
@@ -29,24 +30,22 @@ export default function CombosPage() {
 
   useEffect(() => {
     loadCombos();
-    loadPlatos();
   }, []);
 
   const loadCombos = async () => {
+    setIsFetching(true);
     try {
-      const data = await AdminService.getCombos();
-      setCombos(data);
+      const [combosData, platosData] = await Promise.all([
+        AdminService.getCombos(),
+        AdminService.getPlatos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
+      ]);
+      setCombos(combosData);
+      setPlatoOptions(platosData);
     } catch (error) {
       console.error("Error cargando combos:", error);
-    }
-  };
-
-  const loadPlatos = async () => {
-    try {
-      const platos = await AdminService.getPlatos();
-      setPlatoOptions(platos);
-    } catch (error) {
-      console.error("Error cargando platos:", error);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -208,14 +207,36 @@ export default function CombosPage() {
 
       {/* Grid of ComboCards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {getFilteredAndSortedCombos().map((combo) => (
-          <ComboCard 
-            key={combo.id} 
-            combo={combo} 
-            onEdit={handleOpenModal} 
-            onDelete={handleDelete} 
-          />
-        ))}
+        {isFetching ? (
+          [1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-pulse p-4 flex flex-col justify-between h-[340px]">
+              <div className="space-y-4 flex-1">
+                <div className="h-44 bg-gray-200 rounded-2xl w-full"></div>
+                <div className="h-5 bg-gray-200 rounded-lg w-2/3"></div>
+                <div className="h-3 bg-gray-200 rounded w-full"></div>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-gray-50 mt-4">
+                <div className="h-5 bg-gray-200 rounded w-16"></div>
+                <div className="h-9 bg-gray-200 rounded-xl w-24"></div>
+              </div>
+            </div>
+          ))
+        ) : getFilteredAndSortedCombos().length === 0 ? (
+          <div className="col-span-full text-center py-20 bg-white border border-gray-100 rounded-3xl">
+            <Plus className="mx-auto h-12 w-12 text-gray-300 mb-3 opacity-20" />
+            <h3 className="text-sm font-bold text-gray-900">No hay combos</h3>
+            <p className="text-xs text-gray-500 mt-1">No se encontraron combos creados.</p>
+          </div>
+        ) : (
+          getFilteredAndSortedCombos().map((combo) => (
+            <ComboCard 
+              key={combo.id} 
+              combo={combo} 
+              onEdit={handleOpenModal} 
+              onDelete={handleDelete} 
+            />
+          ))
+        )}
       </div>
 
       {/* Modal Form */}

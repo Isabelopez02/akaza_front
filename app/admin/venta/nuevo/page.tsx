@@ -157,7 +157,19 @@ export default function NuevoPedidoPage() {
 
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50/30">
             {isLoading ? (
-              <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-akaza-marron"></div></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array(8).fill(0).map((_, i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[180px] animate-pulse">
+                    <div className="h-28 w-full bg-gray-200 relative">
+                      <div className="absolute top-2 right-2 bg-gray-300 w-12 h-5 rounded-lg" />
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <div className="h-3.5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-2.5 bg-gray-100 rounded w-1/2 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {platosFiltrados.map(p => (

@@ -42,6 +42,7 @@ export default function AdminDashboard() {
       const [data, pedidosData] = await Promise.all([
         AdminService.getDashboardStats(),
         AdminService.getPedidos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
       ]);
       setStats(data);
       const enriched = (pedidosData as any[]).map((p: any) => ({

@@ -139,10 +139,16 @@ export default function ComprasPage() {
             <div className="flex flex-col">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Inversión Total</p>
                 <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-gray-800 tracking-tight">S/ {stats.total.toFixed(2)}</span>
-                <span className="text-[9px] font-black text-green-600 bg-green-100/50 px-1.5 py-0.5 rounded-md leading-none">
-                    +2.4%
-                </span>
+                {isFetching ? (
+                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse mt-1" />
+                ) : (
+                  <>
+                    <span className="text-lg font-bold text-gray-800 tracking-tight">S/ {stats.total.toFixed(2)}</span>
+                    <span className="text-[9px] font-black text-green-600 bg-green-100/50 px-1.5 py-0.5 rounded-md leading-none">
+                        +2.4%
+                    </span>
+                  </>
+                )}
                 </div>
             </div>
             </div>
@@ -160,8 +166,14 @@ export default function ComprasPage() {
             <div className="flex flex-col">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Insumos</p>
                 <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-gray-800 tracking-tight">{stats.count}</span>
-                <span className="text-[10px] font-medium text-gray-400 uppercase">Registros</span>
+                {isFetching ? (
+                  <div className="h-6 w-12 bg-gray-200 rounded animate-pulse mt-1" />
+                ) : (
+                  <>
+                    <span className="text-lg font-bold text-gray-800 tracking-tight">{stats.count}</span>
+                    <span className="text-[10px] font-medium text-gray-400 uppercase">Registros</span>
+                  </>
+                )}
                 </div>
             </div>
             </div>
@@ -178,18 +190,22 @@ export default function ComprasPage() {
             
             <div className="flex flex-col">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Periodo</p>
-                <span className="text-sm font-bold text-gray-700 tracking-tight">
-                {(() => {
-                  if (!selectedDate) return "Selecciona una fecha";
-                  const d = new Date(`${selectedDate}T12:00:00`);
-                  if (isNaN(d.getTime())) return "Fecha Inválida";
-                  return new Intl.DateTimeFormat("es-PE", {
-                      day: "2-digit",
-                      month: "long",
-                      timeZone: "America/Lima",
-                  }).format(d);
-                })()}
-                </span>
+                {isFetching ? (
+                  <div className="h-5 w-28 bg-gray-200 rounded animate-pulse mt-1" />
+                ) : (
+                  <span className="text-sm font-bold text-gray-700 tracking-tight">
+                    {(() => {
+                      if (!selectedDate) return "Selecciona una fecha";
+                      const d = new Date(`${selectedDate}T12:00:00`);
+                      if (isNaN(d.getTime())) return "Fecha Inválida";
+                      return new Intl.DateTimeFormat("es-PE", {
+                          day: "2-digit",
+                          month: "long",
+                          timeZone: "America/Lima",
+                      }).format(d);
+                    })()}
+                  </span>
+                )}
             </div>
             </div>
         </div>
@@ -245,7 +261,42 @@ export default function ComprasPage() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                {filteredCompras.map((c: any) => {
+                {isFetching ? (
+                  // Skeletons de tabla alineados con la estructura de columnas
+                  Array(5).fill(0).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-8 py-5">
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 bg-gray-200 rounded w-12"></div>
+                          <div className="h-2.5 bg-gray-100 rounded w-16"></div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-gray-100 rounded-xl"></div>
+                          <div className="h-3.5 bg-gray-200 rounded w-28"></div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <div className="h-3.5 bg-gray-200 rounded w-10 mx-auto"></div>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <div className="h-3.5 bg-gray-200 rounded w-16 mx-auto"></div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <div className="h-7 bg-gray-100 rounded-xl w-20 ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : filteredCompras.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-8 py-12 text-center text-gray-400">
+                      <Package size={32} className="mx-auto mb-3 opacity-20" />
+                      <p className="text-sm font-bold text-gray-500">No se encontraron compras</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCompras.map((c: any) => {
                     const total = c.cantidad_comprada * c.precio_unidad_compra;
                     const hora = new Date(c.fecha_compra).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const variacion = c.precio_unidad_compra - (c.producto?.precio_compra_anterior || 0);
@@ -291,7 +342,8 @@ export default function ComprasPage() {
                         </td>
                     </tr>
                     );
-                })}
+                  })
+                )}
                 </tbody>
             </table>
             </div>
@@ -304,13 +356,21 @@ export default function ComprasPage() {
             <div className="bg-akaza-marron rounded-[1.3rem] p-6 text-white shadow-xl shadow-akaza-marron/20 relative overflow-hidden group">
                 <div className="relative z-10">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Inversión Total</p>
-                    <h4 className="text-xl font-black tracking-tighter">
-                    S/ {filteredCompras.reduce((acc, curr) => acc + (curr.cantidad_comprada * curr.precio_unidad_compra), 0).toFixed(2)}
-                    </h4>
+                    {isFetching ? (
+                      <div className="h-6 w-32 bg-white/20 rounded animate-pulse mt-1" />
+                    ) : (
+                      <h4 className="text-xl font-black tracking-tighter animate-in fade-in">
+                        S/ {filteredCompras.reduce((acc, curr) => acc + (curr.cantidad_comprada * curr.precio_unidad_compra), 0).toFixed(2)}
+                      </h4>
+                    )}
                     <div className="mt-4 flex items-center gap-2">
-                    <div className="px-2 py-1 bg-white/10 rounded-lg text-[10px] font-bold">
-                        {filteredCompras.length} operaciones
-                    </div>
+                    {isFetching ? (
+                      <div className="h-5 w-24 bg-white/10 rounded animate-pulse" />
+                    ) : (
+                      <div className="px-2 py-1 bg-white/10 rounded-lg text-[10px] font-bold animate-in fade-in">
+                          {filteredCompras.length} operaciones
+                      </div>
+                    )}
                     </div>
                 </div>
             <ShoppingBag className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 group-hover:scale-110 transition-transform" />
@@ -324,11 +384,15 @@ export default function ComprasPage() {
                     </div>
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Insumo Mayor</p>
                 </div>
-                <p className="text-sm font-black text-gray-700 truncate">
-                    {filteredCompras.length > 0 
-                    ? filteredCompras.reduce((prev, curr) => (prev.precio_unidad_compra > curr.precio_unidad_compra) ? prev : curr).producto?.nombre 
-                    : "---"}
-                </p>
+                {isFetching ? (
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mt-1" />
+                ) : (
+                  <p className="text-sm font-black text-gray-700 truncate animate-in fade-in">
+                      {filteredCompras.length > 0 
+                      ? filteredCompras.reduce((prev, curr) => (prev.precio_unidad_compra > curr.precio_unidad_compra) ? prev : curr).producto?.nombre 
+                      : "---"}
+                  </p>
+                )}
             </div>
 
             {/* Card Informativa Pequeña 2 */}
@@ -337,11 +401,15 @@ export default function ComprasPage() {
                     <Calculator size={16} className="text-gray-400" />
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Promedio / Compra</p>
                 </div>
-                <p className="text-xl font-black text-akaza-marron">
-                    S/ {filteredCompras.length > 0 
-                    ? (filteredCompras.reduce((acc, curr) => acc + (curr.cantidad_comprada * curr.precio_unidad_compra), 0) / filteredCompras.length).toFixed(2)
-                    : "0.00"}
-                </p>
+                {isFetching ? (
+                  <div className="h-6 bg-gray-200 rounded animate-pulse w-1/2 mt-1" />
+                ) : (
+                  <p className="text-xl font-black text-akaza-marron animate-in fade-in">
+                      S/ {filteredCompras.length > 0 
+                      ? (filteredCompras.reduce((acc, curr) => acc + (curr.cantidad_comprada * curr.precio_unidad_compra), 0) / filteredCompras.length).toFixed(2)
+                      : "0.00"}
+                  </p>
+                )}
             </div>
 
         </div>

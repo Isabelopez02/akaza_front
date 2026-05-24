@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, ArrowUpDown } from "lucide-react";
+import { Plus, Search, Filter, ArrowUpDown, UtensilsCrossed } from "lucide-react";
 import { DishCard } from "@/app/admin/dishes/_components/DishCard";
 import { DishModal } from "@/app/admin/dishes/_components/DishModal";
 import { DishDetailsModal } from "@/app/admin/dishes/_components/DishDetailsModal";
@@ -18,7 +18,7 @@ export default function DishesPage() {
   const [selectedDish, setSelectedDish] = useState<Plato | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<Plato | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<DishFormData>(DEFAULT_DISH_FORM);
   // Filtros
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +31,8 @@ export default function DishesPage() {
     try {
       const [platosData, productosData] = await Promise.all([
         AdminService.getPlatos(),
-        AdminService.getProductos()
+        AdminService.getProductos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
       ]);
 
       const platosMapeados = platosData.map((p: any) => ({
@@ -237,15 +238,37 @@ export default function DishesPage() {
 
       {/* Grid de Platos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {getFilteredAndSortedDishes().map((dish) => (
-          <DishCard 
-            key={dish.id} 
-            dish={dish} 
-            onEdit={handleOpenModal} 
-            onDelete={handleDelete}
-            onView={handleViewDetails}
-          />
-        ))}
+        {isLoading ? (
+          [1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-pulse p-4 flex flex-col justify-between h-[340px]">
+              <div className="space-y-4 flex-1">
+                <div className="h-44 bg-gray-200 rounded-2xl w-full"></div>
+                <div className="h-5 bg-gray-200 rounded-lg w-2/3"></div>
+                <div className="h-3 bg-gray-200 rounded w-full"></div>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-gray-50 mt-4">
+                <div className="h-5 bg-gray-200 rounded w-16"></div>
+                <div className="h-9 bg-gray-200 rounded-xl w-24"></div>
+              </div>
+            </div>
+          ))
+        ) : getFilteredAndSortedDishes().length === 0 ? (
+          <div className="col-span-full text-center py-20 bg-white border border-gray-100 rounded-3xl">
+            <UtensilsCrossed className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+            <h3 className="text-sm font-bold text-gray-900">No hay platos</h3>
+            <p className="text-xs text-gray-500 mt-1">No se encontraron platos para mostrar.</p>
+          </div>
+        ) : (
+          getFilteredAndSortedDishes().map((dish) => (
+            <DishCard 
+              key={dish.id} 
+              dish={dish} 
+              onEdit={handleOpenModal} 
+              onDelete={handleDelete}
+              onView={handleViewDetails}
+            />
+          ))
+        )}
       </div>
 
       {/* MODAL / DRAWER */}

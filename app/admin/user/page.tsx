@@ -9,15 +9,34 @@ import type { Usuario } from "@/types";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<Usuario[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "cliente" | "personal">("all");
 
   const cargarUsuarios = async () => {
     setIsLoading(true);
     try {
-      const usuariosData = await AdminService.getUsuarios();
-      setUsers(usuariosData);
+      const [usuariosData, allPedidos] = await Promise.all([
+        AdminService.getUsuarios(),
+        AdminService.getPedidos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
+      ]);
+
+      const mappedUsers = usuariosData.map((u: any) => {
+        const isClient = u.rol?.nombre === "cliente";
+        const pedidosCount = allPedidos.filter((p: any) => p.id_usuario === u.id).length;
+
+        return {
+          id: u.id,
+          nombre: u.nombre,
+          correo: u.correo,
+          rol: isClient ? "cliente" : "personal",
+          fecha_union: u.creado_en || new Date().toISOString(),
+          pedidos_count: pedidosCount,
+        };
+      });
+
+      setUsers(mappedUsers);
     } catch (error) {
       console.error("Error cargando usuarios:", error);
     } finally {

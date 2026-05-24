@@ -33,7 +33,10 @@ export default function ProductsPage() {
     setIsFetching(true);
     setGlobalError(null);
     try {
-      const data = await AdminService.getProductos();
+      const [data] = await Promise.all([
+        AdminService.getProductos(),
+        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
+      ]);
       setProducts(data);
       setFilteredProducts(data);
     } catch (err: any) {
@@ -328,11 +331,35 @@ export default function ProductsPage() {
                 </thead>
                 <tbody>
                   {isFetching ? (
-                    // Skeletons
+                    // Skeletons de alta fidelidad que replican la estructura real de columnas
                     Array(5).fill(0).map((_, i) => (
-                      <tr key={i} className="border-b border-gray-50">
-                        <td colSpan={6} className="px-4 py-4">
-                          <div className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+                      <tr key={i} className="border-b border-gray-50 animate-pulse">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gray-200 rounded-xl"></div>
+                            <div className="space-y-1.5 flex-1">
+                              <div className="h-3.5 bg-gray-200 rounded w-28"></div>
+                              <div className="h-2.5 bg-gray-100 rounded w-16"></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-3.5 bg-gray-100 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-3.5 bg-gray-200 rounded w-16"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-5 bg-gray-100 rounded-md w-12"></div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="h-3.5 bg-gray-100 rounded w-20"></div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
+                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -359,8 +386,42 @@ export default function ProductsPage() {
               </table>
             </div>
             ) : (
-              <div className="p-6 h-[400px] w-full bg-white">
-                {mockChartData.lines.length === 0 ? (
+              <div className="p-6 h-[400px] w-full bg-white flex flex-col justify-between">
+                {isFetching ? (
+                  <div className="w-full h-full flex flex-col justify-between animate-pulse select-none">
+                    <div className="flex justify-between items-center mb-6">
+                      <div className="h-4 bg-gray-200 rounded w-24"></div>
+                      <div className="h-4 bg-gray-100 rounded w-16"></div>
+                    </div>
+                    <div className="flex-1 flex items-end gap-3 w-full pb-6">
+                      <div className="relative w-full h-full flex flex-col justify-between border-l border-b border-gray-100 pl-2">
+                        <div className="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
+                          <div className="w-full border-t border-gray-50"></div>
+                          <div className="w-full border-t border-gray-50"></div>
+                          <div className="w-full border-t border-gray-50"></div>
+                          <div className="w-full border-t border-gray-50"></div>
+                        </div>
+                        {/* Wavy pulsed line mockup */}
+                        <svg className="absolute inset-0 w-full h-full text-gray-200" viewBox="0 0 100 50" preserveAspectRatio="none">
+                          <path
+                            d="M0,45 Q15,10 30,30 T60,15 T90,25 T100,5"
+                            fill="none; opacity: 0.1"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeDasharray="4 4"
+                            className="opacity-50"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-gray-200 px-4">
+                      <div className="h-3 bg-gray-100 rounded w-8"></div>
+                      <div className="h-3 bg-gray-100 rounded w-8"></div>
+                      <div className="h-3 bg-gray-100 rounded w-8"></div>
+                      <div className="h-3 bg-gray-100 rounded w-8"></div>
+                    </div>
+                  </div>
+                ) : mockChartData.lines.length === 0 ? (
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                     <LineChartIcon size={32} className="mb-3 opacity-20" />
                     <p className="text-sm font-bold text-gray-500">No hay datos para graficar</p>
@@ -439,7 +500,25 @@ export default function ProductsPage() {
               </div>
 
               <div className="space-y-2">
-                {(() => {
+                {isFetching ? (
+                  // Lista de esqueletos para monitor de mercado
+                  Array(5).fill(0).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-gray-100 p-3 bg-white flex items-center justify-between gap-3 animate-pulse">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="h-3.5 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-2.5 bg-gray-100 rounded w-1/3"></div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="h-4 bg-gray-100 rounded w-12"></div>
+                        <div className="h-2 bg-gray-50 rounded w-8"></div>
+                      </div>
+                      <div className="text-right flex flex-col items-end gap-1">
+                        <div className="h-2 bg-gray-50 rounded w-8"></div>
+                        <div className="h-3.5 bg-gray-200 rounded w-12"></div>
+                      </div>
+                    </div>
+                  ))
+                ) : (() => {
                   if (topTrendProducts.length === 0) {
                     return (
                       <div className="rounded-2xl bg-gray-50 p-5 flex flex-col items-center justify-center text-center gap-2 border border-dashed border-gray-200">

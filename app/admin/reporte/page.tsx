@@ -128,9 +128,13 @@ export default function ReportePage() {
             )}
             <div className="flex items-center gap-1.5 mt-1.5">
               <TrendingUp size={14} className="text-emerald-500" strokeWidth={2.5} />
-              <span className="text-xs text-gray-500 font-bold">
-                {loading ? "..." : `${s?.plato_popular_ventas || 0} unidades vendidas`}
-              </span>
+              {loading ? (
+                <div className="h-3 w-28 bg-gray-200 rounded animate-pulse mt-0.5" />
+              ) : (
+                <span className="text-xs text-gray-500 font-bold">
+                  {s?.plato_popular_ventas || 0} unidades vendidas
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -165,9 +169,13 @@ export default function ReportePage() {
             )}
             <div className="flex items-center gap-1.5 mt-1.5">
               <TrendingDown size={14} className="text-amber-500" strokeWidth={2.5} />
-              <span className="text-xs text-gray-500 font-bold">
-                {loading ? "..." : `${s?.plato_menos_ventas || 0} unidades vendidas`}
-              </span>
+              {loading ? (
+                <div className="h-3 w-28 bg-gray-200 rounded animate-pulse mt-0.5" />
+              ) : (
+                <span className="text-xs text-gray-500 font-bold">
+                  {s?.plato_menos_ventas || 0} unidades vendidas
+                </span>
+              )}
             </div>
           </div>
         </div>
