@@ -19,6 +19,18 @@ export const featuredDishes: Dish[] = [
     d: "Masa de papa amarilla rellena de pulpa de cangrejo.",
     img: "/plato3.jpg",
   },
+  {
+    n: "Arroz con Mariscos",
+    p: "S/ 42",
+    d: "Arroz meloso sazonado con ají panca y mariscos del día.",
+    img: "/plato4.jpg",
+  },
+  {
+    n: "Pulpo al Olivo",
+    p: "S/ 36",
+    d: "Láminas de pulpo tierno bañadas en crema de aceitunas botija.",
+    img: "/plato5.jpg",
+  },
 ];
 
 export const initialProfileData: ProfileData = {

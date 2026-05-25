@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AboutSection } from "@/component/home/AboutSection";
+import { CategoriesSection } from "@/component/home/CategoriesSection";
+import { HowToOrderSection } from "@/component/home/HowToOrderSection";
+import { TestimonialsSection } from "@/component/home/TestimonialsSection";
+import { AISpecialtySection } from "@/component/home/AISpecialtySection";
 import { AuthModal } from "@/component/modal/AuthModal";
 import { ChatWidget } from "@/layout/ChatWidget";
 import { Footer } from "@/layout/Footer";
@@ -84,9 +88,11 @@ export default function Home() {
           }
         } else {
           setIsLoggedIn(false);
+          setIsLoginOpen(true); // Abrir modal automáticamente si no está autenticado al iniciar el proyecto
         }
       } catch {
         setIsLoggedIn(false);
+        setIsLoginOpen(true); // Abrir modal automáticamente si falla la sesión al iniciar el proyecto
       }
     };
     void checkSession();
@@ -265,8 +271,12 @@ export default function Home() {
       />
 
       <HeroSection onDownloadMenu={downloadMenu} />
+      <CategoriesSection />
       <SpecialtiesSection dishes={featuredDishes} onOrderViaChat={orderViaChat} />
+      <HowToOrderSection />
+      <AISpecialtySection />
       <AboutSection />
+      <TestimonialsSection />
 
       <AuthModal
         isOpen={isLoginOpen}
