@@ -371,20 +371,28 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenModal(user)}
-                            className="p-1.5 bg-gray-50 text-gray-500 rounded-lg hover:bg-akaza-marron hover:text-white transition-colors"
-                            title="Editar"
-                          >
-                            <Edit2 size={13} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(user.id)}
-                            className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-                            title="Eliminar"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          {user.rol.toLowerCase() === "administrador" || user.rol.toLowerCase() === "admin" ? (
+                            <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-100 text-[10px] font-black px-2.5 py-1 rounded-lg shadow-sm" title="Las cuentas de administrador no pueden ser modificadas o eliminadas por seguridad.">
+                              <Shield size={11} className="text-red-500" /> Protegido
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleOpenModal(user)}
+                                className="p-1.5 bg-gray-50 text-gray-500 rounded-lg hover:bg-akaza-marron hover:text-white transition-colors"
+                                title="Editar"
+                              >
+                                <Edit2 size={13} />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(user.id)}
+                                className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                title="Eliminar"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -399,30 +407,30 @@ export default function UsersPage() {
       {/* Modal de Crear / Editar Usuario */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-lg font-black text-akaza-marron flex items-center gap-2">
-                <Users className="text-akaza-marron" size={20} />
+          <div className="bg-white w-full max-w-md rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh] sm:max-h-[90vh]">
+            <div className="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+              <h2 className="text-sm sm:text-lg font-black text-akaza-marron flex items-center gap-2">
+                <Users className="text-akaza-marron" size={18} />
                 {editingUser ? "Editar Usuario" : "Nuevo Usuario"}
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="p-2 bg-white text-gray-500 rounded-full hover:bg-gray-100 transition-colors shadow-sm"
+                className="p-1.5 sm:p-2 bg-white text-gray-500 rounded-full hover:bg-gray-100 transition-colors shadow-sm"
               >
-                <X size={16} />
+                <X size={14} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
               {modalError && (
-                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-[11px] rounded-xl font-medium">
                   {modalError}
                 </div>
               )}
 
               {/* Nombre */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nombre Completo</label>
+                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nombre Completo</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                   <input
@@ -439,7 +447,7 @@ export default function UsersPage() {
 
               {/* Correo */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
+                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                   <input
@@ -456,7 +464,7 @@ export default function UsersPage() {
 
               {/* Contraseña */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   Contraseña {editingUser && "(Opcional si no deseas cambiarla)"}
                 </label>
                 <div className="relative">
@@ -472,7 +480,7 @@ export default function UsersPage() {
                   />
                 </div>
                 {!editingUser && (
-                  <p className="text-[9px] text-gray-400 font-medium">
+                  <p className="text-[9px] text-gray-400 font-medium leading-normal">
                     Debe incluir al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
                   </p>
                 )}
@@ -480,7 +488,7 @@ export default function UsersPage() {
 
               {/* Rol */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Asignar Rol</label>
+                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Asignar Rol</label>
                 <div className="relative">
                   <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                   <select
@@ -497,19 +505,19 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              <div className="pt-4 flex gap-3">
+              <div className="pt-4 flex gap-3 flex-shrink-0">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 py-3 border border-gray-100 hover:bg-gray-50 text-gray-500 rounded-xl text-xs font-bold transition-all"
+                  className="flex-1 py-2.5 sm:py-3 border border-gray-100 hover:bg-gray-50 text-gray-500 rounded-xl text-xs font-bold transition-all"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-akaza-marron hover:bg-akaza-marron/90 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                  className="flex-1 py-2.5 sm:py-3 bg-akaza-marron hover:bg-akaza-marron/90 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                 >
-                  {editingUser ? "Guardar Cambios" : "Crear Usuario"}
+                  {editingUser ? "Guardar" : "Crear Usuario"}
                 </button>
               </div>
             </form>
