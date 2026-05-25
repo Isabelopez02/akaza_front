@@ -1,19 +1,12 @@
 import { Pedido } from "@/types";
-
-const API_URL = "http://localhost:8000";
+import { api } from "@/lib/api";
 
 export async function obtenerPedidos(): Promise<Pedido[]> {
   try {
-    const response = await fetch(`${API_URL}/pedidos`);
-
-    if (!response.ok) {
-      throw new Error("Error al obtener pedidos");
-    }
-
-    return await response.json();
+    const { data } = await api.get("/pedidos");
+    return data;
   } catch (error) {
     console.error(error);
-
     return [];
   }
 }
