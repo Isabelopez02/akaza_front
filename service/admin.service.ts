@@ -98,6 +98,22 @@ export const AdminService = {
     const { data } = await api.get("/api/admin/usuarios/");
     return data;
   },
+  getRoles: async () => {
+    const { data } = await api.get("/api/admin/usuarios/roles");
+    return data;
+  },
+  createUsuario: async (usuario: any) => {
+    const { data } = await api.post("/api/admin/usuarios/", usuario);
+    return data;
+  },
+  updateUsuario: async (id: number, usuario: any) => {
+    const { data } = await api.put(`/api/admin/usuarios/${id}`, usuario);
+    return data;
+  },
+  deleteUsuario: async (id: number) => {
+    const { data } = await api.delete(`/api/admin/usuarios/${id}`);
+    return data;
+  },
 
   // ── Dashboard KPIs ────────────────────────────────────────────────────────
   getDashboardStats: async () => {
