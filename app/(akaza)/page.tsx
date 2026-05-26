@@ -85,6 +85,8 @@ export default function Home() {
 
           if (data?.rol === "administrador") {
             router.push("/admin");
+          } else if (data?.rol === "cocinero" || data?.rol === "chef") {
+            router.push("/cocina");
           }
         } else {
           setIsLoggedIn(false);
@@ -123,6 +125,9 @@ export default function Home() {
           
           if (checkData?.rol === "administrador") {
             router.push("/admin");
+            return;
+          } else if (checkData?.rol === "cocinero" || checkData?.rol === "chef") {
+            router.push("/cocina");
             return;
           }
 

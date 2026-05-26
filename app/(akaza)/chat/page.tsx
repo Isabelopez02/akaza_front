@@ -88,9 +88,14 @@ function ChatAkazaFinal() {
             email: data?.correo || prev.email,
           }));
           
-          if (authenticated && data?.rol === "administrador") {
-            router.push("/admin");
-            return;
+          if (authenticated) {
+            if (data?.rol === "administrador") {
+              router.push("/admin");
+              return;
+            } else if (data?.rol === "cocinero" || data?.rol === "chef") {
+              router.push("/cocina");
+              return;
+            }
           }
 
           // Procesar prompt/category automatizado una vez que la sesión y la mesa están listas
@@ -187,6 +192,9 @@ function ChatAkazaFinal() {
 
         if (data?.rol === "administrador") {
           router.push("/admin");
+          return;
+        } else if (data?.rol === "cocinero" || data?.rol === "chef") {
+          router.push("/cocina");
           return;
         }
 
