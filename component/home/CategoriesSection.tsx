@@ -1,7 +1,9 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { Fish, Flame, Compass, CupSoda, Cake } from "lucide-react";
 
 export function CategoriesSection() {
+  const router = useRouter();
   const categorias = [
     {
       nombre: "Ceviches",
@@ -50,6 +52,7 @@ export function CategoriesSection() {
             return (
               <div
                 key={idx}
+                onClick={() => router.push(`/chat?category=${encodeURIComponent(cat.nombre)}`)}
                 className="group bg-white hover:bg-akaza-marron border border-akaza-marron/5 rounded-2xl p-5 transition-all duration-300 flex flex-col items-center text-center cursor-pointer active:scale-98"
               >
                 {/* Icono Minimalista */}

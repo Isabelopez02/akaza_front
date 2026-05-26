@@ -78,24 +78,78 @@ function ChatAkazaFinal() {
       const checkSession = async () => {
         try {
           const data = await AuthService.checkSession();
-          setIsLoggedIn(Boolean(data?.autenticado));
-          setIdUsuario(data?.id ? Number(data.id) : null);
+          const authenticated = Boolean(data?.autenticado);
+          setIsLoggedIn(authenticated);
+          const currentUserId = data?.id ? Number(data.id) : null;
+          setIdUsuario(currentUserId);
           setProfileData((prev) => ({
             ...prev,
             name: data?.correo || "Invitado",
             email: data?.correo || prev.email,
           }));
           
-          if (data?.autenticado && data?.rol === "administrador") {
+          if (authenticated && data?.rol === "administrador") {
             router.push("/admin");
+            return;
           }
+
+          // Procesar prompt/category automatizado una vez que la sesión y la mesa están listas
+          const promptParam = searchParams.get("prompt");
+          const categoryParam = searchParams.get("category");
+          
+          let initialPrompt = "";
+          if (promptParam) {
+            initialPrompt = promptParam;
+          } else if (categoryParam) {
+            initialPrompt = `Muéstrame platos de la categoría ${categoryParam}`;
+          }
+
+          if (initialPrompt) {
+            setIsLoading(true);
+            const userMessage: ChatMessage = { role: "user", content: initialPrompt };
+            
+            // Establecer el historial inicial agregando la consulta del usuario
+            const initialSession = ChatbotService.getInitialSession() as unknown as ChatSession[];
+            initialSession[0].messages.push(userMessage);
+            setChatHistory(initialSession);
+
+            try {
+              const res = await ChatbotService.sendMessage(
+                currentUserId, 
+                mesaNumero, 
+                initialPrompt
+              );
+              const respuestaIA = res?.respuesta_ia || "Recibí tu mensaje, dame un momento.";
+              setChatHistory((prev) =>
+                prev.map((session) =>
+                  session.id === "general-main"
+                    ? { ...session, messages: [...session.messages, { role: "bot", content: respuestaIA }] }
+                    : session
+                )
+              );
+              hablarRespuestaIA(respuestaIA);
+            } catch (error) {
+              setChatHistory((prev) =>
+                prev.map((session) =>
+                  session.id === "general-main"
+                    ? { ...session, messages: [...session.messages, { role: "bot", content: "Error al procesar mensaje." }] }
+                    : session
+                )
+              );
+            } finally {
+              setIsLoading(false);
+            }
+          } else {
+            setChatHistory(ChatbotService.getInitialSession());
+          }
+
         } catch {
           setIsLoggedIn(false);
           setIdUsuario(null);
+          setChatHistory(ChatbotService.getInitialSession());
         }
       };
 
-      setChatHistory(ChatbotService.getInitialSession());
       void checkSession();
     }
   }, [isMounted, searchParams, router]);

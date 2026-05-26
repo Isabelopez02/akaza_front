@@ -242,8 +242,7 @@ export default function Home() {
     document.body.removeChild(link);
   };
   const orderViaChat = (plato: string) => {
-    // Punto de integración futura: redirigir al chat con el plato preseleccionado
-    console.log(`El usuario está interesado en: ${plato}`);
+    router.push(`/chat?prompt=${encodeURIComponent(`Quiero ordenar el plato: ${plato}`)}`);
   };
 
   // Función para que al momento de scrolear el usuario sea mas amigable la interaccion

@@ -27,6 +27,9 @@ interface DashboardStats {
   total_platos_hoy: number;
   ganancia_neta: number;
   combos_vs_platos: { name: string; value: number }[];
+  ia_personas_interactuaron?: number;
+  ia_pedidos?: number;
+  ia_pedidos_manual?: number;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -145,7 +148,13 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2">
           <VentasSemanaChart data={s?.ventas_semana ?? []} loading={loading} />
         </div>
-        <IAEficiencia pedidos={pedidos} loading={loading} />
+        <IAEficiencia 
+          pedidos={pedidos} 
+          loading={loading} 
+          iaPersonas={s?.ia_personas_interactuaron}
+          iaPedidos={s?.ia_pedidos}
+          iaPedidosManual={s?.ia_pedidos_manual}
+        />
       </div>
     </div>
   );
