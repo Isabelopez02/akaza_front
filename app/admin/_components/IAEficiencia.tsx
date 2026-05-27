@@ -63,7 +63,7 @@ export function IAEficiencia({
           </div>
 
           {/* Barra Dividida (Split Bar) */}
-          <div className="w-full h-3.5 bg-gray-100 rounded-full flex overflow-hidden border border-gray-50 shadow-inner mt-1">
+          <div className="w-full h-3.5 bg-gray-100 rounded-full flex overflow-hidden border border-gray-50 shadow-inner mt-1 ia-progress-track">
             {loading ? (
               <div className="w-full h-full bg-gray-100 animate-pulse" />
             ) : totalPedidos === 0 ? (
@@ -75,7 +75,7 @@ export function IAEficiencia({
                 {pctIA > 0 && (
                   <div
                     style={{ width: `${pctIA}%` }}
-                    className="bg-akaza-marron h-full flex items-center justify-center text-[8px] font-black text-white transition-all duration-700"
+                    className="bg-akaza-marron h-full flex items-center justify-center text-[10px] md:text-[9px] font-black text-white transition-all duration-700 ia-split-bar-ia"
                     title={`IA: ${iaPedidos} pedidos`}
                   >
                     {pctIA >= 15 && `${pctIA}%`}
@@ -84,7 +84,7 @@ export function IAEficiencia({
                 {pctManual > 0 && (
                   <div
                     style={{ width: `${pctManual}%` }}
-                    className="bg-akaza-amarillo h-full flex items-center justify-center text-[8px] font-black text-akaza-marron transition-all duration-700"
+                    className="bg-akaza-amarillo h-full flex items-center justify-center text-[10px] md:text-[11px] font-black text-akaza-marron transition-all duration-700 ia-split-bar-manual"
                     title={`Manual: ${iaPedidosManual} pedidos`}
                   >
                     {pctManual >= 15 && `${pctManual}%`}
@@ -97,14 +97,14 @@ export function IAEficiencia({
           {/* Leyenda del Gráfico */}
           <div className="flex items-center justify-between mt-1 text-[9px] font-bold select-none">
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 bg-akaza-marron rounded-sm shadow-sm" />
+              <span className="w-2.5 h-2.5 bg-akaza-marron rounded-sm shadow-sm ia-legend-ia" />
               <span className="text-gray-500">IA:</span>
-              <span className="text-akaza-marron">{iaPedidos} u.</span>
+              <span className="text-akaza-marron ia-text-ia">{iaPedidos} u.</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 bg-akaza-amarillo rounded-sm shadow-sm" />
+              <span className="w-2.5 h-2.5 bg-akaza-amarillo rounded-sm shadow-sm ia-legend-manual" />
               <span className="text-gray-500">Manual:</span>
-              <span className="text-akaza-marron">{iaPedidosManual} u.</span>
+              <span className="text-akaza-marron ia-text-manual">{iaPedidosManual} u.</span>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ export function IAEficiencia({
               <p className="text-gray-600 dark:text-gray-400 text-[11px] font-black uppercase tracking-wider">Interacciones con la IA</p>
             </div>
             {loading ? (
-              <div className="h-4 w-8 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
+              <div className="h-4 w-8 rounded bg-gray-700 dark:bg-gray-700/50 animate-pulse" />
             ) : (
               <p className="text-base font-black text-akaza-marron dark:text-akaza-amarillo tracking-tight">
                 {iaPersonas} <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">personas</span>
@@ -126,12 +126,12 @@ export function IAEficiencia({
           </div>
 
           {/* Barra de Enganche/Volumen */}
-          <div className="w-full h-2 bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-50 dark:border-gray-700 mt-1">
+          <div className="w-full h-2 bg-gray-100/70 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-100/40 dark:border-gray-700 mt-1 ia-progress-track">
             {loading ? (
               <div className="h-full bg-gray-100 dark:bg-gray-700 animate-pulse" />
             ) : (
               <div
-                className="h-full bg-akaza-marron dark:bg-akaza-marron rounded-full transition-all duration-700"
+                className="h-full bg-akaza-marron dark:bg-akaza-marron rounded-full transition-all duration-700 ia-progress-fill"
                 style={{ width: `${Math.min(100, Math.max(15, iaPersonas * 10))}%` }}
               />
             )}
@@ -145,11 +145,11 @@ export function IAEficiencia({
         <div className="flex flex-col gap-1.5 pt-4 border-t border-gray-50 dark:border-gray-800">
           <div className="flex items-center justify-between">
             <p className="text-gray-500 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider">Conversión Reciente en Mesa</p>
-            <p className="text-sm font-black text-akaza-marron dark:text-akaza-amarillo">{tasaConversion}%</p>
+            <p className="text-sm font-black text-akaza-marron dark:text-akaza-amarillo ia-text-conversion">{tasaConversion}%</p>
           </div>
-          <div className="w-full h-1.5 bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-gray-100/70 dark:bg-gray-700/50 rounded-full overflow-hidden ia-progress-track-conversion">
             <div
-              className="h-full bg-akaza-marron dark:bg-akaza-marron rounded-full transition-all duration-700"
+              className="h-full bg-akaza-amarillo dark:bg-akaza-amarillo rounded-full transition-all duration-700 ia-progress-fill-conversion"
               style={{ width: `${tasaConversion}%` }}
             />
           </div>
