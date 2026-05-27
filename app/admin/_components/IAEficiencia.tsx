@@ -110,50 +110,50 @@ export function IAEficiencia({
         </div>
 
         {/* ── GRÁFICO 2: INTERACCIONES CON EL CHATBOT (PERSONAS) ── */}
-        <div className="flex flex-col gap-2 pt-4 border-t border-gray-50">
+        <div className="flex flex-col gap-2 pt-4 border-t border-gray-50 dark:border-gray-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Users size={12} className="text-akaza-marron" />
-              <p className="text-gray-600 text-[10px] font-black uppercase tracking-wider">Interacciones con la IA</p>
+              <Users size={12} className="text-akaza-marron dark:text-akaza-amarillo" />
+              <p className="text-gray-600 dark:text-gray-400 text-[11px] font-black uppercase tracking-wider">Interacciones con la IA</p>
             </div>
             {loading ? (
-              <div className="h-4 w-8 rounded bg-gray-100 animate-pulse" />
+              <div className="h-4 w-8 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" />
             ) : (
-              <p className="text-sm font-black text-akaza-marron tracking-tight">
-                {iaPersonas} <span className="text-[9px] font-bold text-gray-400">personas</span>
+              <p className="text-base font-black text-akaza-marron dark:text-akaza-amarillo tracking-tight">
+                {iaPersonas} <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">personas</span>
               </p>
             )}
           </div>
 
           {/* Barra de Enganche/Volumen */}
-          <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50 mt-1">
+          <div className="w-full h-2 bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-50 dark:border-gray-700 mt-1">
             {loading ? (
-              <div className="h-full bg-gray-100 animate-pulse" />
+              <div className="h-full bg-gray-100 dark:bg-gray-700 animate-pulse" />
             ) : (
               <div
-                className="h-full bg-akaza-marron rounded-full transition-all duration-700"
+                className="h-full bg-akaza-marron dark:bg-akaza-marron rounded-full transition-all duration-700"
                 style={{ width: `${Math.min(100, Math.max(15, iaPersonas * 10))}%` }}
               />
             )}
           </div>
-          <p className="text-[8.5px] text-gray-400 font-medium">
+          <p className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
             Clientes únicos que han consultado o conversado con Akaza hoy.
           </p>
         </div>
 
         {/* ── GRÁFICO 3: TASA DE CONVERSIÓN DE DIÁLOGOS A PEDIDOS ── */}
-        <div className="flex flex-col gap-1.5 pt-4 border-t border-gray-50">
+        <div className="flex flex-col gap-1.5 pt-4 border-t border-gray-50 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            <p className="text-gray-500 text-[9px] font-black uppercase tracking-wider">Conversión Reciente en Mesa</p>
-            <p className="text-xs font-black text-akaza-marron">{tasaConversion}%</p>
+            <p className="text-gray-500 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider">Conversión Reciente en Mesa</p>
+            <p className="text-sm font-black text-akaza-marron dark:text-akaza-amarillo">{tasaConversion}%</p>
           </div>
-          <div className="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-akaza-marron rounded-full transition-all duration-700"
+              className="h-full bg-akaza-marron dark:bg-akaza-marron rounded-full transition-all duration-700"
               style={{ width: `${tasaConversion}%` }}
             />
           </div>
-          <p className="text-[8.5px] text-gray-400 font-medium">
+          <p className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
             Porcentaje de mesas activas que ordenaron por voz/IA: {ia} de {total}.
           </p>
         </div>
