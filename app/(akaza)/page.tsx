@@ -143,7 +143,8 @@ export default function Home() {
         setIsRegisterMode(false);
         setAuthForm({ fullName: "", email: "", password: "" });
     } catch (error: any) {
-      setAuthError(error?.response?.data?.detail || error?.message || "Error en autenticación");
+      const detail = error?.response?.data?.detail ?? error?.response?.data ?? error?.message;
+      setAuthError(buildAuthErrorMessage(detail));
     }
   };
 
