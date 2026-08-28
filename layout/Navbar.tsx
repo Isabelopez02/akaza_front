@@ -1,4 +1,5 @@
-import Image from "next/image";
+"use client";
+
 import {
   Camera,
   ChevronDown,
@@ -6,7 +7,9 @@ import {
   CircleUserRound,
   LogOut,
   User,
+  HelpCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type NavbarProps = {
   isLoggedIn: boolean;
@@ -35,88 +38,81 @@ export function Navbar({
   onScrollTop,
   onScrollToSection,
 }: NavbarProps) {
+  const router = useRouter();
+
   return (
-    <nav className="w-full bg-white/80 backdrop-blur-xl border-b border-akaza-marron/5 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-      <div className="flex items-center gap-3 cursor-pointer" onClick={onScrollTop}>
-        <div className="relative w-10 h-10">
-          <Image
-            src="/logo-akaza.png"
-            alt="Logo Akaza"
-            fill
-            className="object-contain"
-          />
-        </div>
-        <span className="text-akaza-marron font-black tracking-tighter text-2xl uppercase">
-          Akaza
+    <nav className="sticky top-0 z-50 w-full bg-akaza-marron text-white px-4 sm:px-8 py-3.5 shadow-md flex justify-between items-center border-b border-white/10">
+      {/* Marca / Logo AKAZA (Izquierda) */}
+      <div className="flex items-center cursor-pointer" onClick={onScrollTop}>
+        <span className="font-serif text-xl sm:text-2xl font-black tracking-widest uppercase text-white drop-shadow">
+          AKAZA
         </span>
       </div>
 
-      <div className="hidden md:flex gap-8 text-sm font-bold text-akaza-marron/60 uppercase tracking-widest">
-        <button onClick={onScrollTop} className="hover:text-akaza-marron transition-colors">
-          Inicio
-        </button>
+      {/* Ítems del Menú Estructura Exacta Requerida */}
+      <div className="flex items-center gap-3 sm:gap-6 text-xs font-serif tracking-wider">
         <button
-          onClick={() => onScrollToSection("joyas")}
-          className="hover:text-akaza-marron transition-colors"
+          onClick={() => router.push("/chat")}
+          className="hidden md:inline-block hover:text-akaza-amarillo transition-colors"
         >
-          Carta
+          Realizar pedido
         </button>
-        <button
-          onClick={() => onScrollToSection("nosotros")}
-          className="hover:text-akaza-marron transition-colors"
-        >
-          Nosotros
-        </button>
-      </div>
 
-      <div className="flex items-center gap-3 relative">
+        <button
+          onClick={() => onScrollToSection("faq")}
+          className="hidden lg:flex items-center gap-1 hover:text-akaza-amarillo transition-colors"
+        >
+          <HelpCircle size={14} /> Preguntas Frecuentes
+        </button>
+
         <button
           onClick={onOpenQr}
-          className="bg-white text-akaza-marron border border-akaza-marron/10 px-4 py-2.5 rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+          className="border border-white/60 hover:border-white px-3 py-1.5 rounded-full text-[11px] font-medium transition-all hover:bg-white/10 flex items-center gap-1.5"
         >
-          <Camera size={16} /> QR
+          <Camera size={14} className="text-akaza-amarillo" /> Escanear mesa
         </button>
 
         {!isLoggedIn ? (
           <button
             onClick={onOpenLogin}
-            className="bg-akaza-marron text-white px-6 py-2.5 rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+            className="border border-white bg-white/10 hover:bg-white hover:text-black px-3.5 py-1.5 rounded text-[11px] font-bold tracking-wider transition-all"
           >
-            <User size={16} /> Iniciar sesión
+            Iniciar Sesión
           </button>
         ) : (
-          <>
+          <div className="relative">
             <button
               onClick={onToggleUserMenu}
-              className="bg-akaza-marron text-white px-4 py-2 rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+              className="bg-white/20 border border-white/40 text-white px-3 py-1.5 rounded-full text-[11px] font-bold hover:bg-white/30 transition-all flex items-center gap-1.5"
             >
-              <CircleUserRound size={18} />
+              <CircleUserRound size={15} />
               <span className="hidden sm:inline">{profileName}</span>
-              <ChevronDown size={15} />
+              <ChevronDown size={14} />
             </button>
+
             {isUserMenuOpen && (
-              <div className="absolute right-0 top-14 w-56 bg-white rounded-3xl border border-akaza-marron/10 shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+              <div className="absolute right-0 top-10 w-52 bg-white text-akaza-marron rounded-xl border border-akaza-marron/10 shadow-2xl p-2 z-50 animate-in fade-in duration-150">
                 <button
                   onClick={onOpenProfile}
-                  className="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-akaza-marron hover:bg-akaza-crema transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold hover:bg-akaza-crema transition-colors flex items-center gap-2"
                 >
-                  <User size={16} /> Mi Perfil
+                  <User size={15} /> Mi Perfil
                 </button>
                 <button
                   onClick={onOpenOrders}
-                  className="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-akaza-marron hover:bg-akaza-crema transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold hover:bg-akaza-crema transition-colors flex items-center gap-2"
                 >
-                  <ClipboardList size={16} /> Mis Pedidos
+                  <ClipboardList size={15} /> Mis Pedidos
                 </button>
                 <button
                   onClick={onLogout}
-                  className="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                 >
-                  <LogOut size={16} /> Cerrar sesión
+                  <LogOut size={15} /> Cerrar sesión
                 </button>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </nav>

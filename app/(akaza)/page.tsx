@@ -1,23 +1,21 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { AboutSection } from "@/component/home/AboutSection";
+import { HeroSection } from "@/component/home/HeroSection";
 import { CategoriesSection } from "@/component/home/CategoriesSection";
+import { AIAssistantSection } from "@/component/home/AIAssistantSection";
+import { TreasureTransitionSection } from "@/component/home/TreasureTransitionSection";
+import { InfoBotSection } from "@/component/home/InfoBotSection";
 import { HowToOrderSection } from "@/component/home/HowToOrderSection";
 import { TestimonialsSection } from "@/component/home/TestimonialsSection";
-import { AISpecialtySection } from "@/component/home/AISpecialtySection";
 import { AuthModal } from "@/component/modal/AuthModal";
 import { ChatWidget } from "@/layout/ChatWidget";
 import { Footer } from "@/layout/Footer";
-import { HeroSection } from "@/component/home/HeroSection";
 import { Navbar } from "@/layout/Navbar";
 import { OrdersModal } from "@/component/modal/OrdersModal";
 import { ProfileModal } from "@/component/modal/ProfileModal";
 import { QrModal } from "@/layout/QrModal";
-import { SpecialtiesSection } from "@/component/home/SpecialtiesSection";
-import {
-  featuredDishes,
-  initialProfileData,
-} from "@/types/constants";
+import { initialProfileData } from "@/types/constants";
 import { AuthForm, ProfileData, Order } from "@/types";
 import { AuthService } from "@/service/auth.service";
 import { AdminService } from "@/service/admin.service";
@@ -90,11 +88,11 @@ export default function Home() {
           }
         } else {
           setIsLoggedIn(false);
-          setIsLoginOpen(true); // Abrir modal automáticamente si no está autenticado al iniciar el proyecto
+          setIsLoginOpen(true);
         }
       } catch {
         setIsLoggedIn(false);
-        setIsLoginOpen(true); // Abrir modal automáticamente si falla la sesión al iniciar el proyecto
+        setIsLoginOpen(true);
       }
     };
     void checkSession();
@@ -118,30 +116,30 @@ export default function Home() {
         authForm.password
       );
 
-        if (resLogin?.access_token) {
-          setIsLoggedIn(true);
-          const checkData = await AuthService.checkSession();
-          setIdUsuario(checkData?.id ? Number(checkData.id) : null);
-          
-          if (checkData?.rol === "administrador") {
-            router.push("/admin");
-            return;
-          } else if (checkData?.rol === "cocinero" || checkData?.rol === "chef") {
-            router.push("/cocina");
-            return;
-          }
+      if (resLogin?.access_token) {
+        setIsLoggedIn(true);
+        const checkData = await AuthService.checkSession();
+        setIdUsuario(checkData?.id ? Number(checkData.id) : null);
+        
+        if (checkData?.rol === "administrador") {
+          router.push("/admin");
+          return;
+        } else if (checkData?.rol === "cocinero" || checkData?.rol === "chef") {
+          router.push("/cocina");
+          return;
+        }
 
-          setProfileData((prev) => ({
-            ...prev,
-            name: authForm.fullName.trim() || checkData?.correo || prev.name || "Usuario",
-            email: checkData?.correo || authForm.email.trim() || prev.email,
-            allergies: (checkData as any)?.alergias || "",
-            preferences: (checkData as any)?.preferencias || "",
-          }));
-        }    
-        setIsLoginOpen(false);
-        setIsRegisterMode(false);
-        setAuthForm({ fullName: "", email: "", password: "" });
+        setProfileData((prev) => ({
+          ...prev,
+          name: authForm.fullName.trim() || checkData?.correo || prev.name || "Usuario",
+          email: checkData?.correo || authForm.email.trim() || prev.email,
+          allergies: (checkData as any)?.alergias || "",
+          preferences: (checkData as any)?.preferencias || "",
+        }));
+      }    
+      setIsLoginOpen(false);
+      setIsRegisterMode(false);
+      setAuthForm({ fullName: "", email: "", password: "" });
     } catch (error: any) {
       const detail = error?.response?.data?.detail ?? error?.response?.data ?? error?.message;
       setAuthError(buildAuthErrorMessage(detail));
@@ -185,10 +183,8 @@ export default function Home() {
     setIsUserMenuOpen(false);
 
     try {
-      // Obtener el ID de usuario más reciente directamente de la sesión activa
       const sessionData = await AuthService.checkSession();
       const currentUserId = sessionData?.id ? Number(sessionData.id) : idUsuario;
-      console.log("[openOrdersModal] currentUserId:", currentUserId);
 
       const ps = await AdminService.getPlatos();
       const cs = await AdminService.getCombos();
@@ -242,16 +238,16 @@ export default function Home() {
   const downloadMenu = () => {
     const link = document.createElement("a");
     link.href = "/carta.pdf";
-    link.download = "Carta_Akaza_2026.pdf"; // ESTO ES EL NOMBRE CON LA QUE SE GUARDA EL PDF EN LA PC DEL CLIENTE O QUIEN LO VAYA A DESCARGAR . RECUERDA
+    link.download = "Carta_Akaza_2026.pdf";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
   const orderViaChat = (plato: string) => {
     router.push(`/chat?prompt=${encodeURIComponent(`Quiero ordenar el plato: ${plato}`)}`);
   };
 
-  // Función para que al momento de scrolear el usuario sea mas amigable la interaccion
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -275,12 +271,20 @@ export default function Home() {
         onScrollToSection={scrollToSection}
       />
 
+      {/* ── 1. HERO / BANNER PRINCIPAL (CARRUSEL CON TEXTO DINÁMICO A LA IZQUIERDA) ── */}
       <HeroSection onDownloadMenu={downloadMenu} />
+
+      {/* ── 2. SECCIÓN DE CATEGORÍAS (CARRUSEL CON IMÁGENES) ── */}
       <CategoriesSection />
-      <SpecialtiesSection dishes={featuredDishes} onOrderViaChat={orderViaChat} />
+
+      {/* ── 2.5 SECCIÓN DE ASISTENTE DE IA (PREGÚNTALE A NUESTRO ASISTENTE) ── */}
+      <AIAssistantSection />
+
+
+      {/* ── 4. SECCIÓN ¿CÓMO REALIZAR TU PEDIDO? (4 PASOS VISUALES COMPACTOS) ── */}
       <HowToOrderSection />
-      <AISpecialtySection />
-      <AboutSection />
+
+      {/* ── 5. SECCIÓN DE TESTIMONIOS (PRUEBA SOCIAL SOBRIA) ── */}
       <TestimonialsSection />
 
       <AuthModal

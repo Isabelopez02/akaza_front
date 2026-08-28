@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        merriweather: ["var(--font-merriweather)", "serif"],
+        serif: ["var(--font-merriweather)", "serif"],
+      },
       colors: {
         akaza: {
           marron: "rgb(var(--akaza-marron) / <alpha-value>)",
