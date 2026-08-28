@@ -36,7 +36,6 @@ export default function AdminLayout({
     const validarAcceso = async () => {
       try {
         const usuario = await AuthService.checkSession();
-        // Si no está autenticado o no es administrador, rechazar acceso
         if (!usuario?.autenticado || usuario?.rol !== "administrador") {
           router.push("/");
           return;
@@ -44,7 +43,7 @@ export default function AdminLayout({
       } catch {
         router.push("/");
         return;
-      } finally {
+      } flex: {
         setIsLoading(false);
       }
     };
@@ -56,14 +55,14 @@ export default function AdminLayout({
       title: "Principal",
       items: [
         { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
-        { name: "Reporte", icon: BarChart3, href: "/admin/reporte" },
+        { name: "Reportes", icon: BarChart3, href: "/admin/reporte" },
       ]
     },
     {
       title: "Inventario y Ventas",
       items: [
         { name: "Insumos", icon: Package, href: "/admin/products" },
-        { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" }, // Ajusté la ruta para que no choque
+        { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" },
         { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
         { name: "Combos", icon: Layers, href: "/admin/combos" },
         { name: "Ventas", icon: Layers, href: "/admin/venta" },
@@ -84,15 +83,19 @@ export default function AdminLayout({
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-akaza-crema">
+      <div className="h-screen w-full flex items-center justify-center bg-akaza-crema font-serif text-akaza-marron">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-akaza-marron"></div>
       </div>
     );
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden relative ${isDark ? "dark-theme" : "bg-[#FDFCFB]"}`}>      {/* ── ESTILOS CSS INYECTADOS PARA EL MODO OSCURO ── */}
+    <div className={`flex h-screen overflow-hidden relative font-sans ${isDark ? "dark-theme" : "bg-[#FDFCFB]"}`}>
+      {/* ── REGLAS DE ESTILO CSS PARA MODO OSCURO Y FUENTE MERRIWEATHER EN ADMIN ── */}
       <style dangerouslySetInnerHTML={{ __html: `
+  h1, h2, h3, h4, h5, h6, .admin-title {
+    font-family: var(--font-merriweather), serif !important;
+  }
   .dark-theme {
     background-color: #0b0f19 !important;
     color: #cbd5e1 !important;
@@ -114,187 +117,29 @@ export default function AdminLayout({
     background-color: #131b2e !important;
     color: #f1f5f9 !important;
   }
-  .dark-theme .from-green-50, .dark-theme .to-emerald-50\\/50, .dark-theme .border-green-100 {
-    background-color: #131b2e !important;
-    border-color: rgba(16, 185, 129, 0.25) !important;
-  }
-  .dark-theme .from-red-50, .dark-theme .to-rose-50\\/50, .dark-theme .border-red-100 {
-    background-color: #131b2e !important;
-    border-color: rgba(239, 68, 68, 0.25) !important;
-  }
   .dark-theme h1.text-akaza-marron, 
   .dark-theme h2.text-akaza-marron,
   .dark-theme h3.text-akaza-marron,
   .dark-theme .text-akaza-marron {
     color: #f8fafc !important;
   }
-  .dark-theme .text-gray-850, .dark-theme .text-gray-800 {
-    color: #f1f5f9 !important;
-  }
-  .dark-theme .text-gray-700 {
-    color: #e2e8f0 !important;
-  }
-  .dark-theme .text-gray-600 {
-    color: #cbd5e1 !important;
-  }
-  .dark-theme .text-gray-500 {
-    color: #94a3b8 !important;
-  }
-  .dark-theme .text-gray-400 {
-    color: #64748b !important;
-  }
-  .dark-theme .border-gray-50, .dark-theme .border-gray-100, .dark-theme .border-gray-150, .dark-theme .border-gray-200 {
-    border-color: #1e294b !important;
-  }
   .dark-theme select, .dark-theme input {
     background-color: #0b0f19 !important;
     color: #f1f5f9 !important;
     border-color: #1e294b !important;
-  }
-  .dark-theme select:focus, .dark-theme input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
-  }
-  .dark-theme tr:hover, .dark-theme .hover\\:bg-gray-50\\/50:hover {
-    background-color: #1e294b !important;
   }
   .dark-theme th {
     background-color: #131b2e !important;
     color: #94a3b8 !important;
     border-color: #1e294b !important;
   }
-  .dark-theme .bg-gray-50, .dark-theme .bg-gray-100, .dark-theme .bg-gray-150 {
-    background-color: #1e294b !important;
-    color: #cbd5e1 !important;
-  }
-  .dark-theme .bg-gray-50\\/50 {
-    background-color: #131b2e !important;
-  }
-  .dark-theme .divide-gray-50 > * {
-    border-color: #1e294b !important;
-  }
-  .dark-theme .bg-akaza-crema, .dark-theme .bg-akaza-crema\\/50 {
+  .dark-theme .bg-akaza-crema {
     background-color: #1e294b !important;
     color: #f8fafc !important;
-    border-color: #1e294b !important;
-  }
-  .dark-theme .bg-green-100, .dark-theme .bg-green-50, .dark-theme .bg-green-50\\/50 {
-    background-color: rgba(16, 185, 129, 0.12) !important;
-    color: #34d399 !important;
-    border-color: rgba(16, 185, 129, 0.2) !important;
-  }
-  .dark-theme .bg-red-100, .dark-theme .bg-red-50, .dark-theme .bg-red-50\\/50, .dark-theme .bg-rose-50 {
-    background-color: rgba(239, 68, 68, 0.12) !important;
-    color: #f87171 !important;
-    border-color: rgba(239, 68, 68, 0.2) !important;
-  }
-  .dark-theme .bg-blue-100, .dark-theme .bg-blue-50, .dark-theme .bg-blue-50\\/50 {
-    background-color: rgba(59, 130, 246, 0.12) !important;
-    color: #60a5fa !important;
-    border-color: rgba(59, 130, 246, 0.2) !important;
-  }
-  .dark-theme .bg-amber-50, .dark-theme .bg-amber-100 {
-    background-color: rgba(245, 158, 11, 0.12) !important;
-    color: #fbbf24 !important;
-    border-color: rgba(245, 158, 11, 0.2) !important;
-  }
-  .dark-theme .text-green-700, .dark-theme .text-green-600 {
-    color: #34d399 !important;
-  }
-  .dark-theme .text-red-700, .dark-theme .text-red-600 {
-    color: #f87171 !important;
-  }
-  .dark-theme .text-blue-700, .dark-theme .text-blue-600 {
-    color: #60a5fa !important;
-  }
-  .dark-theme .text-amber-700, .dark-theme .text-amber-600 {
-    color: #fbbf24 !important;
-  }
-  .dark-theme button.bg-akaza-marron, .dark-theme .bg-akaza-marron {
-    background-color: #1e294b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
-  }
-  .dark-theme button.bg-akaza-marron:hover, .dark-theme .bg-akaza-marron:hover {
-    background-color: #2e3b6b !important;
-  }
-  .dark-theme .recharts-cartesian-grid-horizontal line, .dark-theme .recharts-cartesian-grid-vertical line {
-    stroke: rgba(255, 255, 255, 0.06) !important;
-  }
-  .dark-theme .recharts-text {
-    fill: #64748b !important;
-  }
-  .dark-theme .recharts-default-tooltip {
-    background-color: #131b2e !important;
-    border-color: #1e294b !important;
-    color: #f1f5f9 !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
-  }
-  .dark-theme .recharts-tooltip-item-list {
-    color: #f1f5f9 !important;
   }
   .dark-theme aside {
-    background-color: #111625 !important;
-    border-right: 1px solid #1e294b !important;
-  }
-  .dark-theme aside .bg-akaza-amarillo {
-    background-color: rgb(61, 28, 2) !important;
-    color: #fdfcfb !important;
-    box-shadow: 0 10px 20px -10px rgba(61, 28, 2, 0.5) !important;
-  }
-  .dark-theme aside .bg-akaza-amarillo svg,
-  .dark-theme aside .bg-akaza-amarillo span {
-    color: #fdfcfb !important;
-  }
-  .dark-theme aside .bg-akaza-amarillo div {
-    background-color: #fdfcfb !important;
-  }
-  .dark-theme aside a:not(.bg-akaza-amarillo):hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-  }
-  .dark-theme aside a:not(.bg-akaza-amarillo):hover svg {
-    color: #f59e0b !important;
-  }
-  
-  /* ── MÉTRICAS IA EN MODO OSCURO (TU ESTILO FAVORITO) ── */
-  /* Fondo de los tracks (barras vacías) */
-  .dark-theme .ia-progress-track {
-    background-color: #1e293b !important;
-    border-color: #334155 !important;
-  }
-  .dark-theme .ia-split-bar-manual {
-    background-color: #f59e0b !important; /* Marrón oscuro para manual */
-    color: #000000 !important;
-  }
-  .dark-theme .ia-split-bar-ia {
-    background-color: rgb(61, 28, 2)  !important; /* Sky Blue */
-    color: #ffffff !important;
-  }
-  .dark-theme .ia-legend-ia {
-    background-color: rgb(61, 28, 2) !important;
-  }
-  .dark-theme .ia-legend-manual {
-    background-color: #f59e0b !important;
-  }
-  .dark-theme .ia-text-ia {
-    color: #0ea5e9 !important;
-  }
-  .dark-theme .ia-text-manual {
-    color: #cbd5e1 !important;
-  }
-  .dark-theme .ia-progress-fill {
-    background-color: #f59e0b !important; /* Ámbar para interacciones */
-  }
-  .dark-theme .ia-progress-track-conversion {
-    background-color: #334155 !important;
-    border-color: #475569 !important;
-  }
-  .dark-theme .ia-progress-fill-conversion {
-    background-color: #f59e0b !important; /* Ámbar para conversión */
-  }
-  .dark-theme .ia-text-conversion {
-    color: #f59e0b !important;
+    background-color: #1A0C07 !important;
+    border-right: 1px solid #2C1810 !important;
   }
 `}} />
 
@@ -306,30 +151,32 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar de Admin Estilo /chat */}
       <aside 
         className={`${
           isSidebarExpanded ? "w-64 translate-x-0" : "w-20 -translate-x-full md:translate-x-0"
-        } bg-akaza-marron transition-all duration-300 ease-in-out flex flex-col z-50 fixed md:relative h-full`}
+        } bg-[#24130C] text-white transition-all duration-300 ease-in-out flex flex-col z-50 fixed md:relative h-full border-r border-white/10 shadow-2xl shrink-0`}
       >
-        {/* Logo Section */}
-        <div className="h-20 flex items-center px-6 border-b border-white/10 flex-shrink-0">
-          <div className="w-8 h-8 bg-akaza-amarillo rounded-lg flex-shrink-0 flex items-center justify-center">
-            <span className="text-akaza-marron font-black">A</span>
+        {/* Cabecera del Logo estilo Chat */}
+        <div className="h-16 bg-[#1B0E09] flex items-center px-5 border-b border-white/10 flex-shrink-0 justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-akaza-amarillo text-akaza-marron rounded-lg flex-shrink-0 flex items-center justify-center shadow-xs font-black font-serif">
+              A
+            </div>
+            {isSidebarExpanded && (
+              <span className="font-serif text-lg font-black tracking-widest text-white uppercase animate-in fade-in duration-300">
+                AKAZA <span className="text-akaza-amarillo font-sans text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10">ADMIN</span>
+              </span>
+            )}
           </div>
-          {isSidebarExpanded && (
-            <span className="ml-3 text-white font-bold tracking-tight text-xl animate-in fade-in duration-500">
-              AKAZA <span className="text-akaza-amarillo text-[10px] ml-1 opacity-70">ADMIN</span>
-            </span>
-          )}
         </div>
 
-        <nav className="flex-1 py-4 px-4 space-y-8 overflow-y-auto custom-scrollbar">
+        {/* Navegación del Menú */}
+        <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto custom-scrollbar">
           {menuGroups.map((group, idx) => (
             <div key={idx} className="space-y-2">
-              {/* Etiqueta de Grupo - Solo si el sidebar está expandido */}
               {isSidebarExpanded && (
-                <h3 className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[2px] mb-4">
+                <h3 className="px-3 text-[10px] font-mono font-bold text-white/40 uppercase tracking-[2px] mb-2">
                   {group.title}
                 </h3>
               )}
@@ -345,41 +192,33 @@ export default function AdminLayout({
                         if (window.innerWidth < 768) setIsSidebarExpanded(false);
                       }}
                       className={`
-                        relative flex items-center p-3 rounded-2xl transition-all duration-300 group
+                        relative flex items-center p-3 rounded-xl transition-all duration-200 group
                         ${isActive 
-                          ? "bg-akaza-amarillo text-akaza-marron shadow-[0_10px_20px_-10px_rgba(255,193,7,0.5)]" 
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                          ? "bg-white/10 text-akaza-amarillo border-l-4 border-akaza-amarillo shadow-sm" 
+                          : "text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent"
                         }
                       `}
                     >
-                      {/* Indicador lateral activo (Pill) */}
-                      {isActive && (
-                        <div className="absolute -left-1 w-1 h-6 bg-akaza-marron rounded-full" />
-                      )}
-
-                      {/* Icono con efecto de escala */}
                       <item.icon 
-                        size={20} 
+                        size={18} 
                         strokeWidth={isActive ? 2.5 : 2}
                         className={`
-                          shrink-0 transition-transform duration-300
-                          ${isActive ? "scale-110" : "group-hover:scale-110 group-hover:text-akaza-amarillo"}
+                          shrink-0 transition-transform duration-200
+                          ${isActive ? "scale-110 text-akaza-amarillo" : "group-hover:scale-110 group-hover:text-akaza-amarillo"}
                         `} 
                       />
 
-                      {/* Texto con Fade-in */}
                       {isSidebarExpanded && (
                         <span className={`
-                          ml-4 text-sm font-bold tracking-wide whitespace-nowrap transition-all duration-300
-                          ${isActive ? "opacity-100" : "opacity-80 group-hover:opacity-100"}
+                          ml-3.5 text-xs font-semibold tracking-wide whitespace-nowrap transition-all duration-200
+                          ${isActive ? "font-bold text-white" : "opacity-80 group-hover:opacity-100"}
                         `}>
                           {item.name}
                         </span>
                       )}
 
-                      {/* Tooltip personalizado cuando está colapsado (Opcional pero recomendado) */}
                       {!isSidebarExpanded && (
-                        <div className="absolute left-14 bg-akaza-marron text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                        <div className="absolute left-14 bg-[#1B0E09] text-white text-[10px] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md font-mono border border-white/10">
                           {item.name}
                         </div>
                       )}
@@ -391,21 +230,37 @@ export default function AdminLayout({
           ))}
         </nav>
 
-        {/* User / Bottom Section */}
-        <div className="p-4 border-t border-white/10 flex-shrink-0">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center p-3 text-white/60 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
-          >
-            <LogOut size={22} />
-            {isSidebarExpanded && <span className="ml-4 font-medium">Cerrar Sesión</span>}
-          </button>
+        {/* Sección de Usuario & Logout */}
+        <div className="p-3 bg-[#1B0E09] border-t border-white/10 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            {isSidebarExpanded && (
+              <div className="flex items-center gap-2.5 overflow-hidden text-left pl-1">
+                <div className="w-8 h-8 rounded-full bg-akaza-amarillo text-akaza-marron font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                  <User size={15} />
+                </div>
+                <div className="truncate">
+                  <p className="font-serif text-xs font-bold text-white truncate">Admin Akaza</p>
+                  <p className="text-[9px] font-mono text-white/50 uppercase tracking-wider">Super Admin</p>
+                </div>
+              </div>
+            )}
+
+            <button 
+              onClick={handleLogout}
+              className={`p-2 rounded-xl text-white/70 hover:text-red-400 hover:bg-red-500/20 transition-all ${
+                !isSidebarExpanded ? "w-full flex justify-center" : ""
+              }`}
+              title="Cerrar Sesión"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
 
-        {/* Toggle Button (Desktop Only) */}
+        {/* Toggle Button Desktop */}
         <button 
           onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-          className="absolute -right-3 top-24 bg-akaza-amarillo text-akaza-marron w-6 h-6 rounded-full hidden md:flex items-center justify-center shadow-md border border-akaza-marron/10 z-[60] hover:scale-110 transition-transform"
+          className="absolute -right-3 top-20 bg-akaza-amarillo text-akaza-marron w-6 h-6 rounded-full hidden md:flex items-center justify-center shadow-md border border-akaza-marron/10 z-[60] hover:scale-110 transition-transform"
         >
           {isSidebarExpanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
         </button>
@@ -416,7 +271,6 @@ export default function AdminLayout({
         {/* Header Minimalista */}
         <header className="h-16 bg-white/90 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0 sticky top-0">
           <div className="flex items-center gap-4 flex-1">
-            {/* Mobile Menu Button */}
             <button 
               onClick={() => setIsSidebarExpanded(true)}
               className="p-1.5 bg-gray-50 text-akaza-marron rounded-lg md:hidden hover:bg-gray-100 transition-colors"
@@ -428,24 +282,24 @@ export default function AdminLayout({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
               <input 
                 type="text" 
-                placeholder="Buscar..." 
+                placeholder="Buscar en panel..." 
                 className="w-full bg-gray-50/50 border border-gray-100 rounded-xl py-1.5 pl-9 pr-4 text-xs focus:bg-white focus:ring-2 focus:ring-akaza-marron/10 transition-all outline-none"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* ☀️ Botón Toggle Claro / Oscuro 🌙 */}
+            {/* Toggle Modo Claro / Oscuro */}
             <button
               onClick={() => setIsDark(!isDark)}
-              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-300 ${
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all duration-300 ${
                 isDark 
                   ? "bg-gray-800 border-gray-700 text-yellow-400 hover:bg-gray-700" 
                   : "bg-gray-50 border-gray-100 text-akaza-marron hover:bg-gray-100"
               }`}
-              title={isDark ? "Activar Modo Claro" : "Activar Modo Oscuro"}
+              title={isDark ? "Modo Claro" : "Modo Oscuro"}
             >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
             <button className="relative p-1.5 text-gray-400 hover:text-akaza-marron hover:bg-gray-50 rounded-lg transition-colors">
@@ -457,8 +311,8 @@ export default function AdminLayout({
 
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-akaza-marron leading-none">Admin Akaza</p>
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Super Admin</p>
+                <p className="font-serif text-xs font-bold text-akaza-marron leading-none">Admin Akaza</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 font-mono">Super Admin</p>
               </div>
               <div className="w-8 h-8 rounded-xl bg-akaza-crema/50 border border-akaza-marron/10 flex items-center justify-center text-akaza-marron shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <User size={14} />
@@ -467,8 +321,8 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8 custom-scrollbar">
+        {/* Contenido de la Página de Admin con Tipografía Merriweather */}
+        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8 custom-scrollbar font-sans">
           {children}
         </main>
       </div>

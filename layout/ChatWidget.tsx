@@ -1,13 +1,13 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bot, Send, X, Sparkles, Fish, ShieldAlert } from "lucide-react";
+import { Bot, Send, X, Sparkles, Fish, ShieldAlert, MessageCircle } from "lucide-react";
 
 export function ChatWidget() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [showTooltip, setShowTooltip] = useState(true);
 
   const handleSendPrompt = (prompt: string) => {
     if (!prompt.trim()) return;
@@ -23,120 +23,112 @@ export function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 items-end">
       
-      {/* ── GLOBO INFORMATIVO INICIAL DE LA IA ── */}
-      {showTooltip && !isOpen && (
-        <div className="bg-white border border-akaza-marron/5 shadow-xl rounded-2xl px-4 py-2.5 mb-3 text-[10px] font-black text-akaza-marron flex items-center gap-2 select-none animate-bounce relative shrink-0">
-          <span>🤖</span> ¿Tienes hambre? ¡Pregúntame!
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTooltip(false);
-            }}
-            className="text-akaza-marron/40 hover:text-akaza-marron transition-colors"
-          >
-            <X size={10} />
-          </button>
-          {/* Triangulito de la burbuja */}
-          <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white border-r border-b border-akaza-marron/5 transform rotate-45"></div>
-        </div>
-      )}
-
-      {/* ── GLOBO DE DIÁLOGO PRE-CHAT (POPOVER) ── */}
+      {/* ── POPOVER DE ACCESO RÁPIDO A LA IA (SI ESTÁ ABIERTO) ── */}
       {isOpen && (
-        <div className="bg-white/95 backdrop-blur-md border border-akaza-marron/5 shadow-2xl rounded-3xl p-5 w-80 text-left mb-4 flex flex-col space-y-4 transform transition-all duration-300 animate-in fade-in slide-in-from-bottom-5">
+        <div className="bg-white text-black border border-akaza-marron/15 shadow-2xl rounded-2xl p-4 w-76 text-left mb-1 flex flex-col space-y-3 transform transition-all duration-300 animate-in fade-in slide-in-from-bottom-5">
           
-          {/* Header del Asistente */}
-          <div className="flex items-center justify-between pb-3 border-b border-akaza-marron/5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-akaza-marron text-akaza-amarillo rounded-full flex items-center justify-center shadow-md">
-                <Bot size={18} />
+          <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-akaza-marron text-akaza-amarillo rounded-full flex items-center justify-center shadow-xs">
+                <Bot size={16} />
               </div>
               <div>
-                <h4 className="text-xs font-black text-akaza-marron leading-tight flex items-center gap-1">
-                  Akaza Asistente <span className="text-[10px]">🐚</span>
+                <h4 className="text-xs font-serif font-bold text-akaza-marron leading-tight">
+                  Asistente Akaza
                 </h4>
-                <span className="text-[8px] font-bold text-green-500 uppercase tracking-widest flex items-center gap-1">
-                  <span className="w-1 h-1 bg-green-500 rounded-full animate-ping"></span> Activo hoy
+                <span className="text-[9px] font-mono text-green-600 font-bold block">
+                  En línea
                 </span>
               </div>
             </div>
-            
-            {/* Cerrar Popover */}
-            <button 
+
+            <button
               onClick={() => setIsOpen(false)}
-              className="w-6 h-6 rounded-lg bg-gray-50 border border-akaza-marron/5 flex items-center justify-center text-akaza-marron/60 hover:text-akaza-marron transition-colors"
+              className="text-gray-400 hover:text-black p-1 rounded-md transition-colors"
             >
-              <X size={12} />
+              <X size={14} />
             </button>
           </div>
 
-          {/* Opciones Rápidas */}
-          <div className="space-y-2">
-            <span className="text-[8px] font-black text-akaza-marron/40 uppercase tracking-wider block mb-1">
-              Consultas sugeridas
+          {/* Consultas Sugeridas */}
+          <div className="space-y-1.5">
+            <span className="text-[9px] font-mono text-gray-400 uppercase tracking-wider block">
+              Consultas rápidas
             </span>
-            
+
             <button
               onClick={() => handleSendPrompt("¿Qué me recomiendas hoy? 🐟")}
-              className="w-full text-left bg-[#FAF8F5] hover:bg-akaza-marron hover:text-white border border-akaza-marron/5 rounded-xl px-3 py-2.5 text-[10px] font-bold text-akaza-marron flex items-center gap-2 transition-all active:scale-98"
+              className="w-full text-left bg-akaza-crema/50 hover:bg-akaza-marron hover:text-white rounded-lg px-2.5 py-1.5 text-xs font-medium text-akaza-marron flex items-center gap-2 transition-colors"
             >
-              <Fish size={12} className="shrink-0" />
+              <Fish size={13} className="shrink-0" />
               <span>¿Qué me recomiendas hoy?</span>
             </button>
 
             <button
               onClick={() => handleSendPrompt("¿Tienen opciones sin picante? 🌶️")}
-              className="w-full text-left bg-[#FAF8F5] hover:bg-akaza-marron hover:text-white border border-akaza-marron/5 rounded-xl px-3 py-2.5 text-[10px] font-bold text-akaza-marron flex items-center gap-2 transition-all active:scale-98"
+              className="w-full text-left bg-akaza-crema/50 hover:bg-akaza-marron hover:text-white rounded-lg px-2.5 py-1.5 text-xs font-medium text-akaza-marron flex items-center gap-2 transition-colors"
             >
-              <ShieldAlert size={12} className="shrink-0" />
-              <span>¿Tienen opciones sin picante?</span>
+              <ShieldAlert size={13} className="shrink-0" />
+              <span>¿Opciones sin picante?</span>
             </button>
 
             <button
               onClick={() => handleSendPrompt("Quiero ver los combos marinos 🍱")}
-              className="w-full text-left bg-[#FAF8F5] hover:bg-akaza-marron hover:text-white border border-akaza-marron/5 rounded-xl px-3 py-2.5 text-[10px] font-bold text-akaza-marron flex items-center gap-2 transition-all active:scale-98"
+              className="w-full text-left bg-akaza-crema/50 hover:bg-akaza-marron hover:text-white rounded-lg px-2.5 py-1.5 text-xs font-medium text-akaza-marron flex items-center gap-2 transition-colors"
             >
-              <Sparkles size={12} className="shrink-0" />
-              <span>Quiero ver los combos marinos</span>
+              <Sparkles size={13} className="shrink-0" />
+              <span>Combos y ofertas marinos</span>
             </button>
           </div>
 
-          {/* Mini Formulario de Entrada */}
-          <div className="pt-2 border-t border-akaza-marron/5 flex gap-2">
+          {/* Mini Input */}
+          <div className="pt-2 border-t border-gray-100 flex gap-1.5">
             <input
               type="text"
-              placeholder="Pregúntale a la IA aquí..."
+              placeholder="Escribe tu consulta..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
-              className="flex-1 bg-[#FAF8F5] border border-akaza-marron/5 rounded-xl px-3.5 py-2 text-[10px] font-bold text-akaza-marron placeholder-akaza-marron/30 focus:outline-none focus:border-akaza-marron transition-colors"
+              className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-medium text-black focus:outline-none focus:border-akaza-marron transition-colors"
             />
             <button
               onClick={() => handleSendPrompt(inputValue)}
-              className="w-8 h-8 bg-akaza-marron text-white rounded-xl flex items-center justify-center shadow-md hover:bg-akaza-amarillo hover:text-akaza-marron transition-colors shrink-0 active:scale-95"
+              className="bg-akaza-marron text-white rounded-lg px-2.5 flex items-center justify-center shadow-xs hover:bg-black transition-colors shrink-0"
             >
-              <Send size={11} />
+              <Send size={13} />
             </button>
           </div>
 
         </div>
       )}
 
-      {/* ── BOTÓN CIRCULAR PRINCIPAL (BOTÓN IA) ── */}
+      {/* ── BOTÓN FLOTANTE SUPERIOR: ¿TIENES HAMBRE? PREGÚNTAME (ASISTENTE IA) ── */}
       <button
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-          setShowTooltip(false);
-        }}
-        aria-label="Hablar con el Asistente de IA"
-        className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all border-4 border-white ${
-          isOpen ? "bg-akaza-amarillo text-akaza-marron" : "bg-akaza-marron text-white hover:bg-akaza-marron/95"
-        }`}
+        onClick={() => router.push("/chat")}
+        className="bg-akaza-marron hover:bg-black text-akaza-amarillo px-4 py-3 rounded-full shadow-2xl border border-akaza-amarillo/30 transition-all duration-300 hover:scale-105 flex items-center gap-2 group active:scale-95"
+        aria-label="¿Tienes hambre? Pregúntame"
       >
-        <Bot size={28} className={isOpen ? "rotate-12 transition-transform duration-300" : ""} />
+        <Bot size={20} className="text-akaza-amarillo animate-pulse" />
+        <span className="text-xs font-bold text-white whitespace-nowrap">
+          ¿Tienes hambre? Pregúntame
+        </span>
       </button>
+
+      {/* ── BOTÓN FLOTANTE INFERIOR: WHATSAPP DIRECTO ── */}
+      <a
+        href="https://wa.me/51986310588"
+        target="_blank"
+        rel="noreferrer"
+        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2 group active:scale-95"
+        aria-label="Contactar por WhatsApp"
+      >
+        <MessageCircle size={18} className="fill-current text-white" />
+        <span className="text-xs font-bold text-white whitespace-nowrap">
+          WhatsApp Directo
+        </span>
+      </a>
 
     </div>
   );

@@ -9,12 +9,39 @@ type AuthModalProps = {
   isOpen: boolean;
   isRegisterMode: boolean;
   authForm: AuthForm;
-  errorMessage?: string;
+  errorMessage?: unknown;
   onClose: () => void;
   onToggleMode: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onChange: (field: keyof AuthForm, value: string) => void;
 };
+
+function formatErrorMessage(detail: unknown): string {
+  if (!detail) return "";
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    const mensajes = detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "msg" in item) {
+          const msg = (item as { msg?: unknown }).msg;
+          return typeof msg === "string" ? msg : null;
+        }
+        return null;
+      })
+      .filter(Boolean) as string[];
+
+    if (mensajes.length) return mensajes.join(" | ");
+  }
+
+  if (detail && typeof detail === "object" && "msg" in detail) {
+    const msg = (detail as { msg?: unknown }).msg;
+    if (typeof msg === "string") return msg;
+  }
+
+  return "No se pudo autenticar. Verifica tus datos.";
+}
 
 export function AuthModal({
   isOpen,
@@ -30,6 +57,13 @@ export function AuthModal({
 
   if (!isOpen) return null;
 
+  const fillDemoAccount = () => {
+    onChange("email", "admin@akaza.com");
+    onChange("password", "admin123");
+  };
+
+  const parsedErrorMsg = formatErrorMessage(errorMessage);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
@@ -41,9 +75,8 @@ export function AuthModal({
       {/* Tarjeta Modal Principal */}
       <div className="relative bg-akaza-crema w-full max-w-sm sm:max-w-md md:max-w-3xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-akaza-marron/15 grid grid-cols-1 md:grid-cols-12 max-h-[90vh] overflow-y-auto md:overflow-y-visible">
         
-        {/* ── COLUMNA IZQUIERDA: FONDO MARINO Y BIENVENIDA A AKAZA (5 COLS) ── */}
+        {/* ── COLUMNA IZQUIERDA: FONDO MARINO Y BIENVENIDA DINÁMICA A AKAZA (5 COLS) ── */}
         <div className="md:col-span-5 relative p-6 text-left flex flex-col justify-between text-white overflow-hidden min-h-[260px] md:min-h-[420px]">
-          {/* Imagen Marina de Fondo del Header con Overlay Oscuro */}
           <div className="absolute inset-0 z-0">
             <img
               src="/plato3.jpg"
@@ -53,7 +86,6 @@ export function AuthModal({
             <div className="absolute inset-0 bg-akaza-marron/80 backdrop-brightness-75" />
           </div>
 
-          {/* Contenido Texto sobre el Fondo */}
           <div className="relative z-10 space-y-4 my-auto">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 bg-white rounded-lg p-1 shadow-md flex items-center justify-center shrink-0">
@@ -65,11 +97,13 @@ export function AuthModal({
             </div>
 
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-white leading-tight drop-shadow-md">
-              Bienvenido de nuevo a Akaza
+              {isRegisterMode ? "Crea tu cuenta en Akaza" : "Bienvenido de nuevo a Akaza"}
             </h2>
 
             <p className="text-xs text-white/90 leading-relaxed font-medium">
-              Inicia sesión para pedir tus favoritos y chatear con nuestro asistente.
+              {isRegisterMode
+                ? "Regístrate para guardar tus pedidos favoritos, chatear con nuestro asistente y disfrutar de una experiencia personalizada."
+                : "Inicia sesión para pedir tus favoritos y chatear con nuestro asistente."}
             </p>
 
             <div className="pt-2">
@@ -81,7 +115,7 @@ export function AuthModal({
           </div>
         </div>
 
-        {/* ── COLUMNA DERECHA: FORMULARIO Y DEMO DE CUENTA DE PRUEBA (7 COLS) ── */}
+        {/* ── COLUMNA DERECHA: FORMULARIO (LOGIN / REGISTRO) Y DEMO DE PRUEBA (7 COLS) ── */}
         <div className="md:col-span-7 p-6 sm:p-7 flex flex-col justify-between relative bg-akaza-crema">
           <button
             onClick={onClose}
@@ -94,18 +128,18 @@ export function AuthModal({
           <form className="space-y-4" onSubmit={onSubmit}>
             <div>
               <h3 className="font-serif text-lg font-bold text-akaza-marron">
-                {isRegisterMode ? "Crear cuenta nueva" : "Iniciar sesión"}
+                {isRegisterMode ? "Registro de Cuenta" : "Iniciar Sesión"}
               </h3>
               <p className="text-[11px] text-akaza-marron/70">
                 {isRegisterMode
-                  ? "Ingresa tus datos para registrarte"
+                  ? "Completa tus datos para crear tu cuenta"
                   : "Ingresa tus credenciales para continuar"}
               </p>
             </div>
 
-            {errorMessage && (
+            {parsedErrorMsg && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-lg font-medium">
-                {errorMessage}
+                {parsedErrorMsg}
               </div>
             )}
             
@@ -159,7 +193,6 @@ export function AuthModal({
                   placeholder="••••••••"
                   className="w-full bg-white border border-akaza-marron/20 rounded-lg py-2.5 pl-9 pr-9 outline-none focus:border-akaza-marron focus:ring-1 focus:ring-akaza-marron/20 transition-all text-xs text-akaza-marron placeholder:text-akaza-marron/35"
                 />
-                {/* Botón de Ojito para Mostrar/Ocultar Contraseña */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -175,28 +208,36 @@ export function AuthModal({
               type="submit"
               className="w-full bg-akaza-marron hover:bg-black text-white font-serif text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg transition-all active:scale-[0.99] shadow-sm"
             >
-              {isRegisterMode ? "Crear cuenta" : "Iniciar sesión"}
+              {isRegisterMode ? "Crear cuenta e Iniciar sesión" : "Iniciar sesión"}
             </button>
           </form>
 
-          {/* ── CUENTA DE PRUEBA INTEGRADA CON ESTILO HOME ── */}
+          {/* ── CUENTA DE PRUEBA AUTORRELLENABLE EN LOGIN ── */}
           {!isRegisterMode && (
-            <div className="mt-4 pt-3 border-t border-akaza-marron/15 text-left bg-white/70 rounded-xl p-3.5 border border-akaza-marron/10">
-              <div className="flex items-center gap-1.5 text-akaza-marron font-serif text-xs font-bold mb-1">
-                <ShieldCheck size={14} className="text-akaza-marron" />
-                <span>¿Explorando la plataforma?</span>
+            <div
+              onClick={fillDemoAccount}
+              className="mt-4 pt-3 border-t border-akaza-marron/15 text-left bg-white/70 hover:bg-white rounded-xl p-3.5 border border-akaza-marron/10 cursor-pointer transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5 text-akaza-marron font-serif text-xs font-bold">
+                  <ShieldCheck size={14} className="text-akaza-marron" />
+                  <span>¿Explorando la plataforma?</span>
+                </div>
+                <span className="text-[9px] font-bold text-akaza-marron bg-akaza-amarillo px-2 py-0.5 rounded group-hover:bg-black group-hover:text-white transition-colors">
+                  Usar Demo
+                </span>
               </div>
               <p className="text-[11px] text-akaza-marron/70 font-medium mb-2">
-                Accede rápidamente con nuestra cuenta de prueba:
+                Haz clic aquí para autorrellenar los datos de prueba:
               </p>
               <div className="space-y-1 text-[11px] text-akaza-marron bg-akaza-crema p-2 rounded-lg border border-akaza-marron/10 font-mono">
                 <div className="flex items-center justify-between">
                   <span>📧 Correo:</span>
-                  <code className="font-bold select-all">admin@akaza.com</code>
+                  <code className="font-bold">admin@akaza.com</code>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>🔑 Contraseña:</span>
-                  <code className="font-bold select-all">admin123</code>
+                  <code className="font-bold">admin123</code>
                 </div>
               </div>
             </div>
@@ -209,8 +250,8 @@ export function AuthModal({
               className="text-[11px] font-bold text-akaza-marron/80 hover:text-black transition-colors underline-offset-4 hover:underline"
             >
               {isRegisterMode
-                ? "¿Ya tienes cuenta? Inicia sesión"
-                : "¿No tienes cuenta? Regístrate"}
+                ? "¿Ya tienes cuenta? Inicia sesión aquí"
+                : "¿No tienes cuenta? Regístrate gratis aquí"}
             </button>
           </div>
         </div>

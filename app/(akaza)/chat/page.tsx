@@ -1,8 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Navbar } from "@/layout/Navbar";
 import { Sidebar } from "./Sidebar";
 import { ChatArea } from "./ChatArea";
 import { AuthService } from "@/service/auth.service";
@@ -33,6 +33,8 @@ type ChatSession = {
   messages: ChatMessage[];
 };
 
+const STORAGE_KEY = "akaza_chat_history_v1";
+
 function ChatAkazaFinal() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,7 +42,6 @@ function ChatAkazaFinal() {
 
   // Auth & UI State
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
@@ -69,13 +70,24 @@ function ChatAkazaFinal() {
     setIsMounted(true);
   }, []);
 
+  // Guardar en localStorage cada vez que cambie chatHistory
+  useEffect(() => {
+    if (isMounted && chatHistory.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+      } catch (err) {
+        console.error("Error al guardar historial en localStorage:", err);
+      }
+    }
+  }, [chatHistory, isMounted]);
+
   useEffect(() => {
     if (isMounted) {
       const mesaParam = searchParams.get("mesa");
       const mesaNumero = mesaParam ? Number(mesaParam) : null;
       setNroMesa(Number.isFinite(mesaNumero) ? mesaNumero : null);
 
-      const checkSession = async () => {
+      const checkSessionAndHistory = async () => {
         try {
           const data = await AuthService.checkSession();
           const authenticated = Boolean(data?.autenticado);
@@ -84,10 +96,12 @@ function ChatAkazaFinal() {
           setIdUsuario(currentUserId);
           setProfileData((prev) => ({
             ...prev,
-            name: data?.correo || "Invitado",
+            name: data?.nombre || data?.correo || "Usuario",
             email: data?.correo || prev.email,
+            allergies: (data as any)?.alergias || "",
+            preferences: (data as any)?.preferencias || "",
           }));
-          
+
           if (authenticated) {
             if (data?.rol === "administrador") {
               router.push("/admin");
@@ -98,10 +112,24 @@ function ChatAkazaFinal() {
             }
           }
 
-          // Procesar prompt/category automatizado una vez que la sesión y la mesa están listas
+          // Cargar chats guardados de localStorage si existen
+          let savedSessions: ChatSession[] = [];
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+              savedSessions = JSON.parse(raw);
+            }
+          } catch (e) {
+            console.error("Error leyendo localStorage:", e);
+          }
+
+          if (savedSessions.length === 0) {
+            savedSessions = ChatbotService.getInitialSession() as unknown as ChatSession[];
+          }
+
           const promptParam = searchParams.get("prompt");
           const categoryParam = searchParams.get("category");
-          
+
           let initialPrompt = "";
           if (promptParam) {
             initialPrompt = promptParam;
@@ -112,22 +140,18 @@ function ChatAkazaFinal() {
           if (initialPrompt) {
             setIsLoading(true);
             const userMessage: ChatMessage = { role: "user", content: initialPrompt };
-            
-            // Establecer el historial inicial agregando la consulta del usuario
-            const initialSession = ChatbotService.getInitialSession() as unknown as ChatSession[];
-            initialSession[0].messages.push(userMessage);
-            setChatHistory(initialSession);
+
+            if (savedSessions.length > 0) {
+              savedSessions[0].messages.push(userMessage);
+            }
+            setChatHistory(savedSessions);
 
             try {
-              const res = await ChatbotService.sendMessage(
-                currentUserId, 
-                mesaNumero, 
-                initialPrompt
-              );
+              const res = await ChatbotService.sendMessage(currentUserId, mesaNumero, initialPrompt);
               const respuestaIA = res?.respuesta_ia || "Recibí tu mensaje, dame un momento.";
               setChatHistory((prev) =>
                 prev.map((session) =>
-                  session.id === "general-main"
+                  session.id === prev[0]?.id
                     ? { ...session, messages: [...session.messages, { role: "bot", content: respuestaIA }] }
                     : session
                 )
@@ -136,7 +160,7 @@ function ChatAkazaFinal() {
             } catch (error) {
               setChatHistory((prev) =>
                 prev.map((session) =>
-                  session.id === "general-main"
+                  session.id === prev[0]?.id
                     ? { ...session, messages: [...session.messages, { role: "bot", content: "Error al procesar mensaje." }] }
                     : session
                 )
@@ -145,9 +169,8 @@ function ChatAkazaFinal() {
               setIsLoading(false);
             }
           } else {
-            setChatHistory(ChatbotService.getInitialSession());
+            setChatHistory(savedSessions);
           }
-
         } catch {
           setIsLoggedIn(false);
           setIdUsuario(null);
@@ -155,16 +178,14 @@ function ChatAkazaFinal() {
         }
       };
 
-      void checkSession();
+      void checkSessionAndHistory();
     }
   }, [isMounted, searchParams, router]);
 
-  // Auth Handlers
   const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAuthError("");
 
-    // Validación básica
     if (isRegisterMode && authForm.fullName.length < 3) {
       setAuthError("El nombre debe tener al menos 3 caracteres.");
       return;
@@ -179,7 +200,7 @@ function ChatAkazaFinal() {
         await AuthService.register(authForm.fullName.trim(), authForm.email.trim(), authForm.password);
       }
       const resLogin = await AuthService.login(authForm.email.trim(), authForm.password);
-      
+
       if (resLogin?.access_token) {
         setIsLoggedIn(true);
         const data = await AuthService.checkSession();
@@ -203,7 +224,17 @@ function ChatAkazaFinal() {
         setAuthForm({ fullName: "", email: "", password: "" });
       }
     } catch (error: any) {
-      setAuthError(error?.response?.data?.detail || "Error en autenticación");
+      const detail = error?.response?.data?.detail ?? error?.response?.data ?? error?.message;
+      if (typeof detail === "string") {
+        setAuthError(detail);
+      } else if (Array.isArray(detail)) {
+        const msgs = detail.map((d: any) => (typeof d === "string" ? d : d?.msg || "")).filter(Boolean);
+        setAuthError(msgs.join(" | ") || "Error de autenticación");
+      } else if (detail && typeof detail === "object" && "msg" in detail) {
+        setAuthError(String(detail.msg));
+      } else {
+        setAuthError("No se pudo autenticar. Verifica tus datos.");
+      }
     }
   };
 
@@ -212,70 +243,18 @@ function ChatAkazaFinal() {
     setIsLoggedIn(false);
     setIdUsuario(null);
     setUserOrders([]);
-    setIsUserMenuOpen(false);
     router.push("/");
   };
 
-  const openOrdersModal = async () => {
-    setIsOrdersOpen(true);
-    setIsUserMenuOpen(false);
-
-    try {
-      // Obtener el ID de usuario más reciente directamente de la sesión activa
-      const sessionData = await AuthService.checkSession();
-      const currentUserId = sessionData?.id ? Number(sessionData.id) : idUsuario;
-      console.log("[openOrdersModal] currentUserId:", currentUserId);
-
-      const ps = await AdminService.getPlatos();
-      const cs = await AdminService.getCombos();
-      const allPedidos = await AdminService.getPedidos();
-      
-      const filtered = allPedidos.filter((p: any) => 
-        currentUserId !== null && String(p.id_usuario) === String(currentUserId)
-      );
-      
-      const mappedOrders: Order[] = filtered.map((p: any) => {
-        const dishesList = (p.detalles || []).map((det: any) => {
-          let name = "Plato";
-          if (det.id_plato) {
-            const matched = ps.find((x: any) => x.id === det.id_plato);
-            if (matched) name = matched.nombre;
-          } else if (det.id_combo) {
-            const matched = cs.find((x: any) => x.id === det.id_combo);
-            if (matched) name = matched.nombre;
-          }
-          return `${det.cantidad}x ${name}`;
-        });
-        
-        let statusText: "ESPERA" | "COCINANDO" | "LISTO" | "PAGADO" = "ESPERA";
-        if (p.estado_pago === "PAGADO") {
-          statusText = "PAGADO";
-        } else if (p.estado_cocina === "PREPARANDO" || p.estado_cocina === "En proceso") {
-          statusText = "COCINANDO";
-        } else if (p.estado_cocina === "LISTO" || p.estado_cocina === "Listo") {
-          statusText = "LISTO";
-        }
-        
-        return {
-          id: p.ticket || `ORD-${p.id}`,
-          date: new Date(p.fecha_venta).toLocaleDateString("es-ES", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          }),
-          total: `S/ ${Number(p.total).toFixed(2)}`,
-          status: statusText,
-          dishes: dishesList,
-        };
-      });
-      
-      setUserOrders(mappedOrders);
-    } catch (err) {
-      console.error("Error loading user orders:", err);
-    }
+  const handleRenameSession = (sessionId: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    setChatHistory((prev) =>
+      prev.map((session) =>
+        session.id === sessionId ? { ...session, title: newTitle.trim() } : session
+      )
+    );
   };
 
-  // Chat Handlers
   const currentSession = chatHistory.find((session) => session.id === currentSessionId);
   const messages = currentSession?.messages ?? [];
 
@@ -284,8 +263,8 @@ function ChatAkazaFinal() {
       prev.map((session) =>
         session.id === currentSessionId
           ? { ...session, messages: nextMessages, date: "Ahora" }
-          : session,
-      ),
+          : session
+      )
     );
   };
 
@@ -312,7 +291,12 @@ function ChatAkazaFinal() {
 
   const hablarRespuestaIA = (textoCrudo: string) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    const textoLimpio = textoCrudo.replace(/\|\|.*?\|\|/g, "").replace(/\[ORDEN_CONFIRMADA\].*$/s, "").replace(/\*\*/g, "").replace(/\*/g, "").trim();
+    const textoLimpio = textoCrudo
+      .replace(/\|\|.*?\|\|/g, "")
+      .replace(/\[ORDEN_CONFIRMADA\].*$/s, "")
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "")
+      .trim();
     if (!textoLimpio) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(textoLimpio);
@@ -321,7 +305,8 @@ function ChatAkazaFinal() {
   };
 
   const handleVoiceInput = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
     const recognition = new SpeechRecognition();
     recognition.lang = "es-PE";
@@ -348,20 +333,6 @@ function ChatAkazaFinal() {
 
   return (
     <div className="h-[100dvh] bg-akaza-crema overflow-hidden font-sans flex flex-col">
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        isUserMenuOpen={isUserMenuOpen}
-        profileName={profileData.name}
-        onOpenLogin={() => setIsLoginOpen(true)}
-        onOpenQr={() => setIsQrOpen(true)}
-        onToggleUserMenu={() => setIsUserMenuOpen((prev) => !prev)}
-        onOpenProfile={() => setIsProfileOpen(true)}
-        onOpenOrders={() => setIsOrdersOpen(true)}
-        onLogout={handleLogout}
-        onScrollTop={() => router.push("/")}
-        onScrollToSection={() => router.push("/")}
-      />
-
       <div className="flex flex-1 min-h-0">
         <Sidebar
           chatHistory={chatHistory}
@@ -370,6 +341,13 @@ function ChatAkazaFinal() {
           createNewGeneralSession={createNewGeneralSession}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          onOpenQr={() => setIsQrOpen(true)}
+          onRenameSession={handleRenameSession}
+          isLoggedIn={isLoggedIn}
+          profileName={profileData.name}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onLogout={handleLogout}
         />
         <ChatArea
           messages={messages}
@@ -381,8 +359,14 @@ function ChatAkazaFinal() {
           isVoicePending={isVoicePending}
           nroMesa={nroMesa}
           setIsSidebarOpen={setIsSidebarOpen}
+          onOpenQr={() => setIsQrOpen(true)}
         />
-        {isSidebarOpen && <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[55] md:hidden" onClick={() => setIsSidebarOpen(false)} />}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[55] md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
       </div>
 
       <AuthModal
@@ -392,20 +376,36 @@ function ChatAkazaFinal() {
         onClose={() => setIsLoginOpen(false)}
         onToggleMode={() => setIsRegisterMode((prev) => !prev)}
         onSubmit={handleAuthSubmit}
-        onChange={(field, value) => setAuthForm(prev => ({ ...prev, [field]: value }))}
+        onChange={(field, value) => setAuthForm((prev) => ({ ...prev, [field]: value }))}
         errorMessage={authError}
       />
 
       <QrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
-      <ProfileModal isOpen={isProfileOpen} profileData={profileData} onClose={() => setIsProfileOpen(false)} onChange={(f, v) => setProfileData(p => ({ ...p, [f]: v }))} />
-      <OrdersModal isOpen={isOrdersOpen} orders={userOrders} onClose={() => setIsOrdersOpen(false)} onReorder={() => {}} />
+      <ProfileModal
+        isOpen={isProfileOpen}
+        profileData={profileData}
+        onClose={() => setIsProfileOpen(false)}
+        onChange={(f, v) => setProfileData((p) => ({ ...p, [f]: v }))}
+      />
+      <OrdersModal
+        isOpen={isOrdersOpen}
+        orders={userOrders}
+        onClose={() => setIsOrdersOpen(false)}
+        onReorder={() => {}}
+      />
     </div>
   );
 }
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="h-screen flex items-center justify-center bg-akaza-crema">Cargando...</div>}>
+    <Suspense
+      fallback={
+        <div className="h-screen flex items-center justify-center bg-akaza-crema font-serif text-akaza-marron">
+          Cargando Asistente Akaza...
+        </div>
+      }
+    >
       <ChatAkazaFinal />
     </Suspense>
   );
