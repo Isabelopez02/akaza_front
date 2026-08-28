@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { AuthService } from "@/service/auth.service";
+import { AuthService } from "@/services/auth.service";
 
 export default function AdminLayout({
   children,

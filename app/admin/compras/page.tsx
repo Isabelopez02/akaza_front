@@ -6,11 +6,11 @@ import {
   User, Calendar, TrendingUp, Package, CreditCard, 
   Calculator, ShoppingBag
 } from "lucide-react";
-import { AdminService } from "@/service/admin.service";
+import { AdminService } from "@/services/admin.service";
 import { Producto, CompraResponse } from "@/types";
 import { CompraModal } from "@/app/admin/combos/_components/CompraModal";
-import { Button } from "@/component/admin/Button";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { Button } from "@/components/admin/Button";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function ComprasPage() {
   const [compras, setCompras] = useState<CompraResponse[]>([]);

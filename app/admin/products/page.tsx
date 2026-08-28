@@ -2,16 +2,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, RefreshCw, AlertTriangle, Package, TrendingUp, TrendingDown, LayoutList, LineChart as LineChartIcon } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AdminService } from "@/service/admin.service";
-import { ProductTabla } from "@/component/admin/ProductTabla";
+import { AdminService } from "@/services/admin.service";
+import { ProductTabla } from "@/components/admin/ProductTabla";
 import {
   ProductModal,
   ProductFormData,
   DEFAULT_PRODUCT_FORM,
-} from "@/component/admin/ProductModal";
+} from "@/components/admin/ProductModal";
 import { Producto } from "@/types";
-import { Button } from "@/component/admin/Button";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { Button } from "@/components/admin/Button";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Producto[]>([]);

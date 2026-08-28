@@ -112,7 +112,7 @@ export function ChatWidget() {
       >
         <Bot size={20} className="text-akaza-amarillo animate-pulse" />
         <span className="text-xs font-bold text-white whitespace-nowrap">
-          ¿Tienes hambre? Pregúntame
+          Preguntame
         </span>
       </button>
 
@@ -125,9 +125,6 @@ export function ChatWidget() {
         aria-label="Contactar por WhatsApp"
       >
         <MessageCircle size={18} className="fill-current text-white" />
-        <span className="text-xs font-bold text-white whitespace-nowrap">
-          WhatsApp Directo
-        </span>
       </a>
 
     </div>

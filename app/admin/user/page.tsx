@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Search, Users, UserCheck, Plus, Edit2, Trash2, Shield, X, Key, Mail, User } from "lucide-react";
-import { AdminService } from "../../../service/admin.service";
-import { PageHeader } from "@/component/admin/PageHeader";
-import { Button } from "@/component/admin/Button";
+import { AdminService } from "../../../services/admin.service";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { Button } from "@/components/admin/Button";
 
 interface UsuarioFrontend {
   id: number;

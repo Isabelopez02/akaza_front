@@ -7,9 +7,9 @@ import { DishModal } from "@/app/admin/dishes/_components/DishModal";
 import { DishDetailsModal } from "@/app/admin/dishes/_components/DishDetailsModal";
 import { DishFormData, DEFAULT_DISH_FORM } from "@/app/admin/dishes/_components/DishForm";
 import type { Plato, Producto } from "@/types";
-import { AdminService } from "../../../service/admin.service";
-import { Button } from "@/component/admin/Button";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { AdminService } from "../../../services/admin.service";
+import { Button } from "@/components/admin/Button";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Plato[]>([]);

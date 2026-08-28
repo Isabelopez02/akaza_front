@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { DollarSign, ShoppingBag, ReceiptText, ArrowUpRight, ArrowDownRight, RefreshCw } from "lucide-react";
-import { AdminService } from "@/service/admin.service";
+import { AdminService } from "@/services/admin.service";
 import { KpiCard } from "./_components/KpiCard";
 import { VentasSemanaChart } from "./_components/VentasSemanaChart";
 import { PedidosTable, type PedidoVivo } from "./_components/PedidosTable";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 interface DashboardStats {
   ventas_hoy: number;

@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HeroSection } from "@/component/home/HeroSection";
-import { CategoriesSection } from "@/component/home/CategoriesSection";
-import { AIAssistantSection } from "@/component/home/AIAssistantSection";
-import { HowToOrderSection } from "@/component/home/HowToOrderSection";
-import { TestimonialsSection } from "@/component/home/TestimonialsSection";
-import { AuthModal } from "@/component/modal/AuthModal";
-import { ChatWidget } from "@/layout/ChatWidget";
-import { Footer } from "@/layout/Footer";
-import { Navbar } from "@/layout/Navbar";
-import { OrdersModal } from "@/component/modal/OrdersModal";
-import { ProfileModal } from "@/component/modal/ProfileModal";
-import { QrModal } from "@/layout/QrModal";
+import { HeroSection } from "@/components/home/HeroSection";
+import { CategoriesSection } from "@/components/home/CategoriesSection";
+import { AIAssistantSection } from "@/components/home/AIAssistantSection";
+import { HowToOrderSection } from "@/components/home/HowToOrderSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
+import { AuthModal } from "@/components/modal/AuthModal";
+import { ChatWidget } from "@/components/layout/ChatWidget";
+import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { OrdersModal } from "@/components/modal/OrdersModal";
+import { ProfileModal } from "@/components/modal/ProfileModal";
+import { QrModal } from "@/components/layout/QrModal";
 import { initialProfileData } from "@/types/constants";
 import { AuthForm, ProfileData, Order } from "@/types";
-import { AuthService } from "@/service/auth.service";
-import { AdminService } from "@/service/admin.service";
+import { AuthService } from "@/services/auth.service";
+import { AdminService } from "@/services/admin.service";
 import { useRouter } from "next/navigation";
 
 function buildAuthErrorMessage(detail: unknown): string {

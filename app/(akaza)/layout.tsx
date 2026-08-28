@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { AuthService } from "@/service/auth.service";
+import { AuthService } from "@/services/auth.service";
 
 export default function AkazaLayout({
   children,

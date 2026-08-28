@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Clock, Flame, CheckCircle2, ClipboardList, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { AdminService } from "@/service/admin.service";
+import { AdminService } from "@/services/admin.service";
 
 type EstadoPedido = "En proceso" | "Listo";
 

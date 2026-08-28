@@ -11,9 +11,9 @@ import { ComboCard } from "@/app/admin/combos/_components/ComboCard";
 import { ComboModal } from "@/app/admin/combos/_components/ComboModal";
 import { ComboFormData, DEFAULT_COMBO_FORM } from "@/app/admin/combos/_components/ComboForm";
 import { Combo, Plato } from "@/types";
-import { AdminService } from "@/service/admin.service";
-import { Button } from "@/component/admin/Button";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { AdminService } from "@/services/admin.service";
+import { Button } from "@/components/admin/Button";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function CombosPage() {
   const [combos, setCombos] = useState<Combo[]>([]);

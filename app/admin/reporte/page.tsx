@@ -9,10 +9,10 @@ import {
   AlertTriangle,
   PieChart as PieIcon
 } from "lucide-react";
-import { AdminService } from "@/service/admin.service";
+import { AdminService } from "@/services/admin.service";
 import { RankingPlatosChart } from "../_components/RankingPlatosChart";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { PageHeader } from "@/component/admin/PageHeader";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 interface DashboardStats {
   ventas_hoy: number;

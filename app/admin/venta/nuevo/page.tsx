@@ -13,9 +13,9 @@ import {
   Utensils,
   Package
 } from "lucide-react";
-import { PageHeader } from "@/component/admin/PageHeader";
-import { Button } from "@/component/admin/Button";
-import { AdminService } from "@/service/admin.service";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { Button } from "@/components/admin/Button";
+import { AdminService } from "@/services/admin.service";
 
 export default function NuevoPedidoPage() {
   const router = useRouter();

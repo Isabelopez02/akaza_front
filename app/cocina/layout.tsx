@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ChefHat, LayoutDashboard, ClipboardList, LogOut, ChevronLeft, ChevronRight, MessageCircle, X, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { AuthService } from "@/service/auth.service";
+import { AuthService } from "@/services/auth.service";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/cocina" },

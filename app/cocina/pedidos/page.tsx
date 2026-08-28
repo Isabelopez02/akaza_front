@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Flame, CheckCircle2, ChevronRight, Clock, ChefHat } from "lucide-react";
-import { AdminService } from "@/service/admin.service";
-import { CocinaService } from "@/service/cocina.service";
+import { AdminService } from "@/services/admin.service";
+import { CocinaService } from "@/services/cocina.service";
 
 type EstadoPedido = "En proceso" | "Listo";
 

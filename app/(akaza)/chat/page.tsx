@@ -5,12 +5,12 @@ import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { ChatArea } from "./ChatArea";
-import { AuthService } from "@/service/auth.service";
-import { ChatbotService } from "@/service/chatbot.service";
-import { AuthModal } from "@/component/modal/AuthModal";
-import { ProfileModal } from "@/component/modal/ProfileModal";
-import { OrdersModal } from "@/component/modal/OrdersModal";
-import { QrModal } from "@/layout/QrModal";
+import { AuthService } from "@/services/auth.service";
+import { ChatbotService } from "@/services/chatbot.service";
+import { AuthModal } from "@/components/modal/AuthModal";
+import { ProfileModal } from "@/components/modal/ProfileModal";
+import { OrdersModal } from "@/components/modal/OrdersModal";
+import { QrModal } from "@/components/layout/QrModal";
 import { initialProfileData } from "@/types/constants";
 import { AuthForm, ProfileData, Order } from "@/types";
 
