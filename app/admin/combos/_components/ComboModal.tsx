@@ -1,4 +1,5 @@
 "use client";
+
 import type { FormEvent } from "react";
 import { ComboForm, ComboFormData } from "./ComboForm";
 import type { Combo, Plato } from "@/types";
@@ -29,8 +30,8 @@ export function ComboModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-akaza-marron/60 backdrop-blur-sm z-[60] flex items-start justify-end p-0">
-      <div className="bg-white h-full w-full md:w-1/2 max-w-3xl shadow-2xl overflow-hidden animate-in slide-in-from-right-4 duration-300">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-start justify-end p-0">
+      <div className="bg-white h-full w-full md:w-[460px] max-w-lg shadow-2xl overflow-hidden animate-in slide-in-from-right-4 duration-300">
         <ComboForm
           editingCombo={editingCombo}
           formData={formData}

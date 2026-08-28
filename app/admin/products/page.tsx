@@ -253,7 +253,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[70%_30%] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[70%_30%] gap-6">
         <div className="space-y-6">
           {/* Controles de Filtrado Minimalistas */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -319,46 +319,45 @@ export default function ProductsPage() {
             {viewMode === "table" ? (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead className="bg-gray-50/50 border-b border-gray-100">
+                <thead className="bg-gray-50/70 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Producto</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">P. Anterior</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">P. Actual</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Variación</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Merma</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Acciones</th>
+                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Producto</th>
+                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">P. Anterior</th>
+                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">P. Actual</th>
+                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Variación</th>
+                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Merma</th>
+                    <th className="px-3.5 py-2.5 text-right text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isFetching ? (
-                    // Skeletons de alta fidelidad que replican la estructura real de columnas
                     Array(5).fill(0).map((_, i) => (
                       <tr key={i} className="border-b border-gray-50 animate-pulse">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gray-200 rounded-xl"></div>
-                            <div className="space-y-1.5 flex-1">
-                              <div className="h-3.5 bg-gray-200 rounded w-28"></div>
-                              <div className="h-2.5 bg-gray-100 rounded w-16"></div>
+                        <td className="px-3.5 py-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 bg-gray-200 rounded-lg"></div>
+                            <div className="space-y-1 flex-1">
+                              <div className="h-3 bg-gray-200 rounded w-24"></div>
+                              <div className="h-2 bg-gray-100 rounded w-12"></div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-3.5 bg-gray-100 rounded w-16"></div>
+                        <td className="px-3.5 py-2.5">
+                          <div className="h-3 bg-gray-100 rounded w-14"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-3.5 bg-gray-200 rounded w-16"></div>
+                        <td className="px-3.5 py-2.5">
+                          <div className="h-3 bg-gray-200 rounded w-14"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-5 bg-gray-100 rounded-md w-12"></div>
+                        <td className="px-3.5 py-2.5">
+                          <div className="h-4 bg-gray-100 rounded-md w-10"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-3.5 bg-gray-100 rounded w-20"></div>
+                        <td className="px-3.5 py-2.5">
+                          <div className="h-3 bg-gray-100 rounded w-16"></div>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
-                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
+                        <td className="px-3.5 py-2.5 text-right">
+                          <div className="flex justify-end gap-1">
+                            <div className="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div className="w-6 h-6 bg-gray-100 rounded"></div>
                           </div>
                         </td>
                       </tr>
@@ -464,67 +463,61 @@ export default function ProductsPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+          <div className="bg-white rounded-xl border border-gray-150 shadow-2xs overflow-hidden text-left">
+            <div className="px-3.5 py-2.5 border-b border-gray-100 flex items-center gap-2">
               {priceTrend === "up" ? (
-                <TrendingUp size={16} className="text-akaza-marron opacity-80" />
+                <TrendingUp size={15} className="text-akaza-marron opacity-80" />
               ) : (
-                <TrendingDown size={16} className="text-akaza-marron opacity-80" />
+                <TrendingDown size={15} className="text-akaza-marron opacity-80" />
               )}
-              <h3 className="text-base font-black text-akaza-marron tracking-tight">Monitor de Mercado</h3>
+              <h3 className="font-serif text-sm font-bold text-akaza-marron tracking-tight">Monitor de Mercado</h3>
             </div>
 
-            <div className="p-5 flex flex-col gap-5">
+            <div className="p-3 flex flex-col gap-3">
               {/* Selector de Tendencia (Tabs) */}
               <div className="flex bg-gray-50 p-1 rounded-xl">
                 <button
                   onClick={() => setPriceTrend("up")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[9px] font-bold uppercase tracking-widest transition-all rounded-lg ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[9px] font-mono font-bold uppercase tracking-wider transition-all rounded-lg ${
                     priceTrend === "up" 
-                      ? "bg-white text-red-600 shadow-sm" 
+                      ? "bg-white text-red-600 shadow-2xs" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                   }`}
                 >
-                  <TrendingUp size={12} /> Subidas
+                  <TrendingUp size={11} /> Subidas
                 </button>
                 <button
                   onClick={() => setPriceTrend("down")}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[9px] font-bold uppercase tracking-widest transition-all rounded-lg ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[9px] font-mono font-bold uppercase tracking-wider transition-all rounded-lg ${
                     priceTrend === "down" 
-                      ? "bg-white text-green-600 shadow-sm" 
+                      ? "bg-white text-green-600 shadow-2xs" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                   }`}
                 >
-                  <TrendingDown size={12} /> Bajadas
+                  <TrendingDown size={11} /> Bajadas
                 </button>
               </div>
 
               <div className="space-y-2">
                 {isFetching ? (
-                  // Lista de esqueletos para monitor de mercado
                   Array(5).fill(0).map((_, i) => (
-                    <div key={i} className="rounded-xl border border-gray-100 p-3 bg-white flex items-center justify-between gap-3 animate-pulse">
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="h-3.5 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-2.5 bg-gray-100 rounded w-1/3"></div>
+                    <div key={i} className="rounded-lg border border-gray-100 p-2.5 bg-white flex items-center justify-between gap-2.5 animate-pulse">
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-2 bg-gray-100 rounded w-1/3"></div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <div className="h-4 bg-gray-100 rounded w-12"></div>
-                        <div className="h-2 bg-gray-50 rounded w-8"></div>
-                      </div>
-                      <div className="text-right flex flex-col items-end gap-1">
-                        <div className="h-2 bg-gray-50 rounded w-8"></div>
-                        <div className="h-3.5 bg-gray-200 rounded w-12"></div>
+                        <div className="h-3 bg-gray-100 rounded w-10"></div>
                       </div>
                     </div>
                   ))
                 ) : (() => {
                   if (topTrendProducts.length === 0) {
                     return (
-                      <div className="rounded-2xl bg-gray-50 p-5 flex flex-col items-center justify-center text-center gap-2 border border-dashed border-gray-200">
-                        <Package size={24} className="text-gray-300" />
+                      <div className="rounded-xl bg-gray-50 p-4 flex flex-col items-center justify-center text-center gap-1.5 border border-dashed border-gray-200">
+                        <Package size={20} className="text-gray-300" />
                         <p className="text-xs font-medium text-gray-500">
-                          No se registran {priceTrend === "up" ? "aumentos" : "rebajas"} de precio recientes.
+                          No se registran {priceTrend === "up" ? "aumentos" : "rebajas"} recientes.
                         </p>
                       </div>
                     );
@@ -540,39 +533,39 @@ export default function ProductsPage() {
                     return (
                       <div 
                         key={product.id} 
-                        className={`rounded-xl border p-3 bg-white transition-all cursor-pointer ${hoveredProductId === product.id ? 'border-akaza-marron shadow-md scale-[1.02]' : 'border-gray-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:border-gray-200'}`}
+                        className={`rounded-lg border p-2.5 bg-white transition-all cursor-pointer ${hoveredProductId === product.id ? 'border-akaza-marron shadow-xs scale-[1.01]' : 'border-gray-150 shadow-2xs hover:border-gray-300'}`}
                         onMouseEnter={() => setHoveredProductId(product.id)}
                         onMouseLeave={() => setHoveredProductId(null)}
                       >
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center justify-between gap-2.5">
                           
                           {/* Info del Producto */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-800 text-sm truncate">{product.nombre}</p>
-                            <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                            <p className="font-bold text-gray-800 text-xs truncate">{product.nombre}</p>
+                            <p className="text-[9px] uppercase font-mono font-bold text-gray-400">
                               {product.unidad_medida}
                             </p>
                           </div>
 
                           {/* Variación */}
-                          <div className="flex flex-col items-end min-w-[70px]">
-                            <span className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-black ${
+                          <div className="flex flex-col items-end min-w-[65px]">
+                            <span className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] font-bold ${
                               isIncreased ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
                             }`}>
-                              {isIncreased ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                              {isIncreased ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
                               {diffPercent !== null ? `${Math.abs(diffPercent).toFixed(1)}%` : "0%"}
                             </span>
-                            <span className="text-[9px] text-gray-400 font-bold mt-0.5 uppercase tracking-wider">
+                            <span className="text-[9px] text-gray-400 font-mono font-medium mt-0.5">
                               {isIncreased ? "+" : "-"} S/ {Math.abs(diff).toFixed(2)}
                             </span>
                           </div>
 
                           {/* Precios */}
-                          <div className="text-right min-w-[70px]">
-                            <p className="text-[9px] text-gray-400 line-through leading-none font-medium">
+                          <div className="text-right min-w-[65px]">
+                            <p className="text-[9px] text-gray-400 line-through leading-none font-mono">
                               {Number(previous) > 0 ? `S/ ${Number(previous).toFixed(2)}` : "—"}
                             </p>
-                            <p className="text-sm font-black text-akaza-marron mt-0.5 tracking-tight">
+                            <p className="text-xs font-bold font-mono text-akaza-marron mt-0.5">
                               S/ {Number(current).toFixed(2)}
                             </p>
                           </div>

@@ -1,14 +1,6 @@
 "use client";
-import { useState } from "react";
-import {
-  Package,
-  Pencil,
-  Trash2,
-  AlertTriangle,
-  TrendingDown,
-  TrendingUp,
-  Plus,
-} from "lucide-react";
+
+import { Package, Pencil, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 import { Producto } from "@/types";
 
 type ProductCardProps = {
@@ -22,9 +14,7 @@ export function ProductTabla({
   product,
   onEdit,
   onDelete,
-  onProductoActualizado,
 }: ProductCardProps) {
-  const stockBajo = Number(product.stock_actual) < Number(product.stock_minimo_alerta);
   const hasMerma =
     product.merma_min_porcentaje != null && product.merma_max_porcentaje != null;
 
@@ -33,97 +23,98 @@ export function ProductTabla({
     product.precio_compra_anterior != null ? Number(product.precio_compra_anterior) : null;
   
   let variacionPct = null;
-  let diferencia = null;
   let precioSubio = false;
-  let precioBajo = false;
   
   if (precioActual !== null && precioAnterior !== null && precioAnterior > 0) {
     const diff = precioActual - precioAnterior;
-    diferencia = diff;
     precioSubio = diff > 0;
-    precioBajo = diff < 0;
     variacionPct = ((diff / precioAnterior) * 100).toFixed(1);
   }
 
   return (
-    <>
-      <tr className="border-b border-gray-50 hover:bg-gray-50/80 transition-colors group">
-        {/* 1. Producto */}
-        <td className="px-6 py-4 min-w-[200px]">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 group-hover:bg-akaza-amarillo group-hover:text-white transition-all">
-              <Package size={16} />
-            </div>
-            <div>
-              <p className="font-bold text-gray-800 text-sm">{product.nombre}</p>
-              <p className="text-[10px] text-gray-400 uppercase">{product.unidad_medida}</p>
-            </div>
+    <tr className="border-b border-gray-100 hover:bg-gray-50/80 transition-colors group text-left">
+      {/* 1. Producto */}
+      <td className="px-3.5 py-2.5 min-w-[180px]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 group-hover:bg-akaza-amarillo group-hover:text-akaza-marron transition-all shrink-0">
+            <Package size={14} />
           </div>
-        </td>
-
-        {/* 3. Precio Anterior */}
-        <td className="px-6 py-4 whitespace-nowrap">
-          {precioAnterior !== null ? (
-            <span className="text-sm text-gray-400 line-through decoration-gray-300">
-              S/ {precioAnterior.toFixed(2)}
-            </span>
-          ) : (
-            <span className="text-gray-300 text-xs">—</span>
-          )}
-        </td>
-
-        {/* 4. Precio Actual (Resaltado) */}
-        <td className="px-6 py-4 whitespace-nowrap">
-          {precioActual !== null ? (
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-800">
-                S/ {precioActual.toFixed(2)}
-              </span>
-              <span className="text-[10px] text-gray-400">por {product.unidad_medida}</span>
-            </div>
-          ) : (
-            <span className="text-gray-300 text-xs">—</span>
-          )}
-        </td>
-
-        {/* 5. Variación (Columna separada) */}
-        <td className="px-6 py-4 whitespace-nowrap">
-          {variacionPct ? (
-            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
-              precioSubio ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
-            }`}>
-              {precioSubio ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              {precioSubio ? '+' : ''}{variacionPct}%
-            </div>
-          ) : (
-            <span className="text-gray-300 text-xs">—</span>
-          )}
-        </td>
-
-        {/* 6. Merma */}
-        <td className="px-6 py-4">
-          {hasMerma ? (
-            <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100">
-              {Number(product.merma_min_porcentaje).toFixed(0)}-{Number(product.merma_max_porcentaje).toFixed(0)}%
-            </span>
-          ) : (
-            <span className="text-gray-300 text-xs">—</span>
-          )}
-        </td>
-
-        {/* 7. Acciones */}
-        <td className="px-6 py-4 text-right">
-          <div className="flex gap-1 justify-end">
-            <button onClick={() => onEdit(product)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
-              <Pencil size={16} />
-            </button>
-            <button onClick={() => onDelete(product.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-              <Trash2 size={16} />
-            </button>
+          <div className="truncate">
+            <p className="font-bold text-gray-800 text-xs truncate">{product.nombre}</p>
+            <p className="text-[9px] text-gray-400 font-mono uppercase">{product.unidad_medida}</p>
           </div>
-        </td>
-      </tr>
+        </div>
+      </td>
 
-    </>
+      {/* 2. Precio Anterior */}
+      <td className="px-3.5 py-2.5 whitespace-nowrap">
+        {precioAnterior !== null ? (
+          <span className="text-xs text-gray-400 line-through decoration-gray-300 font-mono">
+            S/ {precioAnterior.toFixed(2)}
+          </span>
+        ) : (
+          <span className="text-gray-300 text-[10px]">—</span>
+        )}
+      </td>
+
+      {/* 3. Precio Actual */}
+      <td className="px-3.5 py-2.5 whitespace-nowrap">
+        {precioActual !== null ? (
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-gray-800 font-mono">
+              S/ {precioActual.toFixed(2)}
+            </span>
+            <span className="text-[9px] text-gray-400">por {product.unidad_medida}</span>
+          </div>
+        ) : (
+          <span className="text-gray-300 text-[10px]">—</span>
+        )}
+      </td>
+
+      {/* 4. Variación */}
+      <td className="px-3.5 py-2.5 whitespace-nowrap">
+        {variacionPct ? (
+          <div className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            precioSubio ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+          }`}>
+            {precioSubio ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+            {precioSubio ? '+' : ''}{variacionPct}%
+          </div>
+        ) : (
+          <span className="text-gray-300 text-[10px]">—</span>
+        )}
+      </td>
+
+      {/* 5. Merma */}
+      <td className="px-3.5 py-2.5">
+        {hasMerma ? (
+          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 font-mono">
+            {Number(product.merma_min_porcentaje).toFixed(0)}-{Number(product.merma_max_porcentaje).toFixed(0)}%
+          </span>
+        ) : (
+          <span className="text-gray-300 text-[10px]">—</span>
+        )}
+      </td>
+
+      {/* 6. Acciones */}
+      <td className="px-3.5 py-2.5 text-right">
+        <div className="flex gap-1 justify-end">
+          <button 
+            onClick={() => onEdit(product)} 
+            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
+            title="Editar insumo"
+          >
+            <Pencil size={14} />
+          </button>
+          <button 
+            onClick={() => onDelete(product.id)} 
+            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+            title="Eliminar insumo"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }

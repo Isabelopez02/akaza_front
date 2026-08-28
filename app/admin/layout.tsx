@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { 
   LayoutDashboard, 
@@ -15,7 +16,8 @@ import {
   User2Icon,
   BarChart3,
   Sun,
-  Moon
+  Moon,
+  Library
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -43,37 +45,25 @@ export default function AdminLayout({
       } catch {
         router.push("/");
         return;
-      } flex: {
+      } finally {
         setIsLoading(false);
       }
     };
     void validarAcceso();
   }, [router]);
 
-  const menuGroups = [
-    {
-      title: "Principal",
-      items: [
-        { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
-        { name: "Reportes", icon: BarChart3, href: "/admin/reporte" },
-      ]
-    },
-    {
-      title: "Inventario y Ventas",
-      items: [
-        { name: "Insumos", icon: Package, href: "/admin/products" },
-        { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" },
-        { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
-        { name: "Combos", icon: Layers, href: "/admin/combos" },
-        { name: "Ventas", icon: Layers, href: "/admin/venta" },
-      ]
-    },
-    {
-      title: "Sistema",
-      items: [
-        { name: "Usuarios", icon: User2Icon, href: "/admin/user" },
-      ]
-    }
+  const mainItems = [
+    { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+    { name: "Reportes", icon: BarChart3, href: "/admin/reporte" },
+  ];
+
+  const managementItems = [
+    { name: "Insumos", icon: Package, href: "/admin/products" },
+    { name: "Compras", icon: ShoppingCartIcon, href: "/admin/compras" },
+    { name: "Platos", icon: UtensilsCrossed, href: "/admin/dishes" },
+    { name: "Combos", icon: Layers, href: "/admin/combos" },
+    { name: "Ventas", icon: Layers, href: "/admin/venta" },
+    { name: "Usuarios", icon: User2Icon, href: "/admin/user" },
   ];
 
   const handleLogout = () => {
@@ -84,14 +74,14 @@ export default function AdminLayout({
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-akaza-crema font-serif text-akaza-marron">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-akaza-marron"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-akaza-marron"></div>
       </div>
     );
   }
 
   return (
     <div className={`flex h-screen overflow-hidden relative font-sans ${isDark ? "dark-theme" : "bg-[#FDFCFB]"}`}>
-      {/* ── REGLAS DE ESTILO CSS PARA MODO OSCURO Y FUENTE MERRIWEATHER EN ADMIN ── */}
+      {/* ── REGLAS DE ESTILO CSS PARA MODO OSCURO Y FUENTE MERRIWEATHER ── */}
       <style dangerouslySetInnerHTML={{ __html: `
   h1, h2, h3, h4, h5, h6, .admin-title {
     font-family: var(--font-merriweather), serif !important;
@@ -112,17 +102,6 @@ export default function AdminLayout({
     color: #f1f5f9 !important;
     border-color: #1e294b !important;
   }
-  .dark-theme .bg-gradient-to-br {
-    background-image: none !important;
-    background-color: #131b2e !important;
-    color: #f1f5f9 !important;
-  }
-  .dark-theme h1.text-akaza-marron, 
-  .dark-theme h2.text-akaza-marron,
-  .dark-theme h3.text-akaza-marron,
-  .dark-theme .text-akaza-marron {
-    color: #f8fafc !important;
-  }
   .dark-theme select, .dark-theme input {
     background-color: #0b0f19 !important;
     color: #f1f5f9 !important;
@@ -138,8 +117,7 @@ export default function AdminLayout({
     color: #f8fafc !important;
   }
   .dark-theme aside {
-    background-color: #1A0C07 !important;
-    border-right: 1px solid #2C1810 !important;
+    background-color: #0d0604 !important;
   }
 `}} />
 
@@ -151,116 +129,143 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar de Admin Estilo /chat */}
+      {/* ── SIDEBAR ESTILO SPOTIFY WEB EN PALETA DE AKAZA ── */}
       <aside 
         className={`${
           isSidebarExpanded ? "w-64 translate-x-0" : "w-20 -translate-x-full md:translate-x-0"
-        } bg-[#24130C] text-white transition-all duration-300 ease-in-out flex flex-col z-50 fixed md:relative h-full border-r border-white/10 shadow-2xl shrink-0`}
+        } bg-[#140A06] text-white transition-all duration-300 ease-in-out flex flex-col z-50 fixed md:relative h-full p-2.5 gap-2.5 shrink-0`}
       >
-        {/* Cabecera del Logo estilo Chat */}
-        <div className="h-16 bg-[#1B0E09] flex items-center px-5 border-b border-white/10 flex-shrink-0 justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-akaza-amarillo text-akaza-marron rounded-lg flex-shrink-0 flex items-center justify-center shadow-xs font-black font-serif">
-              A
+        {/* PANEL 1 SUPERIOR: MARCA & NAVEGACIÓN PRINCIPAL */}
+        <div className="bg-[#1C0E08] border border-white/10 rounded-2xl p-3.5 space-y-3 shrink-0 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-akaza-amarillo text-akaza-marron rounded-xl flex items-center justify-center font-black font-serif shadow-xs">
+                A
+              </div>
+              {isSidebarExpanded && (
+                <span className="font-serif text-base font-black tracking-widest text-white uppercase animate-in fade-in duration-300">
+                  AKAZA <span className="text-akaza-amarillo font-sans text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10">ADMIN</span>
+                </span>
+              )}
             </div>
-            {isSidebarExpanded && (
-              <span className="font-serif text-lg font-black tracking-widest text-white uppercase animate-in fade-in duration-300">
-                AKAZA <span className="text-akaza-amarillo font-sans text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10">ADMIN</span>
-              </span>
-            )}
+          </div>
+
+          <div className="space-y-1 pt-1">
+            {mainItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => {
+                    if (window.innerWidth < 768) setIsSidebarExpanded(false);
+                  }}
+                  className={`
+                    flex items-center p-2.5 rounded-xl transition-all duration-200 group
+                    ${isActive 
+                      ? "bg-akaza-amarillo text-akaza-marron font-bold shadow-sm" 
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }
+                  `}
+                >
+                  <item.icon 
+                    size={18} 
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={`shrink-0 ${isActive ? "text-akaza-marron" : "text-white/70 group-hover:text-akaza-amarillo"}`}
+                  />
+                  {isSidebarExpanded && (
+                    <span className="ml-3 text-xs font-semibold tracking-wide whitespace-nowrap">
+                      {item.name}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
-        {/* Navegación del Menú */}
-        <nav className="flex-1 py-4 px-3 space-y-6 overflow-y-auto custom-scrollbar">
-          {menuGroups.map((group, idx) => (
-            <div key={idx} className="space-y-2">
-              {isSidebarExpanded && (
-                <h3 className="px-3 text-[10px] font-mono font-bold text-white/40 uppercase tracking-[2px] mb-2">
-                  {group.title}
-                </h3>
-              )}
-
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => {
-                        if (window.innerWidth < 768) setIsSidebarExpanded(false);
-                      }}
-                      className={`
-                        relative flex items-center p-3 rounded-xl transition-all duration-200 group
-                        ${isActive 
-                          ? "bg-white/10 text-akaza-amarillo border-l-4 border-akaza-amarillo shadow-sm" 
-                          : "text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent"
-                        }
-                      `}
-                    >
-                      <item.icon 
-                        size={18} 
-                        strokeWidth={isActive ? 2.5 : 2}
-                        className={`
-                          shrink-0 transition-transform duration-200
-                          ${isActive ? "scale-110 text-akaza-amarillo" : "group-hover:scale-110 group-hover:text-akaza-amarillo"}
-                        `} 
-                      />
-
-                      {isSidebarExpanded && (
-                        <span className={`
-                          ml-3.5 text-xs font-semibold tracking-wide whitespace-nowrap transition-all duration-200
-                          ${isActive ? "font-bold text-white" : "opacity-80 group-hover:opacity-100"}
-                        `}>
-                          {item.name}
-                        </span>
-                      )}
-
-                      {!isSidebarExpanded && (
-                        <div className="absolute left-14 bg-[#1B0E09] text-white text-[10px] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md font-mono border border-white/10">
-                          {item.name}
-                        </div>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        {/* Sección de Usuario & Logout */}
-        <div className="p-3 bg-[#1B0E09] border-t border-white/10 flex-shrink-0">
-          <div className="flex items-center justify-between">
+        {/* PANEL 2 INFERIOR (BIBLIOTECA DE GESTIÓN ESTILO SPOTIFY) */}
+        <div className="bg-[#1C0E08] border border-white/10 rounded-2xl p-3.5 flex-1 flex flex-col justify-between overflow-hidden shadow-lg">
+          <div className="space-y-2 overflow-y-auto custom-scrollbar">
             {isSidebarExpanded && (
-              <div className="flex items-center gap-2.5 overflow-hidden text-left pl-1">
-                <div className="w-8 h-8 rounded-full bg-akaza-amarillo text-akaza-marron font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
-                  <User size={15} />
-                </div>
-                <div className="truncate">
-                  <p className="font-serif text-xs font-bold text-white truncate">Admin Akaza</p>
-                  <p className="text-[9px] font-mono text-white/50 uppercase tracking-wider">Super Admin</p>
-                </div>
+              <div className="flex items-center gap-2 px-1 py-1 text-white/50 text-[10px] font-mono font-bold uppercase tracking-wider">
+                <Library size={14} className="text-akaza-amarillo" />
+                <span>Gestión de Restaurante</span>
               </div>
             )}
 
-            <button 
-              onClick={handleLogout}
-              className={`p-2 rounded-xl text-white/70 hover:text-red-400 hover:bg-red-500/20 transition-all ${
-                !isSidebarExpanded ? "w-full flex justify-center" : ""
-              }`}
-              title="Cerrar Sesión"
-            >
-              <LogOut size={18} />
-            </button>
+            <div className="space-y-1">
+              {managementItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => {
+                      if (window.innerWidth < 768) setIsSidebarExpanded(false);
+                    }}
+                    className={`
+                      flex items-center p-2.5 rounded-xl transition-all duration-200 group relative
+                      ${isActive 
+                        ? "bg-white/15 text-akaza-amarillo font-bold border-l-4 border-akaza-amarillo shadow-xs" 
+                        : "text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent"
+                      }
+                    `}
+                  >
+                    <item.icon 
+                      size={17} 
+                      strokeWidth={isActive ? 2.5 : 2}
+                      className={`shrink-0 ${isActive ? "text-akaza-amarillo" : "text-white/60 group-hover:text-akaza-amarillo"}`}
+                    />
+                    {isSidebarExpanded && (
+                      <span className="ml-3 text-xs font-semibold tracking-wide whitespace-nowrap">
+                        {item.name}
+                      </span>
+                    )}
+
+                    {!isSidebarExpanded && (
+                      <div className="absolute left-14 bg-[#140A06] text-white text-[10px] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md font-mono border border-white/10">
+                        {item.name}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* TARJETA DE USUARIO Y LOGOUT EN PANEL */}
+          <div className="pt-3 mt-2 border-t border-white/10 shrink-0">
+            <div className="flex items-center justify-between">
+              {isSidebarExpanded && (
+                <div className="flex items-center gap-2 overflow-hidden text-left">
+                  <div className="w-7 h-7 rounded-full bg-akaza-amarillo text-akaza-marron font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                    <User size={14} />
+                  </div>
+                  <div className="truncate">
+                    <p className="font-serif text-xs font-bold text-white truncate">Admin Akaza</p>
+                    <p className="text-[9px] font-mono text-white/50 uppercase tracking-wider">Super Admin</p>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={handleLogout}
+                className={`p-1.5 rounded-lg text-white/70 hover:text-red-400 hover:bg-red-500/20 transition-all ${
+                  !isSidebarExpanded ? "w-full flex justify-center" : ""
+                }`}
+                title="Cerrar Sesión"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Toggle Button Desktop */}
         <button 
           onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-          className="absolute -right-3 top-20 bg-akaza-amarillo text-akaza-marron w-6 h-6 rounded-full hidden md:flex items-center justify-center shadow-md border border-akaza-marron/10 z-[60] hover:scale-110 transition-transform"
+          className="absolute -right-3 top-16 bg-akaza-amarillo text-akaza-marron w-6 h-6 rounded-full hidden md:flex items-center justify-center shadow-md border border-akaza-marron/10 z-[60] hover:scale-110 transition-transform"
         >
           {isSidebarExpanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
         </button>
@@ -321,8 +326,8 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Contenido de la Página de Admin con Tipografía Merriweather */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8 custom-scrollbar font-sans">
+        {/* Contenido de la Página de Admin */}
+        <main className="flex-1 overflow-y-auto px-4 py-5 md:px-7 md:py-6 custom-scrollbar font-sans">
           {children}
         </main>
       </div>

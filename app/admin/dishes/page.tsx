@@ -237,7 +237,7 @@ export default function DishesPage() {
       </div>
 
       {/* Grid de Platos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {isLoading ? (
           [1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-pulse p-4 flex flex-col justify-between h-[340px]">

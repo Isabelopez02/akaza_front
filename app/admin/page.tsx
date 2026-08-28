@@ -1,15 +1,12 @@
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { DollarSign, ShoppingBag, ReceiptText, ArrowUpRight, ArrowDownRight, RefreshCw } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
 import { KpiCard } from "./_components/KpiCard";
 import { VentasSemanaChart } from "./_components/VentasSemanaChart";
-import { RankingPlatosChart } from "./_components/RankingPlatosChart";
-import { PreferenciasPanel } from "./_components/PreferenciasPanel";
 import { PedidosTable, type PedidoVivo } from "./_components/PedidosTable";
-import { IAEficiencia } from "./_components/IAEficiencia";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface DashboardStats {
   ventas_hoy: number;
   ventas_ayer: number;
@@ -27,12 +24,8 @@ interface DashboardStats {
   total_platos_hoy: number;
   ganancia_neta: number;
   combos_vs_platos: { name: string; value: number }[];
-  ia_personas_interactuaron?: number;
-  ia_pedidos?: number;
-  ia_pedidos_manual?: number;
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [pedidos, setPedidos] = useState<PedidoVivo[]>([]);
@@ -45,14 +38,23 @@ export default function AdminDashboard() {
       const [data, pedidosData] = await Promise.all([
         AdminService.getDashboardStats(),
         AdminService.getPedidos(),
-        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
+        new Promise((resolve) => setTimeout(resolve, 250))
       ]);
       setStats(data);
+      const hoyString = new Date().toDateString();
       const enriched = (pedidosData as any[]).map((p: any) => ({
         ...p,
         origen: p.ticket?.startsWith("IA") ? "IA" : "Manual",
       })) as PedidoVivo[];
-      setPedidos(enriched.filter(p => p.estado_cocina !== "CANCELADO").slice(-20).reverse());
+
+      const pedidosHoy = enriched.filter((p) => {
+        if (p.estado_cocina === "CANCELADO") return false;
+        if (!p.fecha_venta) return false;
+        const fechaPedido = new Date(p.fecha_venta).toDateString();
+        return fechaPedido === hoyString;
+      });
+
+      setPedidos(pedidosHoy.slice(-20).reverse());
     } catch (err) {
       console.error("Error cargando dashboard:", err);
     } finally {
@@ -70,28 +72,30 @@ export default function AdminDashboard() {
   const gananciaPos = gananciaNeta >= 0;
 
   return (
-    <div className="admin-page-container space-y-7 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="admin-page-container space-y-5 animate-in fade-in duration-300">
 
-      {/* ── Header ────────────────────────────────────────────────────────── */}
+      {/* ── HEADER DE DASHBOARD ── */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black text-akaza-marron tracking-tight">Panel de Control</h1>
-          <p className="text-gray-400 text-sm mt-1 font-medium">
+        <div className="text-left">
+          <h1 className="font-serif text-lg sm:text-xl font-bold text-akaza-marron tracking-tight">
+            Panel de Control Executive
+          </h1>
+          <p className="text-gray-400 text-xs font-medium mt-0.5">
             {new Date().toLocaleDateString("es-PE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
         <button
           onClick={() => fetchAll(true)}
           disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 bg-akaza-marron text-white rounded-xl text-xs font-bold hover:bg-akaza-marron/90 transition-all disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-akaza-marron text-white rounded-xl text-xs font-serif font-bold hover:bg-black transition-all disabled:opacity-50 shadow-xs"
         >
-          <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
-          Actualizar
+          <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />
+          <span>Actualizar</span>
         </button>
       </div>
 
-      {/* ── Fila 1: KPIs ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* ── FILA 1: TARJETAS KPI COMPACTAS ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           icon={DollarSign}
           label="Ventas Totales"
@@ -118,44 +122,48 @@ export default function AdminDashboard() {
           value={`S/ ${(s?.gastos_hoy ?? 0).toFixed(2)}`}
           sub={`${s?.total_platos_hoy ?? 0} platos despachados`}
           badgeText="HOY"
-          badgeClass="bg-red-50 text-red-500"
+          badgeClass="bg-red-50 text-red-600 border border-red-200"
           iconClass="bg-red-50 border-red-100 text-red-500"
           loading={loading}
         />
-        {/* Ganancia Neta — fondo dinámico */}
-        <div className={`p-5 rounded-2xl border transition-all flex flex-col justify-between min-h-[128px] ${gananciaPos ? "bg-gradient-to-br from-green-50 to-emerald-50/50 border-green-100" : "bg-gradient-to-br from-red-50 to-rose-50/50 border-red-100"}`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${gananciaPos ? "bg-green-100 border-green-200 text-green-700" : "bg-red-100 border-red-200 text-red-600"}`}>
-              {gananciaPos ? <ArrowUpRight size={18} strokeWidth={2.5} /> : <ArrowDownRight size={18} strokeWidth={2.5} />}
+
+        {/* Ganancia Neta Compacta */}
+        <div className={`p-3.5 sm:p-4 rounded-xl border transition-all flex flex-col justify-between min-h-[105px] ${gananciaPos ? "bg-emerald-50/40 border-emerald-200" : "bg-rose-50/40 border-rose-200"}`}>
+          <div className="flex items-center justify-between mb-2">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${gananciaPos ? "bg-green-100 border-green-200 text-green-700" : "bg-red-100 border-red-200 text-red-600"}`}>
+              {gananciaPos ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
             </div>
-            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${gananciaPos ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${gananciaPos ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
               {gananciaPos ? "POSITIVO" : "NEGATIVO"}
             </span>
           </div>
-          <div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Ganancia Neta</p>
-            {loading
-              ? <div className="h-6 w-28 rounded-lg bg-gray-200 animate-pulse mt-1" />
-              : <p className={`text-[1.15rem] font-black tracking-tight ${gananciaPos ? "text-green-700" : "text-red-600"}`}>S/ {gananciaNeta.toFixed(2)}</p>
-            }
-            <p className="text-[11px] text-gray-400 font-medium mt-1">Ventas − Gastos del día</p>
+
+          <div className="text-left">
+            <p className="text-gray-400 text-[10px] font-mono font-bold uppercase tracking-wider mb-0.5">
+              Ganancia Neta
+            </p>
+            {loading ? (
+              <div className="h-5 w-24 rounded bg-gray-200 animate-pulse my-1" />
+            ) : (
+              <p className={`font-serif text-base sm:text-lg font-black tracking-tight leading-tight ${gananciaPos ? "text-green-700" : "text-red-600"}`}>
+                S/ {gananciaNeta.toFixed(2)}
+              </p>
+            )}
+            <p className="text-[10px] text-gray-500 font-medium mt-0.5">Ventas − Gastos</p>
           </div>
         </div>
       </div>
 
-      {/* ── Fila 2: Operaciones en tiempo real ────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ minHeight: 340 }}>
-        <div className="lg:col-span-2">
+      {/* ── FILA 2: GRÁFICO DE VENTAS Y TABLA DE PEDIDOS EN CURSO EN VIVO ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div className="lg:col-span-6">
           <VentasSemanaChart data={s?.ventas_semana ?? []} loading={loading} />
         </div>
-        <IAEficiencia 
-          pedidos={pedidos} 
-          loading={loading} 
-          iaPersonas={s?.ia_personas_interactuaron}
-          iaPedidos={s?.ia_pedidos}
-          iaPedidosManual={s?.ia_pedidos_manual}
-        />
+        <div className="lg:col-span-6">
+          <PedidosTable pedidos={pedidos} loading={loading} />
+        </div>
       </div>
+
     </div>
   );
 }
