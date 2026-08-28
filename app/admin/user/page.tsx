@@ -50,7 +50,7 @@ export default function UsersPage() {
           console.error("Error cargando roles:", err);
           return [];
         }),
-        new Promise((resolve) => setTimeout(resolve, 300)) // Mantener suavidad en carga
+        new Promise((resolve) => setTimeout(resolve, 250))
       ]);
 
       setRoles(rolesData || []);
@@ -89,7 +89,7 @@ export default function UsersPage() {
       setFormData({
         nombre: user.nombre,
         correo: user.correo,
-        contrasenia: "", // Vacío por defecto al editar
+        contrasenia: "",
         id_rol: user.id_rol?.toString() || (roles[0]?.id?.toString() ?? ""),
       });
     } else {
@@ -197,24 +197,25 @@ export default function UsersPage() {
 
   const getRolStyles = (rolName: string) => {
     const name = rolName.toLowerCase();
-    if (name === "administrador") {
-      return "bg-red-50 text-red-700 border border-red-100 shadow-sm";
+    if (name === "administrador" || name === "admin") {
+      return "bg-rose-50 text-rose-700 border border-rose-200/80";
     }
     if (name === "cocinero" || name === "chef") {
-      return "bg-blue-50 text-blue-700 border border-blue-100 shadow-sm";
+      return "bg-sky-50 text-sky-700 border border-sky-200/80";
     }
     if (name === "mesero") {
-      return "bg-green-50 text-green-700 border border-green-100 shadow-sm";
+      return "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
     }
     if (name === "cliente") {
-      return "bg-akaza-amarillo/20 text-akaza-marron border border-akaza-amarillo/10 shadow-sm";
+      return "bg-amber-50 text-amber-800 border border-amber-200/80";
     }
-    return "bg-gray-50 text-gray-700 border border-gray-150 shadow-sm";
+    return "bg-gray-50 text-gray-700 border border-gray-150";
   };
 
   return (
-    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header */}
+    <div className="admin-page-container space-y-5 animate-in fade-in duration-300 text-gray-700">
+      
+      {/* HEADER COMPACTO */}
       <PageHeader
         title="Gestión de Usuarios"
         subtitle="Administra clientes, cocineros, meseros y personal administrativo."
@@ -224,169 +225,168 @@ export default function UsersPage() {
         </Button>
       </PageHeader>
 
-      <div className="space-y-6">
-        {/* Controles de Búsqueda y Filtros */}
+      <div className="space-y-4">
+        
+        {/* CONTROLES DE BÚSQUEDA Y FILTROS MINIMALISTAS */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative group flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={16} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={15} />
             <input
               type="text"
-              placeholder="Buscar usuario por nombre o correo..."
+              placeholder="Buscar por nombre o correo..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm text-gray-700"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-gray-150 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-2xs text-gray-700"
             />
           </div>
 
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setFilterType("all")}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                 filterType === "all"
                   ? "bg-akaza-marron text-white border-akaza-marron"
-                  : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                  : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
               }`}
             >
-              <Users size={14} />
-              Todos
+              <Users size={13} />
+              <span>Todos</span>
             </button>
             <button
               onClick={() => setFilterType("cliente")}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                 filterType === "cliente"
                   ? "bg-akaza-marron text-white border-akaza-marron"
-                  : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                  : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
               }`}
             >
-              <UserCheck size={14} />
-              Clientes
+              <UserCheck size={13} />
+              <span>Clientes</span>
             </button>
             <button
               onClick={() => setFilterType("cocinero")}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                 filterType === "cocinero"
                   ? "bg-akaza-marron text-white border-akaza-marron"
-                  : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                  : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
               }`}
             >
-              <Shield size={14} />
-              Cocineros
+              <Shield size={13} />
+              <span>Cocineros</span>
             </button>
             <button
               onClick={() => setFilterType("personal")}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                 filterType === "personal"
                   ? "bg-akaza-marron text-white border-akaza-marron"
-                  : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                  : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
               }`}
             >
-              <Shield size={14} />
-              Personal General
+              <Shield size={13} />
+              <span>Personal General</span>
             </button>
           </div>
         </div>
 
-        {/* Tabla */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between gap-4">
+        {/* TABLA PRINCIPAL DE USUARIOS COMPACTA */}
+        <div className="bg-white rounded-xl border border-gray-150 overflow-hidden shadow-2xs text-left">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Users size={16} className="text-akaza-marron opacity-80" />
-              <h3 className="text-base font-black text-akaza-marron tracking-tight">Usuarios Registrados</h3>
+              <Users size={15} className="text-akaza-marron" />
+              <h3 className="font-serif text-sm font-bold text-akaza-marron tracking-tight">Usuarios Registrados</h3>
             </div>
-            <span className="text-[10px] bg-akaza-crema text-akaza-marron px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
-              {filteredUsers.length} total
+            <span className="text-[10px] bg-akaza-crema text-akaza-marron px-2.5 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider border border-akaza-marron/10">
+              {filteredUsers.length} en total
             </span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="bg-gray-50/50 border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nombre</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Correo</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rol / Permisos</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pedidos Realizados</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unido el</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Acciones</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/70 text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <th className="px-3.5 py-2.5">Nombre</th>
+                  <th className="px-3.5 py-2.5">Correo</th>
+                  <th className="px-3.5 py-2.5">Rol / Permisos</th>
+                  <th className="px-3.5 py-2.5 text-center">Pedidos</th>
+                  <th className="px-3.5 py-2.5">Fecha Registro</th>
+                  <th className="px-3.5 py-2.5 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {isLoading ? (
-                  Array(5)
-                    .fill(0)
-                    .map((_, index) => (
-                      <tr key={index} className="border-b border-gray-50 animate-pulse">
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-200 rounded w-28"></div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-100 rounded w-40"></div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="h-6 bg-gray-200 rounded-full w-24"></div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-100 rounded w-8"></div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-100 rounded w-24"></div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
-                            <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                  Array(5).fill(0).map((_, index) => (
+                    <tr key={index} className="animate-pulse">
+                      <td className="px-3.5 py-2.5">
+                        <div className="h-3.5 bg-gray-200 rounded w-28"></div>
+                      </td>
+                      <td className="px-3.5 py-2.5">
+                        <div className="h-3.5 bg-gray-100 rounded w-36"></div>
+                      </td>
+                      <td className="px-3.5 py-2.5">
+                        <div className="h-5 bg-gray-200 rounded-full w-20"></div>
+                      </td>
+                      <td className="px-3.5 py-2.5 text-center">
+                        <div className="h-3.5 bg-gray-100 rounded w-6 mx-auto"></div>
+                      </td>
+                      <td className="px-3.5 py-2.5">
+                        <div className="h-3.5 bg-gray-100 rounded w-20"></div>
+                      </td>
+                      <td className="px-3.5 py-2.5 text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <div className="w-6 h-6 bg-gray-100 rounded-md"></div>
+                          <div className="w-6 h-6 bg-gray-100 rounded-md"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
-                      <Users size={32} className="mx-auto mb-3 opacity-20" />
-                      <p className="text-sm font-bold text-gray-500">No se encontraron usuarios</p>
-                      <p className="text-[11px] mt-1 text-gray-400">Prueba con otro término de búsqueda o crea un usuario nuevo.</p>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                      <Users size={28} className="mx-auto mb-2 opacity-20" />
+                      <p className="text-xs font-bold text-gray-500">No se encontraron usuarios</p>
+                      <p className="text-[10px] mt-0.5 text-gray-400">Intenta cambiar los filtros o el término de búsqueda.</p>
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-50 hover:bg-akaza-crema/20 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-black text-akaza-marron">{user.nombre}</div>
+                    <tr key={user.id} className="hover:bg-gray-50/80 transition-colors group">
+                      <td className="px-3.5 py-2.5 whitespace-nowrap">
+                        <div className="font-serif text-xs font-bold text-akaza-marron">{user.nombre}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">{user.correo}</div>
+                      <td className="px-3.5 py-2.5 whitespace-nowrap">
+                        <div className="text-xs font-mono text-gray-600">{user.correo}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-wider ${getRolStyles(user.rol)}`}>
+                      <td className="px-3.5 py-2.5 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-0.5 text-[9px] font-mono font-bold rounded-full uppercase tracking-wider ${getRolStyles(user.rol)}`}>
                           {user.rol}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-gray-500">
+                      <td className="px-3.5 py-2.5 whitespace-nowrap text-center">
+                        <span className="text-xs font-mono font-bold text-gray-700">
                           {user.rol.toLowerCase() === "cliente" ? user.pedidos_count || 0 : "—"}
-                        </div>
+                        </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{formatDate(user.fecha_union)}</div>
+                      <td className="px-3.5 py-2.5 whitespace-nowrap">
+                        <span className="text-[10px] font-mono text-gray-400">{formatDate(user.fecha_union)}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-3.5 py-2.5 whitespace-nowrap text-right">
+                        <div className="flex justify-end gap-1">
                           {user.rol.toLowerCase() === "administrador" || user.rol.toLowerCase() === "admin" ? (
-                            <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-100 text-[10px] font-black px-2.5 py-1 rounded-lg shadow-sm" title="Las cuentas de administrador no pueden ser modificadas o eliminadas por seguridad.">
-                              <Shield size={11} className="text-red-500" /> Protegido
+                            <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200/60 text-[9px] font-mono font-bold px-2 py-0.5 rounded" title="Administrador protegido">
+                              <Shield size={10} className="text-rose-500" /> Protegido
                             </span>
                           ) : (
                             <>
                               <button
                                 onClick={() => handleOpenModal(user)}
-                                className="p-1.5 bg-gray-50 text-gray-500 rounded-lg hover:bg-akaza-marron hover:text-white transition-colors"
+                                className="p-1 text-gray-400 hover:text-akaza-marron hover:bg-gray-100 rounded-md transition-all"
                                 title="Editar"
                               >
                                 <Edit2 size={13} />
                               </button>
                               <button
                                 onClick={() => handleDelete(user.id)}
-                                className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all"
                                 title="Eliminar"
                               >
                                 <Trash2 size={13} />
@@ -404,35 +404,37 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Modal de Crear / Editar Usuario */}
+      {/* MODAL DE CREAR / EDITAR USUARIO COMPACTO */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh] sm:max-h-[90vh]">
-            <div className="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-              <h2 className="text-sm sm:text-lg font-black text-akaza-marron flex items-center gap-2">
-                <Users className="text-akaza-marron" size={18} />
-                {editingUser ? "Editar Usuario" : "Nuevo Usuario"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh] text-left border border-gray-150">
+            
+            {/* Header del Modal */}
+            <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+              <h2 className="font-serif text-sm font-bold text-akaza-marron flex items-center gap-2">
+                <Users className="text-akaza-marron" size={16} />
+                <span>{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</span>
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="p-1.5 sm:p-2 bg-white text-gray-500 rounded-full hover:bg-gray-100 transition-colors shadow-sm"
+                className="p-1 text-gray-400 hover:text-akaza-marron hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+            <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
               {modalError && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-[11px] rounded-xl font-medium">
+                <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium">
                   {modalError}
                 </div>
               )}
 
               {/* Nombre */}
               <div className="space-y-1">
-                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nombre Completo</label>
+                <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Nombre Completo</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                  <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
                   <input
                     type="text"
                     name="nombre"
@@ -440,16 +442,16 @@ export default function UsersPage() {
                     onChange={handleInputChange}
                     required
                     placeholder="Ej. Juan Pérez"
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-150 rounded-lg text-xs font-medium focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
                   />
                 </div>
               </div>
 
               {/* Correo */}
               <div className="space-y-1">
-                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
+                <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Correo Electrónico</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                  <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
                   <input
                     type="email"
                     name="correo"
@@ -457,46 +459,41 @@ export default function UsersPage() {
                     onChange={handleInputChange}
                     required
                     placeholder="ejemplo@restaurante.com"
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-150 rounded-lg text-xs font-medium focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
                   />
                 </div>
               </div>
 
               {/* Contraseña */}
               <div className="space-y-1">
-                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
                   Contraseña {editingUser && "(Opcional si no deseas cambiarla)"}
                 </label>
                 <div className="relative">
-                  <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                  <Key className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
                   <input
                     type="password"
                     name="contrasenia"
                     value={formData.contrasenia}
                     onChange={handleInputChange}
                     required={!editingUser}
-                    placeholder="Contraseña robusta"
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
+                    placeholder="Contraseña del usuario"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-150 rounded-lg text-xs font-medium focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700"
                   />
                 </div>
-                {!editingUser && (
-                  <p className="text-[9px] text-gray-400 font-medium leading-normal">
-                    Debe incluir al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
-                  </p>
-                )}
               </div>
 
               {/* Rol */}
               <div className="space-y-1">
-                <label className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Asignar Rol</label>
+                <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Asignar Rol</label>
                 <div className="relative">
-                  <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                  <Shield className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
                   <select
                     name="id_rol"
                     value={formData.id_rol}
                     onChange={handleInputChange}
                     required
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700 appearance-none"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-150 rounded-lg text-xs font-medium focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all text-gray-700 appearance-none"
                   >
                     {roles.map(r => (
                       <option key={r.id} value={r.id}>{r.nombre}</option>
@@ -505,22 +502,24 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              <div className="pt-4 flex gap-3 flex-shrink-0">
+              {/* Actions Footer */}
+              <div className="pt-3 flex gap-2 border-t border-gray-100 mt-4">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 py-2.5 sm:py-3 border border-gray-100 hover:bg-gray-50 text-gray-500 rounded-xl text-xs font-bold transition-all"
+                  className="px-3 py-2 rounded-lg border border-gray-200 font-mono font-bold text-gray-500 hover:bg-gray-50 transition-all text-[10px] uppercase"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 sm:py-3 bg-akaza-marron hover:bg-akaza-marron/90 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                  className="flex-1 py-2 rounded-lg bg-akaza-marron hover:bg-black text-white font-serif text-xs font-bold uppercase tracking-wider transition-all shadow-xs"
                 >
-                  {editingUser ? "Guardar" : "Crear Usuario"}
+                  {editingUser ? "Guardar Cambios" : "Crear Usuario"}
                 </button>
               </div>
             </form>
+
           </div>
         </div>
       )}

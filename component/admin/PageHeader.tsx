@@ -12,16 +12,16 @@ export function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
       <div>
-        <h1 className="text-xl font-black text-akaza-marron tracking-tight">
+        <h1 className="font-serif text-lg sm:text-xl font-bold text-akaza-marron tracking-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-gray-400 font-medium mt-1">{subtitle}</p>
+          <p className="text-xs text-gray-400 font-medium mt-0.5">{subtitle}</p>
         )}
       </div>
-      {children && <div className="flex items-center gap-3">{children}</div>}
+      {children && <div className="flex items-center gap-3 shrink-0">{children}</div>}
     </div>
   );
 }

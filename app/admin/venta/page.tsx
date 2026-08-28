@@ -73,7 +73,7 @@ export default function VentasPage() {
         AdminService.getPlatos(),
         AdminService.getCombos(),
         AdminService.getPedidos(),
-        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms skeleton visible!
+        new Promise((resolve) => setTimeout(resolve, 250))
       ]);
       
       setPlatos(ps);
@@ -162,7 +162,7 @@ export default function VentasPage() {
     try {
       await Promise.all([
         AdminService.pagarPedido(pedidoAPagar.id_bd, payload),
-        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms processing delay!
+        new Promise((resolve) => setTimeout(resolve, 300))
       ]);
       await cargarDatos();
       
@@ -208,22 +208,22 @@ export default function VentasPage() {
     switch (estado) {
       case "pendiente":
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-[10px] font-black uppercase tracking-wider border border-yellow-100">
-            <Clock size={12} strokeWidth={3} />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider border border-amber-200">
+            <Clock size={10} strokeWidth={2.5} />
             Pendiente
           </span>
         );
       case "pagado":
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-wider border border-green-100">
-            <CheckCircle2 size={12} strokeWidth={3} />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider border border-emerald-200">
+            <CheckCircle2 size={10} strokeWidth={2.5} />
             Pagado
           </span>
         );
       case "anulado":
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 rounded-full text-[10px] font-black uppercase tracking-wider border border-red-100">
-            <XCircle size={12} strokeWidth={3} />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-700 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider border border-rose-200">
+            <XCircle size={10} strokeWidth={2.5} />
             Anulado
           </span>
         );
@@ -231,7 +231,9 @@ export default function VentasPage() {
   };
 
   return (
-    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="admin-page-container space-y-5 animate-in fade-in duration-300">
+      
+      {/* HEADER COMPACTO */}
       <PageHeader
         title="Punto de Venta"
         subtitle="Gestiona los pedidos, cobra a los clientes y emite comprobantes."
@@ -245,60 +247,95 @@ export default function VentasPage() {
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-akaza-marron to-black p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
-          <div>
-            <p className="text-white/60 text-[11px] font-black uppercase tracking-widest mb-1">Total Recaudado Hoy</p>
-            {isLoading ? (
-              <div className="h-8 w-28 bg-white/20 rounded-xl animate-pulse mt-1.5" />
-            ) : (
-              <p className="text-3xl font-black text-white tracking-tight">S/ {Number(totalVentasDia || 0).toFixed(2)}</p>
-            )}
-          </div>
-          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white border border-white/10">
-            <DollarSign size={24} strokeWidth={2.5} />
-          </div>
-        </div>
+      {/* CARDS DE RESUMEN KPI ESTILO DASHBOARD /ADMIN */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
-          <div>
-            <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-1">Pedidos Pagados</p>
-            {isLoading ? (
-              <div className="h-8 w-16 bg-gray-200 rounded-xl animate-pulse mt-1.5" />
-            ) : (
-              <p className="text-3xl font-black text-akaza-marron tracking-tight">{cantidadPedidosPagados}</p>
-            )}
+        {/* Card 1 - Recaudado Hoy */}
+        <div className="p-3.5 sm:p-4 rounded-xl border border-gray-150 bg-white shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between min-h-[105px] text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-8 h-8 rounded-lg bg-green-50 border border-green-100 text-green-700 flex items-center justify-center">
+              <DollarSign size={16} strokeWidth={2.2} />
+            </div>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+              VENTAS HOY
+            </span>
           </div>
-          <div className="w-12 h-12 bg-akaza-marron/5 rounded-2xl flex items-center justify-center text-akaza-marron border border-akaza-marron/10">
-            <CheckCircle2 size={24} strokeWidth={2.5} />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group">
           <div>
-            <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-1">Tickets Pendientes</p>
+            <p className="text-gray-400 text-[10px] font-mono font-bold uppercase tracking-wider mb-0.5">
+              Total Recaudado Hoy
+            </p>
             {isLoading ? (
-              <div className="h-8 w-16 bg-gray-200 rounded-xl animate-pulse mt-1.5" />
+              <div className="h-5 w-24 rounded bg-gray-200 animate-pulse my-1" />
             ) : (
-              <p className="text-3xl font-black text-yellow-600 tracking-tight">
-                {pedidosFiltrados.filter(p => p.estado === "pendiente").length}
+              <p className="font-serif text-base sm:text-lg font-black tracking-tight text-akaza-marron leading-tight">
+                S/ {Number(totalVentasDia || 0).toFixed(2)}
               </p>
             )}
-          </div>
-          <div className="w-12 h-12 bg-yellow-50 rounded-2xl flex items-center justify-center text-yellow-600 border border-yellow-100">
-            <Clock size={24} strokeWidth={2.5} />
+            <p className="text-[10px] text-gray-400 font-medium mt-0.5">Monto cobrado en caja</p>
           </div>
         </div>
+
+        {/* Card 2 - Pedidos Pagados */}
+        <div className="p-3.5 sm:p-4 rounded-xl border border-gray-150 bg-white shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between min-h-[105px] text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 flex items-center justify-center">
+              <CheckCircle2 size={16} strokeWidth={2.2} />
+            </div>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              PAGADOS
+            </span>
+          </div>
+          <div>
+            <p className="text-gray-400 text-[10px] font-mono font-bold uppercase tracking-wider mb-0.5">
+              Pedidos Concluidos
+            </p>
+            {isLoading ? (
+              <div className="h-5 w-16 rounded bg-gray-200 animate-pulse my-1" />
+            ) : (
+              <p className="font-serif text-base sm:text-lg font-black tracking-tight text-akaza-marron leading-tight">
+                {cantidadPedidosPagados} <span className="text-xs font-sans text-gray-500 font-medium">tickets</span>
+              </p>
+            )}
+            <p className="text-[10px] text-gray-400 font-medium mt-0.5">Órdenes cobradas</p>
+          </div>
+        </div>
+
+        {/* Card 3 - Tickets Pendientes */}
+        <div className="p-3.5 sm:p-4 rounded-xl border border-gray-150 bg-white shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between min-h-[105px] text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center">
+              <Clock size={16} strokeWidth={2.2} />
+            </div>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              PENDIENTES
+            </span>
+          </div>
+          <div>
+            <p className="text-gray-400 text-[10px] font-mono font-bold uppercase tracking-wider mb-0.5">
+              Tickets Pendientes
+            </p>
+            {isLoading ? (
+              <div className="h-5 w-16 rounded bg-gray-200 animate-pulse my-1" />
+            ) : (
+              <p className="font-serif text-base sm:text-lg font-black tracking-tight text-amber-700 leading-tight">
+                {pedidosFiltrados.filter(p => p.estado === "pendiente").length} <span className="text-xs font-sans text-gray-500 font-medium">por cobrar</span>
+              </p>
+            )}
+            <p className="text-[10px] text-gray-400 font-medium mt-0.5">Por procesar en caja</p>
+          </div>
+        </div>
+
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-8">
+      {/* CONTROLES DE FILTRADO MINIMALISTAS */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative group flex-1 max-w-xs">
-          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+          <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
           <input
             type="date"
             value={fechaFiltro}
             onChange={(e) => setFechaFiltro(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm"
+            className="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-150 rounded-xl text-xs font-mono font-bold text-gray-700 focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-2xs"
           />
         </div>
         
@@ -308,7 +345,7 @@ export default function VentasPage() {
             <select
               value={estadoFiltro}
               onChange={(e) => setEstadoFiltro(e.target.value as any)}
-              className="w-full pl-9 pr-8 py-3 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-sm cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
+              className="w-full pl-9 pr-8 py-2.5 bg-white border border-gray-150 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-2xs cursor-pointer appearance-none outline-none focus:ring-2 focus:ring-akaza-marron/10"
             >
               <option value="todos">Todos los estados</option>
               <option value="pendiente">Pendientes</option>
@@ -319,78 +356,69 @@ export default function VentasPage() {
         </div>
       </div>
 
+      {/* GRILLA DE TICKETS DE VENTA COMPACTOS */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden animate-pulse relative">
-              <div className="p-4 border-b border-gray-100 bg-gray-50/50 space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="h-5 bg-gray-200 rounded-lg w-1/3"></div>
-                  <div className="h-6 bg-gray-200 rounded-full w-20"></div>
-                </div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                <div className="space-y-1 pt-2">
-                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                </div>
+            <div key={i} className="bg-white rounded-xl border border-gray-150 shadow-2xs p-3.5 animate-pulse space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-4 bg-gray-200 rounded-full w-16"></div>
               </div>
-              <div className="p-4 space-y-3 min-h-[120px]">
-                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+              <div className="space-y-1 py-2">
+                <div className="h-3 bg-gray-100 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-100 rounded w-2/3"></div>
               </div>
-              <div className="p-4 border-t border-dashed border-gray-200 bg-gray-50/50 space-y-3">
-                <div className="flex justify-between items-center">
-                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                  <div className="h-6 bg-gray-200 rounded-lg w-1/3"></div>
-                </div>
-                <div className="h-9 bg-gray-200 rounded-xl w-full mt-2"></div>
-              </div>
-              <div className="absolute -left-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-r border-gray-200"></div>
-              <div className="absolute -right-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-l border-gray-200"></div>
             </div>
           ))}
         </div>
       ) : pedidosFiltrados.length === 0 ? (
-        <div className="text-center py-20 bg-white border border-gray-100 rounded-3xl">
-          <Receipt className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-          <h3 className="text-sm font-bold text-gray-900">No hay pedidos</h3>
-          <p className="text-xs text-gray-500 mt-1">No se encontraron ventas para esta fecha.</p>
+        <div className="text-center py-12 bg-white border border-gray-150 rounded-xl">
+          <Receipt className="mx-auto h-10 w-10 text-gray-300 mb-2" />
+          <h3 className="text-xs font-bold text-gray-800">No hay pedidos</h3>
+          <p className="text-[11px] text-gray-400 mt-0.5">No se encontraron ventas para la fecha seleccionada.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {pedidosFiltrados.map((pedido) => (
             <div 
               key={pedido.id_bd} 
-              className={`bg-white rounded-2xl border ${pedido.estado === 'pagado' ? 'border-green-100' : 'border-gray-200'} shadow-sm overflow-hidden relative group`}
+              className={`bg-white rounded-xl border ${
+                pedido.estado === 'pagado' ? 'border-emerald-200/80' : 'border-gray-150'
+              } shadow-2xs hover:shadow-xs transition-all overflow-hidden relative flex flex-col justify-between text-left`}
             >
-              <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                <div className="flex justify-between items-start mb-2">
+              {/* Header del Ticket */}
+              <div className="p-3 bg-gray-50/70 border-b border-gray-100">
+                <div className="flex justify-between items-start mb-1">
                   <div>
-                    <h3 className="font-black text-akaza-marron">{pedido.id}</h3>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{pedido.fecha} • {pedido.hora}</p>
+                    <h3 className="font-serif text-xs font-bold text-akaza-marron">{pedido.id}</h3>
+                    <p className="text-[9px] font-mono text-gray-400 uppercase">{pedido.fecha} • {pedido.hora}</p>
                   </div>
                   {getEstadoBadge(pedido.estado)}
                 </div>
-                <div className="mt-3">
-                  <p className="text-xs font-bold text-gray-700">{pedido.mesa}</p>
-                  <p className="text-[11px] text-gray-500">{pedido.cliente}</p>
+                <div className="mt-1.5 flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-800">{pedido.mesa}</span>
+                  <span className="text-[10px] text-gray-400 font-medium truncate max-w-[110px]">{pedido.cliente}</span>
                 </div>
               </div>
 
-              <div className="p-4 bg-white min-h-[120px]">
-                <ul className="space-y-3">
+              {/* Detalle de Productos */}
+              <div className="p-3 bg-white min-h-[95px] flex-1">
+                <ul className="space-y-1.5">
                   {pedido.productos.map((prod, idx) => (
-                    <li key={idx} className="flex flex-col text-xs">
-                      <div className="flex justify-between w-full">
-                        <div className="flex gap-2">
-                          <span className="font-bold text-gray-400">{prod.cantidad}x</span>
-                          <span className="font-medium text-gray-700">{prod.nombre}</span>
+                    <li key={idx} className="flex flex-col text-[11px]">
+                      <div className="flex justify-between items-center w-full">
+                        <div className="flex gap-1.5 truncate pr-2">
+                          <span className="font-bold font-mono text-gray-400 shrink-0">{prod.cantidad}x</span>
+                          <span className="font-medium text-gray-700 truncate">{prod.nombre}</span>
                         </div>
-                        <span className="font-bold text-gray-900">S/ {(prod.cantidad * prod.precio_unitario).toFixed(2)}</span>
+                        <span className="font-bold font-mono text-gray-800 shrink-0">
+                          S/ {(prod.cantidad * prod.precio_unitario).toFixed(2)}
+                        </span>
                       </div>
                       {prod.nota && (
-                        <p className="text-[10px] text-gray-400 italic mt-1 ml-6 bg-gray-50 px-2 py-1 rounded">
+                        <p className="text-[9px] text-gray-400 italic ml-4 bg-gray-50 px-1.5 py-0.5 rounded truncate">
                           Nota: {prod.nota}
                         </p>
                       )}
@@ -399,49 +427,45 @@ export default function VentasPage() {
                 </ul>
               </div>
 
-              <div className="p-4 border-t border-dashed border-gray-200 bg-gray-50/50">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-500">Total</span>
-                  <span className="text-xl font-black text-akaza-marron">S/{Number(pedido.total || 0).toFixed(2)}</span>
+              {/* Footer del Ticket */}
+              <div className="p-3 border-t border-dashed border-gray-200 bg-gray-50/40">
+                <div className="flex justify-between items-center mb-2.5">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-400">Total</span>
+                  <span className="font-serif text-sm font-black text-akaza-marron">
+                    S/ {Number(pedido.total || 0).toFixed(2)}
+                  </span>
                 </div>
 
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-1.5">
                   {pedido.estado === "pendiente" && (
                     <>
-                      <Button 
-                        size="sm" 
-                        variant="primary" 
-                        className="flex-1 justify-center py-2.5"
+                      <button
                         onClick={() => setPedidoAPagar(pedido)}
-                        icon={<DollarSign size={14} />}
+                        className="flex-1 py-1.5 bg-akaza-marron hover:bg-black text-white rounded-lg font-serif text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-2xs"
                       >
-                        Cobrar
-                      </Button>
+                        <DollarSign size={12} />
+                        <span>Cobrar</span>
+                      </button>
                       <button 
                         onClick={() => handleAnular(pedido.id_bd)}
-                        className="px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
-                        title="Anular"
+                        className="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors border border-rose-200/60"
+                        title="Anular pedido"
                       >
                         <XCircle size={14} />
                       </button>
                     </>
                   )}
                   {pedido.estado === "pagado" && (
-                    <Button 
-                      size="sm" 
-                      variant="secondary" 
-                      className="w-full justify-center py-2.5"
+                    <button
                       onClick={() => setBoletaActiva(pedido)}
-                      icon={<Receipt size={14} />}
+                      className="w-full py-1.5 bg-white border border-gray-200 text-gray-700 hover:text-akaza-marron hover:border-akaza-marron rounded-lg font-serif text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-2xs"
                     >
-                      Ver Boleta
-                    </Button>
+                      <Receipt size={12} />
+                      <span>Ver Boleta</span>
+                    </button>
                   )}
                 </div>
               </div>
-              
-              <div className="absolute -left-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-r border-gray-200"></div>
-              <div className="absolute -right-2 top-[76px] w-4 h-4 bg-[#f8f9fa] rounded-full border-l border-gray-200"></div>
             </div>
           ))}
         </div>
@@ -449,90 +473,90 @@ export default function VentasPage() {
 
       {/* Modal de Pago */}
       {pedidoAPagar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                <Wallet className="text-akaza-marron" size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 flex flex-col text-left border border-gray-150">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="font-serif text-sm font-bold text-gray-900 flex items-center gap-2">
+                <Wallet className="text-akaza-marron" size={18} />
                 Confirmar Pago
               </h2>
               <button 
                 onClick={() => setPedidoAPagar(null)}
-                className="p-2 bg-white text-gray-500 rounded-full hover:bg-gray-100 transition-colors shadow-sm"
+                className="p-1 text-gray-400 hover:text-akaza-marron hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={16} />
               </button>
             </div>
             
-            <div className="p-6">
-              <div className="text-center mb-8">
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Monto a Cobrar</p>
-                <p className="text-4xl font-black text-akaza-marron">S/ {Number(pedidoAPagar?.total || 0).toFixed(2)}</p>
-                <p className="text-xs text-gray-400 mt-2">{pedidoAPagar.id} • {pedidoAPagar.mesa}</p>
+            <div className="p-4 sm:p-5">
+              <div className="text-center mb-5">
+                <p className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider mb-0.5">Monto a Cobrar</p>
+                <p className="font-serif text-2xl sm:text-3xl font-black text-akaza-marron">S/ {Number(pedidoAPagar?.total || 0).toFixed(2)}</p>
+                <p className="text-[10px] font-mono text-gray-400 mt-1">{pedidoAPagar.id} • {pedidoAPagar.mesa}</p>
               </div>
 
-              <p className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">Método de Pago</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <p className="text-[10px] font-mono font-bold text-gray-500 mb-2 uppercase tracking-wider">Método de Pago</p>
+              <div className="grid grid-cols-2 gap-2 mb-4">
                 <button 
                   onClick={() => setMetodoPago("EFECTIVO")}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${metodoPago === 'EFECTIVO' ? 'border-akaza-marron bg-akaza-marron/5 text-akaza-marron' : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200'}`}
+                  className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border transition-all ${metodoPago === 'EFECTIVO' ? 'border-akaza-marron bg-akaza-marron/5 text-akaza-marron font-bold' : 'border-gray-150 bg-white text-gray-500'}`}
                 >
-                  <Banknote size={20} />
-                  <span className="text-[10px] font-black uppercase">Efectivo</span>
+                  <Banknote size={18} />
+                  <span className="text-[10px] uppercase font-mono">Efectivo</span>
                 </button>
                 <button 
                   onClick={() => setMetodoPago("YAPE")}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${metodoPago === 'YAPE' ? 'border-[#742384] bg-[#742384]/5 text-[#742384]' : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200'}`}
+                  className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border transition-all ${metodoPago === 'YAPE' ? 'border-[#742384] bg-[#742384]/5 text-[#742384] font-bold' : 'border-gray-150 bg-white text-gray-500'}`}
                 >
-                  <CreditCard size={20} />
-                  <span className="text-[10px] font-black uppercase">Yape/Plin</span>
+                  <CreditCard size={18} />
+                  <span className="text-[10px] uppercase font-mono">Yape/Plin</span>
                 </button>
                 <button 
                   onClick={() => setMetodoPago("TARJETA")}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${metodoPago === 'TARJETA' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200'}`}
+                  className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border transition-all ${metodoPago === 'TARJETA' ? 'border-blue-600 bg-blue-50 text-blue-600 font-bold' : 'border-gray-150 bg-white text-gray-500'}`}
                 >
-                  <CreditCard size={20} />
-                  <span className="text-[10px] font-black uppercase">Tarjeta</span>
+                  <CreditCard size={18} />
+                  <span className="text-[10px] uppercase font-mono">Tarjeta</span>
                 </button>
                 <button 
                   onClick={() => setMetodoPago("MIXTO")}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${metodoPago === 'MIXTO' ? 'border-gray-800 bg-gray-50 text-gray-800' : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200'}`}
+                  className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border transition-all ${metodoPago === 'MIXTO' ? 'border-gray-800 bg-gray-50 text-gray-800 font-bold' : 'border-gray-150 bg-white text-gray-500'}`}
                 >
-                  <Wallet size={20} />
-                  <span className="text-[10px] font-black uppercase">Mixto</span>
+                  <Wallet size={18} />
+                  <span className="text-[10px] uppercase font-mono">Mixto</span>
                 </button>
               </div>
 
               {metodoPago === "MIXTO" && (
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-6 space-y-3">
-                  <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Distribuir Pago</p>
-                  <div className="flex items-center gap-3">
-                    <label className="w-20 text-xs font-bold text-gray-700">Efectivo S/</label>
+                <div className="bg-gray-50 p-3 rounded-xl border border-gray-150 mb-4 space-y-2 text-left">
+                  <p className="text-[10px] font-mono font-bold text-gray-400 uppercase mb-1">Distribuir Pago</p>
+                  <div className="flex items-center gap-2">
+                    <label className="w-16 text-[10px] font-bold text-gray-700">Efectivo S/</label>
                     <input 
                       type="number" 
                       value={montoEfectivo} 
                       onChange={(e) => setMontoEfectivo(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-black outline-none focus:ring-2 focus:ring-akaza-marron/20"
+                      className="flex-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-bold outline-none"
                       placeholder="0.00"
                     />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <label className="w-20 text-xs font-bold text-[#742384]">Yape S/</label>
+                  <div className="flex items-center gap-2">
+                    <label className="w-16 text-[10px] font-bold text-[#742384]">Yape S/</label>
                     <input 
                       type="number" 
                       value={montoYape} 
                       onChange={(e) => setMontoYape(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-black outline-none focus:ring-2 focus:ring-akaza-marron/20"
+                      className="flex-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-bold outline-none"
                       placeholder="0.00"
                     />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <label className="w-20 text-xs font-bold text-blue-600">Tarjeta S/</label>
+                  <div className="flex items-center gap-2">
+                    <label className="w-16 text-[10px] font-bold text-blue-600">Tarjeta S/</label>
                     <input 
                       type="number" 
                       value={montoTarjeta} 
                       onChange={(e) => setMontoTarjeta(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-black outline-none focus:ring-2 focus:ring-akaza-marron/20"
+                      className="flex-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-bold outline-none"
                       placeholder="0.00"
                     />
                   </div>
@@ -542,10 +566,10 @@ export default function VentasPage() {
               <Button 
                 size="lg" 
                 variant="primary" 
-                className="w-full justify-center py-4 text-sm"
+                className="w-full justify-center py-2.5 font-serif text-xs font-bold uppercase tracking-wider"
                 onClick={confirmarPago}
                 disabled={isSubmittingPago}
-                icon={isSubmittingPago ? undefined : <CheckCircle2 size={18} />}
+                icon={isSubmittingPago ? undefined : <CheckCircle2 size={16} />}
               >
                 {isSubmittingPago ? "Procesando..." : "Confirmar y Generar Boleta"}
               </Button>
@@ -556,82 +580,77 @@ export default function VentasPage() {
 
       {/* Modal de Boleta */}
       {boletaActiva && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-xs sm:max-w-sm rounded-2xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 border border-gray-150">
             <button 
               onClick={() => setBoletaActiva(null)}
-              className="absolute top-4 right-4 p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors z-10"
+              className="absolute top-3 right-3 p-1.5 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors z-10"
             >
               <X size={16} />
             </button>
             
-            <div className="p-8 pt-10 text-center border-b border-dashed border-gray-300 relative">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 size={32} strokeWidth={2.5} />
+            <div className="p-5 text-center border-b border-dashed border-gray-200">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                <CheckCircle2 size={24} strokeWidth={2.5} />
               </div>
-              <h2 className="text-xl font-black text-gray-900 mb-1">¡Pago Exitoso!</h2>
-              <p className="text-xs text-gray-500">Se ha generado el comprobante</p>
+              <h2 className="font-serif text-base font-bold text-gray-900 mb-0.5">¡Pago Exitoso!</h2>
+              <p className="text-[10px] text-gray-400 font-mono">Comprobante electrónico generado</p>
             </div>
 
-            <div className="p-8 bg-[#fdfbf7] font-mono text-sm relative">
-              <div className="text-center mb-6">
-                <p className="font-bold text-lg mb-1">AKAZA RESTAURANT</p>
-                <p className="text-xs text-gray-500">Av. Principal 123, Ciudad</p>
-                <p className="text-xs text-gray-500">RUC: 20123456789</p>
+            <div className="p-5 bg-[#FDFCF9] font-mono text-xs text-left">
+              <div className="text-center mb-4">
+                <p className="font-serif font-bold text-sm text-akaza-marron mb-0.5">AKAZA RESTAURANT</p>
+                <p className="text-[9px] text-gray-500">Av. Principal 123, Ciudad</p>
+                <p className="text-[9px] text-gray-500">RUC: 20123456789</p>
               </div>
               
-              <div className="border-t border-b border-dashed border-gray-300 py-3 mb-4 space-y-1 text-xs">
+              <div className="border-t border-b border-dashed border-gray-300 py-2 mb-3 space-y-0.5 text-[10px]">
                 <p className="flex justify-between"><span>Boleta:</span> <strong>B001-{boletaActiva.id.split('-')[1] || boletaActiva.id_bd}</strong></p>
                 <p className="flex justify-between"><span>Fecha:</span> <span>{boletaActiva.fecha} {boletaActiva.hora}</span></p>
                 <p className="flex justify-between"><span>Cliente:</span> <span>{boletaActiva.cliente}</span></p>
               </div>
 
-              <table className="w-full text-xs mb-4">
+              <table className="w-full text-[10px] mb-3">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-2 font-normal">CANT</th>
-                    <th className="text-left py-2 font-normal">DESC</th>
-                    <th className="text-right py-2 font-normal">IMPORTE</th>
+                  <tr className="border-b border-gray-200 font-bold">
+                    <th className="text-left py-1">CANT</th>
+                    <th className="text-left py-1">DESC</th>
+                    <th className="text-right py-1">TOTAL</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-dashed divide-gray-200">
                   {boletaActiva.productos.map((prod, idx) => (
                     <tr key={idx}>
-                      <td className="py-2 align-top">{prod.cantidad}</td>
-                      <td className="py-2 pr-2">
+                      <td className="py-1 align-top font-bold">{prod.cantidad}</td>
+                      <td className="py-1 pr-1">
                         {prod.nombre}
-                        {prod.nota && <span className="block text-[10px] text-gray-500 mt-0.5">({prod.nota})</span>}
+                        {prod.nota && <span className="block text-[8px] text-gray-400">({prod.nota})</span>}
                       </td>
-                      <td className="py-2 text-right align-top">{(prod.cantidad * prod.precio_unitario).toFixed(2)}</td>
+                      <td className="py-1 text-right align-top font-bold">{(prod.cantidad * prod.precio_unitario).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              <div className="space-y-1 text-xs text-right">
-                <p className="flex justify-end gap-4"><span className="text-gray-500">OP. GRAVADA:</span> <span>S/ {boletaActiva.subtotal.toFixed(2)}</span></p>
-                <p className="flex justify-end gap-4"><span className="text-gray-500">IGV (18%):</span> <span>S/ {boletaActiva.igv.toFixed(2)}</span></p>
-                <p className="flex justify-end gap-4 text-base font-bold mt-2"><span className="text-gray-900">TOTAL:</span> <span>S/ {boletaActiva.total.toFixed(2)}</span></p>
-              </div>
-
-              <div className="text-center mt-8 text-[10px] text-gray-400">
-                <p>¡Gracias por su preferencia!</p>
-                <p>Vuelva pronto</p>
+              <div className="space-y-0.5 text-[10px] text-right pt-2 border-t border-gray-200">
+                <p className="flex justify-end gap-3"><span className="text-gray-400">OP. GRAVADA:</span> <span>S/ {boletaActiva.subtotal.toFixed(2)}</span></p>
+                <p className="flex justify-end gap-3"><span className="text-gray-400">IGV (18%):</span> <span>S/ {boletaActiva.igv.toFixed(2)}</span></p>
+                <p className="flex justify-end gap-3 font-bold text-xs mt-1 text-akaza-marron"><span className="text-gray-900">TOTAL:</span> <span>S/ {boletaActiva.total.toFixed(2)}</span></p>
               </div>
             </div>
 
-            <div className="p-4 bg-white flex gap-3 border-t border-gray-100">
+            <div className="p-3 bg-white flex gap-2 border-t border-gray-100">
               <Button 
                 variant="secondary" 
-                className="flex-1 justify-center"
+                className="flex-1 justify-center py-2 text-xs"
                 onClick={() => setBoletaActiva(null)}
               >
                 Cerrar
               </Button>
               <Button 
                 variant="primary" 
-                className="flex-1 justify-center"
-                icon={<Printer size={16} />}
+                className="flex-1 justify-center py-2 text-xs"
+                icon={<Printer size={14} />}
                 onClick={() => {
                   alert("Imprimiendo ticket...");
                   setBoletaActiva(null);

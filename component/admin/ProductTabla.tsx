@@ -15,9 +15,6 @@ export function ProductTabla({
   onEdit,
   onDelete,
 }: ProductCardProps) {
-  const hasMerma =
-    product.merma_min_porcentaje != null && product.merma_max_porcentaje != null;
-
   const precioActual = product.precio_compra != null ? Number(product.precio_compra) : null;
   const precioAnterior =
     product.precio_compra_anterior != null ? Number(product.precio_compra_anterior) : null;
@@ -40,7 +37,7 @@ export function ProductTabla({
             <Package size={14} />
           </div>
           <div className="truncate">
-            <p className="font-bold text-gray-800 text-xs truncate">{product.nombre}</p>
+            <p className="font-serif font-bold text-akaza-marron text-xs truncate">{product.nombre}</p>
             <p className="text-[9px] text-gray-400 font-mono uppercase">{product.unidad_medida}</p>
           </div>
         </div>
@@ -74,8 +71,8 @@ export function ProductTabla({
       {/* 4. Variación */}
       <td className="px-3.5 py-2.5 whitespace-nowrap">
         {variacionPct ? (
-          <div className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-            precioSubio ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+          <div className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+            precioSubio ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-700"
           }`}>
             {precioSubio ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
             {precioSubio ? '+' : ''}{variacionPct}%
@@ -85,33 +82,22 @@ export function ProductTabla({
         )}
       </td>
 
-      {/* 5. Merma */}
-      <td className="px-3.5 py-2.5">
-        {hasMerma ? (
-          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60 font-mono">
-            {Number(product.merma_min_porcentaje).toFixed(0)}-{Number(product.merma_max_porcentaje).toFixed(0)}%
-          </span>
-        ) : (
-          <span className="text-gray-300 text-[10px]">—</span>
-        )}
-      </td>
-
-      {/* 6. Acciones */}
-      <td className="px-3.5 py-2.5 text-right">
+      {/* 5. Acciones */}
+      <td className="px-3.5 py-2.5 text-right whitespace-nowrap">
         <div className="flex gap-1 justify-end">
           <button 
             onClick={() => onEdit(product)} 
-            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
+            className="p-1 text-gray-400 hover:text-akaza-marron hover:bg-gray-100 rounded-md transition-all"
             title="Editar insumo"
           >
-            <Pencil size={14} />
+            <Pencil size={13} />
           </button>
           <button 
             onClick={() => onDelete(product.id)} 
-            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+            className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all"
             title="Eliminar insumo"
           >
-            <Trash2 size={14} />
+            <Trash2 size={13} />
           </button>
         </div>
       </td>

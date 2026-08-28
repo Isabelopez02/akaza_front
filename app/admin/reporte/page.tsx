@@ -7,12 +7,12 @@ import {
   RefreshCw, 
   Award, 
   AlertTriangle,
-  PieChart as PieIcon,
-  BarChart3
+  PieChart as PieIcon
 } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
 import { RankingPlatosChart } from "../_components/RankingPlatosChart";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PageHeader } from "@/component/admin/PageHeader";
 
 interface DashboardStats {
   ventas_hoy: number;
@@ -62,20 +62,11 @@ export default function ReportePage() {
   return (
     <div className="admin-page-container space-y-5 animate-in fade-in duration-300">
       
-      {/* ── HEADER DE REPORTES ── */}
-      <div className="flex items-center justify-between">
-        <div className="text-left">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="text-akaza-marron" size={20} />
-            <h1 className="font-serif text-lg sm:text-xl font-bold text-akaza-marron tracking-tight">
-              Reporte Analítico Exec
-            </h1>
-          </div>
-          <p className="text-gray-400 text-xs font-medium mt-0.5">
-            Métricas de preferencia y popularidad gastronómica
-          </p>
-        </div>
-
+      {/* ── HEADER DE REPORTES UNIFICADO CON PAGEHEADER ── */}
+      <PageHeader
+        title="Reporte Analítico Exec"
+        subtitle="Métricas de preferencia y popularidad gastronómica"
+      >
         <button
           onClick={() => fetchAll(true)}
           disabled={refreshing}
@@ -84,7 +75,7 @@ export default function ReportePage() {
           <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />
           <span>Actualizar</span>
         </button>
-      </div>
+      </PageHeader>
 
       {/* ── FILA 1: TARJETAS MÁS Y MENOS POPULAR COMPACTAS ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

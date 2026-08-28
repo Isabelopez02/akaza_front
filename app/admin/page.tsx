@@ -6,6 +6,7 @@ import { AdminService } from "@/service/admin.service";
 import { KpiCard } from "./_components/KpiCard";
 import { VentasSemanaChart } from "./_components/VentasSemanaChart";
 import { PedidosTable, type PedidoVivo } from "./_components/PedidosTable";
+import { PageHeader } from "@/component/admin/PageHeader";
 
 interface DashboardStats {
   ventas_hoy: number;
@@ -74,16 +75,11 @@ export default function AdminDashboard() {
   return (
     <div className="admin-page-container space-y-5 animate-in fade-in duration-300">
 
-      {/* ── HEADER DE DASHBOARD ── */}
-      <div className="flex items-center justify-between">
-        <div className="text-left">
-          <h1 className="font-serif text-lg sm:text-xl font-bold text-akaza-marron tracking-tight">
-            Panel de Control Executive
-          </h1>
-          <p className="text-gray-400 text-xs font-medium mt-0.5">
-            {new Date().toLocaleDateString("es-PE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-          </p>
-        </div>
+      {/* ── HEADER DE DASHBOARD UNIFICADO CON PAGEHEADER ── */}
+      <PageHeader
+        title="Panel de Control Executive"
+        subtitle={new Date().toLocaleDateString("es-PE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+      >
         <button
           onClick={() => fetchAll(true)}
           disabled={refreshing}
@@ -92,7 +88,7 @@ export default function AdminDashboard() {
           <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />
           <span>Actualizar</span>
         </button>
-      </div>
+      </PageHeader>
 
       {/* ── FILA 1: TARJETAS KPI COMPACTAS ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

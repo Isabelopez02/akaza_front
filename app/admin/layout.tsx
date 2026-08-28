@@ -81,10 +81,16 @@ export default function AdminLayout({
 
   return (
     <div className={`flex h-screen overflow-hidden relative font-sans ${isDark ? "dark-theme" : "bg-[#FDFCFB]"}`}>
-      {/* ── REGLAS DE ESTILO CSS PARA MODO OSCURO Y FUENTE MERRIWEATHER ── */}
+      {/* ── REGLAS DE ESTILO CSS GLOBAL PARA MODO OSCURO, FUENTES Y PADDING ── */}
       <style dangerouslySetInnerHTML={{ __html: `
   h1, h2, h3, h4, h5, h6, .admin-title {
     font-family: var(--font-merriweather), serif !important;
+  }
+  .admin-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: #374151;
   }
   .dark-theme {
     background-color: #0b0f19 !important;

@@ -35,7 +35,7 @@ export default function ProductsPage() {
     try {
       const [data] = await Promise.all([
         AdminService.getProductos(),
-        new Promise((resolve) => setTimeout(resolve, 300)) // Force at least 300ms loading!
+        new Promise((resolve) => setTimeout(resolve, 250))
       ]);
       setProducts(data);
       setFilteredProducts(data);
@@ -79,8 +79,6 @@ export default function ProductsPage() {
         stock_actual: product.stock_actual.toString(),
         stock_minimo_alerta: product.stock_minimo_alerta.toString(),
         precio_compra: product.precio_compra?.toString() ?? "",
-        merma_min_porcentaje: product.merma_min_porcentaje?.toString() ?? "",
-        merma_max_porcentaje: product.merma_max_porcentaje?.toString() ?? "",
       });
     } else {
       setEditingProduct(null);
@@ -104,7 +102,6 @@ export default function ProductsPage() {
     setIsLoading(true);
     setModalError(null);
 
-    // Payload que acepta el backend (POST /api/inventario/ → ProductoCreate)
     const backendPayload: Record<string, unknown> = {
       nombre: formData.nombre.trim(),
       unidad_medida: formData.unidad_medida,
@@ -115,15 +112,6 @@ export default function ProductsPage() {
     const precioCompra = parseFloat(formData.precio_compra);
     if (!isNaN(precioCompra) && precioCompra > 0) {
       backendPayload.precio_compra = precioCompra;
-    }
-
-    const mermaMin = parseFloat(formData.merma_min_porcentaje);
-    const mermaMax = parseFloat(formData.merma_max_porcentaje);
-    if (!isNaN(mermaMin)) {
-      backendPayload.merma_min_porcentaje = mermaMin;
-    }
-    if (!isNaN(mermaMax)) {
-      backendPayload.merma_max_porcentaje = mermaMax;
     }
 
     try {
@@ -138,7 +126,6 @@ export default function ProductsPage() {
         await AdminService.createProducto(backendPayload);
       }
 
-      // Refresca la lista y cierra el modal
       await fetchProducts();
       setIsModalOpen(false);
     } catch (err: any) {
@@ -155,7 +142,6 @@ export default function ProductsPage() {
     }
   };
 
-  // ── Actualización inline de producto (tras una compra) ─────────────────────
   const handleProductoActualizado = (productoActualizado: Producto) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === productoActualizado.id ? productoActualizado : p))
@@ -217,7 +203,6 @@ export default function ProductsPage() {
     return { data, lines: relevantProducts };
   }, [products, priceTrend]);
 
-  // ── Eliminar ────────────────────────────────────────────────────────────────
   const handleDelete = async (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
     try {
@@ -228,9 +213,9 @@ export default function ProductsPage() {
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="admin-page-container space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="admin-page-container space-y-5 animate-in fade-in duration-300">
+      
       {/* Header */}
       <PageHeader
         title="Gestión de Insumos"
@@ -247,71 +232,71 @@ export default function ProductsPage() {
 
       {/* Error global */}
       {globalError && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4">
-          <AlertTriangle size={18} className="flex-shrink-0" />
-          <p className="text-sm font-medium">{globalError}</p>
+        <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-3.5 text-xs font-medium">
+          <AlertTriangle size={16} className="shrink-0" />
+          <p>{globalError}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-[70%_30%] gap-6">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[70%_30%] gap-5">
+        <div className="space-y-4">
           {/* Controles de Filtrado Minimalistas */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative group flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={16} />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-akaza-marron transition-colors pointer-events-none" size={15} />
               <input
                 type="text"
                 placeholder="Buscar insumo por nombre..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-sm text-gray-700"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-gray-150 rounded-xl text-xs focus:ring-2 focus:ring-akaza-marron/10 outline-none transition-all shadow-2xs text-gray-700"
               />
             </div>
             
             <div className="flex gap-2">
               <button
                 onClick={() => setSortOrder(sortOrder === "desc" ? "default" : "desc")}
-                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                   sortOrder === "desc" 
                     ? "bg-akaza-marron text-white border-akaza-marron" 
-                    : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                    : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
                 }`}
               >
-                <TrendingUp size={14} />
+                <TrendingUp size={13} />
                 Mayor Precio
               </button>
               <button
                 onClick={() => setSortOrder(sortOrder === "asc" ? "default" : "asc")}
-                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all shadow-2xs ${
                   sortOrder === "asc" 
                     ? "bg-akaza-marron text-white border-akaza-marron" 
-                    : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-700"
+                    : "bg-white text-gray-500 border-gray-150 hover:bg-gray-50 hover:text-gray-700"
                 }`}
               >
-                <TrendingDown size={14} />
+                <TrendingDown size={13} />
                 Menor Precio
               </button>
             </div>
           </div>
 
-          {/* Tabla completa */}
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-            <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between gap-4">
+          {/* Tabla completa sin la columna Merma */}
+          <div className="bg-white rounded-xl border border-gray-150 overflow-hidden shadow-2xs text-left">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2"> 
-                <Package size={16} className="text-akaza-marron opacity-80" />
-                <h3 className="text-base font-black text-akaza-marron tracking-tight">Inventario de Insumos</h3>
+                <Package size={15} className="text-akaza-marron" />
+                <h3 className="font-serif text-sm font-bold text-akaza-marron tracking-tight">Inventario de Insumos</h3>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex bg-gray-50 p-1 rounded-xl">
-                  <button onClick={() => setViewMode("table")} className={`p-1.5 rounded-lg transition-colors ${viewMode === "table" ? "bg-white shadow-sm text-akaza-marron" : "text-gray-400 hover:text-gray-600"}`} title="Vista de Tabla">
-                    <LayoutList size={16} />
+              <div className="flex items-center gap-2">
+                <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-150">
+                  <button onClick={() => setViewMode("table")} className={`p-1 rounded transition-colors ${viewMode === "table" ? "bg-white shadow-2xs text-akaza-marron font-bold" : "text-gray-400 hover:text-gray-600"}`} title="Vista de Tabla">
+                    <LayoutList size={15} />
                   </button>
-                  <button onClick={() => setViewMode("graph")} className={`p-1.5 rounded-lg transition-colors ${viewMode === "graph" ? "bg-white shadow-sm text-akaza-marron" : "text-gray-400 hover:text-gray-600"}`} title="Vista de Gráfico">
-                    <LineChartIcon size={16} />
+                  <button onClick={() => setViewMode("graph")} className={`p-1 rounded transition-colors ${viewMode === "graph" ? "bg-white shadow-2xs text-akaza-marron font-bold" : "text-gray-400 hover:text-gray-600"}`} title="Vista de Gráfico">
+                    <LineChartIcon size={15} />
                   </button>
                 </div>
-                <button onClick={fetchProducts} disabled={isFetching} className="p-1.5 bg-gray-50 rounded-lg text-gray-400 hover:text-akaza-marron transition-colors disabled:opacity-50">
-                  <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
+                <button onClick={fetchProducts} disabled={isFetching} className="p-1.5 bg-gray-50 rounded-lg text-gray-400 hover:text-akaza-marron transition-colors disabled:opacity-50 border border-gray-150">
+                  <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} />
                 </button>
               </div>
             </div>
@@ -319,20 +304,19 @@ export default function ProductsPage() {
             {viewMode === "table" ? (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead className="bg-gray-50/70 border-b border-gray-100">
+                <thead className="bg-gray-50/70 border-b border-gray-100 text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
                   <tr>
-                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Producto</th>
-                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">P. Anterior</th>
-                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">P. Actual</th>
-                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Variación</th>
-                    <th className="px-3.5 py-2.5 text-left text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Merma</th>
-                    <th className="px-3.5 py-2.5 text-right text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Acciones</th>
+                    <th className="px-3.5 py-2.5 text-left">Producto</th>
+                    <th className="px-3.5 py-2.5 text-left">P. Anterior</th>
+                    <th className="px-3.5 py-2.5 text-left">P. Actual</th>
+                    <th className="px-3.5 py-2.5 text-left">Variación</th>
+                    <th className="px-3.5 py-2.5 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100">
                   {isFetching ? (
                     Array(5).fill(0).map((_, i) => (
-                      <tr key={i} className="border-b border-gray-50 animate-pulse">
+                      <tr key={i} className="animate-pulse">
                         <td className="px-3.5 py-2.5">
                           <div className="flex items-center gap-2.5">
                             <div className="w-7 h-7 bg-gray-200 rounded-lg"></div>
@@ -351,9 +335,6 @@ export default function ProductsPage() {
                         <td className="px-3.5 py-2.5">
                           <div className="h-4 bg-gray-100 rounded-md w-10"></div>
                         </td>
-                        <td className="px-3.5 py-2.5">
-                          <div className="h-3 bg-gray-100 rounded w-16"></div>
-                        </td>
                         <td className="px-3.5 py-2.5 text-right">
                           <div className="flex justify-end gap-1">
                             <div className="w-6 h-6 bg-gray-100 rounded"></div>
@@ -364,10 +345,10 @@ export default function ProductsPage() {
                     ))
                   ) : filteredProducts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
-                        <Package size={32} className="mx-auto mb-3 opacity-20" />
-                        <p className="text-sm font-bold text-gray-500">No se encontraron productos</p>
-                        <p className="text-[11px] mt-1 text-gray-400">Prueba con otro término de búsqueda o crea un insumo nuevo.</p>
+                      <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
+                        <Package size={28} className="mx-auto mb-2 opacity-20" />
+                        <p className="text-xs font-bold text-gray-500">No se encontraron insumos</p>
+                        <p className="text-[10px] mt-0.5 text-gray-400">Prueba con otro término de búsqueda o registra un nuevo producto.</p>
                       </td>
                     </tr>
                   ) : (
@@ -385,56 +366,25 @@ export default function ProductsPage() {
               </table>
             </div>
             ) : (
-              <div className="p-6 h-[400px] w-full bg-white flex flex-col justify-between">
+              <div className="p-4 h-[350px] w-full bg-white flex flex-col justify-between">
                 {isFetching ? (
-                  <div className="w-full h-full flex flex-col justify-between animate-pulse select-none">
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="h-4 bg-gray-200 rounded w-24"></div>
-                      <div className="h-4 bg-gray-100 rounded w-16"></div>
-                    </div>
-                    <div className="flex-1 flex items-end gap-3 w-full pb-6">
-                      <div className="relative w-full h-full flex flex-col justify-between border-l border-b border-gray-100 pl-2">
-                        <div className="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
-                          <div className="w-full border-t border-gray-50"></div>
-                          <div className="w-full border-t border-gray-50"></div>
-                          <div className="w-full border-t border-gray-50"></div>
-                          <div className="w-full border-t border-gray-50"></div>
-                        </div>
-                        {/* Wavy pulsed line mockup */}
-                        <svg className="absolute inset-0 w-full h-full text-gray-200" viewBox="0 0 100 50" preserveAspectRatio="none">
-                          <path
-                            d="M0,45 Q15,10 30,30 T60,15 T90,25 T100,5"
-                            fill="none; opacity: 0.1"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeDasharray="4 4"
-                            className="opacity-50"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-gray-200 px-4">
-                      <div className="h-3 bg-gray-100 rounded w-8"></div>
-                      <div className="h-3 bg-gray-100 rounded w-8"></div>
-                      <div className="h-3 bg-gray-100 rounded w-8"></div>
-                      <div className="h-3 bg-gray-100 rounded w-8"></div>
-                    </div>
+                  <div className="w-full h-full flex flex-col justify-between animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="flex-1 bg-gray-50 rounded-xl my-4"></div>
                   </div>
                 ) : mockChartData.lines.length === 0 ? (
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                    <LineChartIcon size={32} className="mb-3 opacity-20" />
-                    <p className="text-sm font-bold text-gray-500">No hay datos para graficar</p>
-                    <p className="text-[11px] mt-1 text-gray-400">No se encontraron productos en tendencia a la {priceTrend === "up" ? "subida" : "bajada"}.</p>
+                    <LineChartIcon size={30} className="mb-2 opacity-20" />
+                    <p className="text-xs font-bold text-gray-500">No hay datos para graficar</p>
                   </div>
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={mockChartData.data}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="name" tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} />
-                      <YAxis tick={{fontSize: 10, fill: '#9ca3af'}} axisLine={false} tickLine={false} tickFormatter={(val) => `S/${val}`} />
+                      <XAxis dataKey="name" tick={{fontSize: 9, fill: '#9ca3af'}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fontSize: 9, fill: '#9ca3af'}} axisLine={false} tickLine={false} tickFormatter={(val) => `S/${val}`} />
                       <Tooltip 
-                        contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                        labelStyle={{fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '8px'}}
+                        contentStyle={{borderRadius: '10px', border: '1px solid #f0f0f0', fontSize: '11px', fontWeight: 700}}
                       />
                       {mockChartData.lines.map((p, i) => {
                         const colors = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#6366F1'];
@@ -447,10 +397,9 @@ export default function ProductsPage() {
                             type="monotone" 
                             dataKey={p.nombre} 
                             stroke={color} 
-                            strokeWidth={isHovered ? 3 : 1.5}
+                            strokeWidth={isHovered ? 2.5 : 1.5}
                             opacity={isFaded ? 0.2 : 1}
-                            dot={isHovered ? { r: 4, strokeWidth: 2 } : false}
-                            activeDot={{ r: 6, strokeWidth: 0 }}
+                            dot={false}
                           />
                         );
                       })}
@@ -462,7 +411,7 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="space-y-4">
           <div className="bg-white rounded-xl border border-gray-150 shadow-2xs overflow-hidden text-left">
             <div className="px-3.5 py-2.5 border-b border-gray-100 flex items-center gap-2">
               {priceTrend === "up" ? (
@@ -473,15 +422,14 @@ export default function ProductsPage() {
               <h3 className="font-serif text-sm font-bold text-akaza-marron tracking-tight">Monitor de Mercado</h3>
             </div>
 
-            <div className="p-3 flex flex-col gap-3">
-              {/* Selector de Tendencia (Tabs) */}
-              <div className="flex bg-gray-50 p-1 rounded-xl">
+            <div className="p-3 flex flex-col gap-2.5">
+              <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-150">
                 <button
                   onClick={() => setPriceTrend("up")}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[9px] font-mono font-bold uppercase tracking-wider transition-all rounded-lg ${
                     priceTrend === "up" 
-                      ? "bg-white text-red-600 shadow-2xs" 
-                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                      ? "bg-white text-rose-600 shadow-2xs font-bold" 
+                      : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
                   <TrendingUp size={11} /> Subidas
@@ -490,8 +438,8 @@ export default function ProductsPage() {
                   onClick={() => setPriceTrend("down")}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[9px] font-mono font-bold uppercase tracking-wider transition-all rounded-lg ${
                     priceTrend === "down" 
-                      ? "bg-white text-green-600 shadow-2xs" 
-                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                      ? "bg-white text-emerald-700 shadow-2xs font-bold" 
+                      : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
                   <TrendingDown size={11} /> Bajadas
@@ -501,21 +449,18 @@ export default function ProductsPage() {
               <div className="space-y-2">
                 {isFetching ? (
                   Array(5).fill(0).map((_, i) => (
-                    <div key={i} className="rounded-lg border border-gray-100 p-2.5 bg-white flex items-center justify-between gap-2.5 animate-pulse">
-                      <div className="flex-1 min-w-0 space-y-1.5">
+                    <div key={i} className="rounded-lg border border-gray-100 p-2 bg-white flex items-center justify-between gap-2 animate-pulse">
+                      <div className="flex-1 space-y-1">
                         <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                         <div className="h-2 bg-gray-100 rounded w-1/3"></div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <div className="h-3 bg-gray-100 rounded w-10"></div>
                       </div>
                     </div>
                   ))
                 ) : (() => {
                   if (topTrendProducts.length === 0) {
                     return (
-                      <div className="rounded-xl bg-gray-50 p-4 flex flex-col items-center justify-center text-center gap-1.5 border border-dashed border-gray-200">
-                        <Package size={20} className="text-gray-300" />
+                      <div className="rounded-xl bg-gray-50 p-4 flex flex-col items-center justify-center text-center gap-1 border border-dashed border-gray-200">
+                        <Package size={18} className="text-gray-300" />
                         <p className="text-xs font-medium text-gray-500">
                           No se registran {priceTrend === "up" ? "aumentos" : "rebajas"} recientes.
                         </p>
@@ -533,43 +478,38 @@ export default function ProductsPage() {
                     return (
                       <div 
                         key={product.id} 
-                        className={`rounded-lg border p-2.5 bg-white transition-all cursor-pointer ${hoveredProductId === product.id ? 'border-akaza-marron shadow-xs scale-[1.01]' : 'border-gray-150 shadow-2xs hover:border-gray-300'}`}
+                        className={`rounded-lg border p-2 bg-white transition-all cursor-pointer ${hoveredProductId === product.id ? 'border-akaza-marron shadow-xs' : 'border-gray-150 shadow-2xs hover:border-gray-300'}`}
                         onMouseEnter={() => setHoveredProductId(product.id)}
                         onMouseLeave={() => setHoveredProductId(null)}
                       >
-                        <div className="flex items-center justify-between gap-2.5">
-                          
-                          {/* Info del Producto */}
+                        <div className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-800 text-xs truncate">{product.nombre}</p>
-                            <p className="text-[9px] uppercase font-mono font-bold text-gray-400">
+                            <p className="font-serif font-bold text-akaza-marron text-xs truncate">{product.nombre}</p>
+                            <p className="text-[9px] uppercase font-mono text-gray-400">
                               {product.unidad_medida}
                             </p>
                           </div>
 
-                          {/* Variación */}
-                          <div className="flex flex-col items-end min-w-[65px]">
-                            <span className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] font-bold ${
-                              isIncreased ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+                          <div className="flex flex-col items-end shrink-0">
+                            <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-mono font-bold ${
+                              isIncreased ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-700"
                             }`}>
                               {isIncreased ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
                               {diffPercent !== null ? `${Math.abs(diffPercent).toFixed(1)}%` : "0%"}
                             </span>
-                            <span className="text-[9px] text-gray-400 font-mono font-medium mt-0.5">
+                            <span className="text-[9px] text-gray-400 font-mono mt-0.5">
                               {isIncreased ? "+" : "-"} S/ {Math.abs(diff).toFixed(2)}
                             </span>
                           </div>
 
-                          {/* Precios */}
-                          <div className="text-right min-w-[65px]">
-                            <p className="text-[9px] text-gray-400 line-through leading-none font-mono">
+                          <div className="text-right shrink-0 min-w-[55px]">
+                            <p className="text-[9px] text-gray-400 line-through font-mono">
                               {Number(previous) > 0 ? `S/ ${Number(previous).toFixed(2)}` : "—"}
                             </p>
-                            <p className="text-xs font-bold font-mono text-akaza-marron mt-0.5">
+                            <p className="text-xs font-bold font-mono text-akaza-marron">
                               S/ {Number(current).toFixed(2)}
                             </p>
                           </div>
-
                         </div>
                       </div>
                     );
@@ -581,7 +521,6 @@ export default function ProductsPage() {
         </aside>
       </div>
 
-      {/* Modal extraído en ProductModal.tsx */}
       <ProductModal
         isOpen={isModalOpen}
         editingProduct={editingProduct}
