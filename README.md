@@ -47,7 +47,7 @@ En el sector gastronómico de comida marina, los clientes y administradores enfr
 
 | Vista Principal (Landing Page) | Categorías & Menú Interactivo |
 | :---: | :---: |
-| ![Vista Principal](./docs/vista_principal.jpg) | ![Categorías](./docs/Venta.png) |
+| ![Vista Principal](/docs/vista_principal.jpg) | ![Categorías](/docs/Venta.png) |
 
 ---
 
