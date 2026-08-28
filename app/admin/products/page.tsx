@@ -142,12 +142,6 @@ export default function ProductsPage() {
     }
   };
 
-  const handleProductoActualizado = (productoActualizado: Producto) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === productoActualizado.id ? productoActualizado : p))
-    );
-  };
-
   const topTrendProducts = useMemo(() => {
     const withDiffs = [...products]
       .map((product) => {
@@ -358,7 +352,6 @@ export default function ProductsPage() {
                         product={product}
                         onEdit={handleOpenModal}
                         onDelete={handleDelete}
-                        onProductoActualizado={handleProductoActualizado}
                       />
                     ))
                   )}

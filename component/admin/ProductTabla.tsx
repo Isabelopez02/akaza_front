@@ -7,7 +7,6 @@ type ProductCardProps = {
   product: Producto;
   onEdit: (product: Producto) => void;
   onDelete: (id: number) => void;
-  onProductoActualizado: (productoActualizado: Producto) => void;
 };
 
 export function ProductTabla({

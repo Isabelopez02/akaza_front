@@ -13,7 +13,6 @@ import { OrdersModal } from "@/component/modal/OrdersModal";
 import { QrModal } from "@/layout/QrModal";
 import { initialProfileData } from "@/types/constants";
 import { AuthForm, ProfileData, Order } from "@/types";
-import { AdminService } from "@/service/admin.service";
 
 type ChatRole = "user" | "bot";
 

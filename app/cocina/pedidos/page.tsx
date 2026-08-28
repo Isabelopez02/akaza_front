@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Flame, CheckCircle2, ChevronRight, Clock, Users, ChefHat } from "lucide-react";
+import { Flame, CheckCircle2, ChevronRight, Clock, ChefHat } from "lucide-react";
 import { AdminService } from "@/service/admin.service";
 import { CocinaService } from "@/service/cocina.service";
 

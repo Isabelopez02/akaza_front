@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { HeroSection } from "@/component/home/HeroSection";
 import { CategoriesSection } from "@/component/home/CategoriesSection";
 import { AIAssistantSection } from "@/component/home/AIAssistantSection";
-import { TreasureTransitionSection } from "@/component/home/TreasureTransitionSection";
-import { InfoBotSection } from "@/component/home/InfoBotSection";
 import { HowToOrderSection } from "@/component/home/HowToOrderSection";
 import { TestimonialsSection } from "@/component/home/TestimonialsSection";
 import { AuthModal } from "@/component/modal/AuthModal";
