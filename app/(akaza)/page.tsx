@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { AIAssistantSection } from "@/components/home/AIAssistantSection";
+import { TelegramSection } from "@/components/home/TelegramSection";
+import { FaqSection } from "@/components/home/FaqSection";
 import { HowToOrderSection } from "@/components/home/HowToOrderSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { AuthModal } from "@/components/modal/AuthModal";
@@ -278,12 +280,17 @@ export default function Home() {
       {/* ── 2.5 SECCIÓN DE ASISTENTE DE IA (PREGÚNTALE A NUESTRO ASISTENTE) ── */}
       <AIAssistantSection />
 
+      {/* ── 3. SECCIÓN DE CONVERSA POR TELEGRAM ── */}
+      <TelegramSection />
 
       {/* ── 4. SECCIÓN ¿CÓMO REALIZAR TU PEDIDO? (4 PASOS VISUALES COMPACTOS) ── */}
       <HowToOrderSection />
 
       {/* ── 5. SECCIÓN DE TESTIMONIOS (PRUEBA SOCIAL SOBRIA) ── */}
       <TestimonialsSection />
+
+      {/* ── 6. SECCIÓN DE PREGUNTAS FRECUENTES (FAQ SOBRE IA Y TELEGRAM) ── */}
+      <FaqSection />
 
       <AuthModal
         isOpen={isLoginOpen}
