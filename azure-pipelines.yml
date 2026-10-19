@@ -14,16 +14,15 @@ variables:
   # Nombre de la Conexión de Servicio (Service Connection) en Azure DevOps
   azureServiceConnection: 'sc-azure-akaza'
 
-  # Parámetros de Azure y Container Registry (ajusta el acrName y resourceGroup según tu Azure)
-  acrName: 'acrakaza'
+  # Parámetros reales de Azure y Container Registry generados por el despliegue
+  acrName: 'acrakazamrkwvoqqvp7fs'
   acrLoginServer: '$(acrName).azurecr.io'
   imageRepository: 'akaza-frontend'
   containerAppName: 'akaza-frontend'
-  resourceGroup: 'rg-akaza'
+  resourceGroup: 'RG-Akaza-v2'
 
-  # URL base de la API del Backend para Next.js (necesaria en tiempo de compilación del cliente)
-  # También puedes definirla como variable secreta en Azure DevOps Pipeline Library
-  NEXT_PUBLIC_API_BASE_URL: 'https://akaza-backend.$(acrName).azurecontainerapps.io'
+  # URL base de la API del Backend para Next.js generada por Azure Container Apps
+  NEXT_PUBLIC_API_BASE_URL: 'https://akaza-backend.livelymoss-0f46f877.northcentralus.azurecontainerapps.io'
 
   # Etiqueta única del Build
   tag: '$(Build.BuildId)'
