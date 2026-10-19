@@ -1,0 +1,88 @@
+# ==========================================================
+# 🚀 Azure Pipeline CI/CD - Frontend Next.js (rest_akaza)
+# ==========================================================
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Nombre de la Conexión de Servicio (Service Connection) en Azure DevOps
+  azureServiceConnection: 'sc-azure-akaza'
+
+  # Parámetros de Azure y Container Registry (ajusta el acrName y resourceGroup según tu Azure)
+  acrName: 'acrakaza'
+  acrLoginServer: '$(acrName).azurecr.io'
+  imageRepository: 'akaza-frontend'
+  containerAppName: 'akaza-frontend'
+  resourceGroup: 'rg-akaza'
+
+  # URL base de la API del Backend para Next.js (necesaria en tiempo de compilación del cliente)
+  # También puedes definirla como variable secreta en Azure DevOps Pipeline Library
+  NEXT_PUBLIC_API_BASE_URL: 'https://akaza-backend.$(acrName).azurecontainerapps.io'
+
+  # Etiqueta única del Build
+  tag: '$(Build.BuildId)'
+
+stages:
+  # ── Etapa 1: Compilar y subir imagen Docker a ACR ───────
+  - stage: BuildAndPush
+    displayName: 'Build & Push Frontend Image'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build and Push to ACR'
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Log in to ACR and Build/Push Docker Image'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                set -e
+                echo "==> Iniciando sesión en Azure Container Registry..."
+                az acr login --name $(acrName)
+
+                echo "==> Construyendo imagen Docker para Next.js (con build-args)..."
+                docker build \
+                  --build-arg NEXT_PUBLIC_API_BASE_URL="$(NEXT_PUBLIC_API_BASE_URL)" \
+                  --build-arg NEXT_PUBLIC_API_URL="$(NEXT_PUBLIC_API_BASE_URL)" \
+                  -t $(acrLoginServer)/$(imageRepository):$(tag) \
+                  -t $(acrLoginServer)/$(imageRepository):latest \
+                  -f Dockerfile .
+
+                echo "==> Subiendo imagen a ACR..."
+                docker push $(acrLoginServer)/$(imageRepository):$(tag)
+                docker push $(acrLoginServer)/$(imageRepository):latest
+
+  # ── Etapa 2: Desplegar en Azure Container Apps ───────────
+  - stage: Deploy
+    displayName: 'Deploy to Azure Container Apps'
+    dependsOn: BuildAndPush
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: DeployJob
+        displayName: 'Deploy to Container App'
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Update Container App Revision'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                set -e
+                echo "==> Asegurando extensión containerapp..."
+                az extension add --name containerapp --upgrade --yes
+
+                echo "==> Actualizando Container App '$(containerAppName)' con la nueva imagen..."
+                az containerapp update \
+                  --name $(containerAppName) \
+                  --resource-group $(resourceGroup) \
+                  --image $(acrLoginServer)/$(imageRepository):$(tag)
+
+                echo "==> Despliegue de Frontend finalizado correctamente."
