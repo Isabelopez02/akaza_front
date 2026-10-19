@@ -47,31 +47,8 @@ En el sector gastronómico de comida marina, los clientes y administradores enfr
 
 | Vista Principal (Landing Page) | Categorías & Menú Interactivo |
 | :---: | :---: |
-| ![Vista Principal](./docs/vista_principal.jpg) | ![Categorías](./docs/Venta.png) |
+| ![Vista Principal](/docs/vista_principal.png) | ![Categorías](/docs/venta.png) |
 
----
-
-## 🏗️ Arquitectura y Stack Tecnológico
-
-```
-[ Cliente / Browser ] ──(Next.js 14 + React 18)
-        │
-        ├── Peticiones HTTP (Axios + JWT Interceptors)
-        ▼
-[ Backend API ] ─────────(FastAPI + Python 3.13)
-        │
-        ├── Autenticación (OAuth2 / JWT)
-        ├── ORM / BD (PostgreSQL / SQLite)
-        ├── Servicio de IA (LLM / OpenAI Integración)
-        └── Notificaciones (Telegram Bot API)
-```
-
-### Componentes Principales:
-* **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS, Lucide React icons, Recharts.
-* **Backend**: FastAPI, SQLAlchemy, Uvicorn.
-* **Despliegue**: Frontend alojado en Netlify, Backend contenerizado con Docker.
-
----
 
 ## 📂 Estructura del Proyecto
 
@@ -86,9 +63,6 @@ rest_akaza/
 │   ├── home/                   # HeroSection, Categorías, Asistente IA
 │   ├── layout/                 # Navbar, Footer, ChatWidget, QrModal
 │   └── modal/                  # Modales de Login, Perfil y Pedidos
-├── docs/                       # Capturas y documentación visual
-│   ├── vista_principal.jpg
-│   └── Venta.png
 ├── lib/                        # Cliente API centralizado (Axios config)
 ├── services/                   # Servicios de consulta e integración HTTP
 │   ├── admin.service.ts
@@ -101,18 +75,6 @@ rest_akaza/
 
 ---
 
-## 🎨 Paleta de Colores
-
-La identidad visual de **AKAZA** refleja la elegancia marina y la calidez gastronómica:
-
-| Color | Nombre | Código HEX | RGB | Uso Principal |
-| :--- | :--- | :--- | :--- | :--- |
-| <img src="https://via.placeholder.com/15/3D1C02/3D1C02.png" width="15" height="15" /> | **Marrón Akaza** | `#3D1C02` | `rgb(61, 28, 2)` | Encabezados, Navbar, botones primarios y texto de marca |
-| <img src="https://via.placeholder.com/15/FFCC00/FFCC00.png" width="15" height="15" /> | **Amarillo Akaza** | `#FFCC00` | `rgb(255, 204, 0)` | Destacados, bordes activos y acentos dorados |
-| <img src="https://via.placeholder.com/15/FDFAF6/FDFAF6.png" width="15" height="15" /> | **Crema Akaza** | `#FDFAF6` | `rgb(253, 250, 246)` | Fondo general suave de la plataforma |
-| <img src="https://via.placeholder.com/15/FFFFFF/FFFFFF.png" width="15" height="15" /> | **Blanco Puro** | `#FFFFFF` | `rgb(255, 255, 255)` | Tarjetas, modales y contenedores |
-
----
 
 ## ⚡ Instalación y Configuración Rápida
 
@@ -138,3 +100,16 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 npm run dev
 ```
 La aplicación estará disponible en `http://localhost:3000`.
+
+## 🎨 Paleta de Colores
+
+La identidad visual de **AKAZA** refleja la elegancia marina y la calidez gastronómica:
+
+| Color | Nombre | Código HEX | RGB | Uso Principal |
+| :--- | :--- | :--- | :--- | :--- |
+| <img src="https://via.placeholder.com/15/3D1C02/3D1C02.png" width="15" height="15" /> | **Marrón Akaza** | `#3D1C02` | `rgb(61, 28, 2)` | Encabezados, Navbar, botones primarios y texto de marca |
+| <img src="https://via.placeholder.com/15/FFCC00/FFCC00.png" width="15" height="15" /> | **Amarillo Akaza** | `#FFCC00` | `rgb(255, 204, 0)` | Destacados, bordes activos y acentos dorados |
+| <img src="https://via.placeholder.com/15/FDFAF6/FDFAF6.png" width="15" height="15" /> | **Crema Akaza** | `#FDFAF6` | `rgb(253, 250, 246)` | Fondo general suave de la plataforma |
+| <img src="https://via.placeholder.com/15/FFFFFF/FFFFFF.png" width="15" height="15" /> | **Blanco Puro** | `#FFFFFF` | `rgb(255, 255, 255)` | Tarjetas, modales y contenedores |
+
+---
